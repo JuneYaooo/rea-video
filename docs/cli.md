@@ -37,6 +37,7 @@ rea-video decompose ref.mp4 -o out/ref
 # 2. 加 VLM（建议，不强制）：让多模态大模型看画面，实拍/AI/3D 判断更准
 #    任意 OpenAI 兼容的多模态模型都行，模型可写多个做备选
 export REA_VLM_BASE_URL=https://.../v1 REA_VLM_API_KEY=... REA_VLM_MODEL=gemini-2.5-pro,gpt-4o
+#    例如 AI/ML API：REA_VLM_BASE_URL=https://api.aimlapi.com/v1 REA_VLM_MODEL=google/gemini-3.1-flash-lite
 rea-video decompose ref.mp4 -o out/ref --vlm
 #    或复用 capsule-cinema 的配置：rea-video --env-file ~/code/github/capsule-cinema/.env decompose ref.mp4 -o out/ref --vlm
 #    VLM 调用全部失败时不会中断，报告和 `rea-video summary` 的 "VLM:" 一行会写明"全部调用失败，等同未开"
