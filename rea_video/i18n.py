@@ -12,6 +12,7 @@ The language is set once per run (`set_lang`), from `--lang` / prefs, and stored
 from __future__ import annotations
 
 import contextvars
+import re
 from collections.abc import Mapping
 from typing import Iterator
 
@@ -36,6 +37,12 @@ def T(zh: str, en: str | None = None, **kw) -> str:
     """Text for the current language; `en` missing falls back to zh. kwargs are applied with str.format."""
     s = en if (en is not None and _lang.get() == "en") else zh
     return s.format(**kw) if kw else s
+
+
+def model_name(name: str | None) -> str | None:
+    if not name or _lang.get() == "zh":
+        return name
+    return re.sub(r"\s*（([^）]*)）", lambda m: "" if re.search(r"[\u3400-\u9fff]", m[1]) else f" ({m[1]})", name)
 
 
 def sep() -> str:
