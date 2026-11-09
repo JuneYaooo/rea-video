@@ -23,12 +23,6 @@ pip 报 `externally-managed-environment`（Homebrew / 新版 Ubuntu 的系统 Py
 1. `REA_VLM_BASE_URL` / `REA_VLM_API_KEY` / `REA_VLM_MODEL`（`REA_VLM_MODEL` 可写多个模型、逗号分隔，前一个失败自动换下一个）
 2. 如果没有，回落到 capsule-cinema 的 `VIDEO_ANALYSIS_*` 或 `GEMINI3_*`
 
-例如 AI/ML API（key 在 https://aimlapi.com/app/keys 创建；视频片段要用支持视频输入的模型）：
-
-```bash
-export REA_VLM_BASE_URL=https://api.aimlapi.com/v1 REA_VLM_API_KEY=... REA_VLM_MODEL=google/gemini-3.1-flash-lite
-```
-
 用 `--env-file <某个 .env>` 读取配置（例如复用 capsule-cinema 的）。**不要把密钥写进对话、仓库或报告，也不要打开 .env 看内容。**
 
 用户没配 VLM 时：照常不加 `--vlm` 跑，不要因此中止任务。
