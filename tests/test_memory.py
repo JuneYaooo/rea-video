@@ -88,6 +88,10 @@ def test_prefs_set_defaults_and_validate(capsys):
     assert main(["prefs", "engine", "kling2.1"]) == 0
     assert main(["prefs", "vlm", "maybe"]) == 2
     assert main(["prefs", "colour", "red"]) == 2
+    assert main(["prefs", "colour"]) == 2
+    assert main(["prefs", "reviewer=june"]) == 0
+    capsys.readouterr()
+    assert main(["prefs", "reviewer"]) == 0 and capsys.readouterr().out.strip() == "june"
     assert main(["prefs", "--note", "报告尽量短"]) == 0
     capsys.readouterr()
     assert main(["prefs"]) == 0

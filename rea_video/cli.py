@@ -411,6 +411,11 @@ def cmd_correct(args) -> int:
 def cmd_prefs(args) -> int:
     from .memory import PREF_KEYS, add_note, load_prefs, remove_note, set_pref
 
+    if args.key and args.value is None and "=" in args.key:  # also accept `prefs key=value`
+        args.key, args.value = args.key.split("=", 1)
+    if args.key and args.key not in PREF_KEYS:
+        print(f"错误：未知偏好 {args.key}（可选：{', '.join(PREF_KEYS)}；用法 rea-video prefs <key> <value>）", file=sys.stderr)
+        return 2
     try:
         if args.note:
             add_note(args.note)
