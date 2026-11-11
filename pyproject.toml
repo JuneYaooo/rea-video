@@ -14,7 +14,7 @@ dependencies = [
   "opencv-python-headless>=4.8,<5",
   "Pillow>=9.0",
   "PyYAML>=6.0",
-  "onnxruntime>=1.16",   # 人声/配乐分离（UVR MDX-Net，首次运行自动下载约 67 MB 模型）
+  "onnxruntime>=1.16",   # 人声/配乐/音效分离（UVR MDX-Net 约 67 MB + BandIt v2 约 149 MB，首次运行自动下载）
 ]
 
 [project.optional-dependencies]
@@ -36,7 +36,7 @@ rea-video = "rea_video.cli:main"
 include = ["rea_video*"]
 
 [tool.setuptools.package-data]
-rea_video = ["capabilities/*.yaml", "capabilities/*.json", "capabilities/*.md", "capabilities/models/*.yaml"]
+rea_video = ["capabilities/*.yaml", "capabilities/*.json", "capabilities/*.md", "capabilities/models/*.yaml", "reel.schema.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

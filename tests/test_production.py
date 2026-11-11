@@ -31,9 +31,12 @@ def _b(shots):
 
 
 def test_engine_without_multishot_falls_back():
-    eng, model = pick_model(Planner(), "seedance2.0")
-    assert eng["id"] == "seedance-2.0"
+    eng, model = pick_model(Planner(), "luma-ray3.2")
+    assert eng["id"] == "luma-ray3.2"
     assert "video.multi_shot" in model["primitives"] and model["id"] != eng["id"]
+    # Seedance 2.0 writes several shots in one call (numbered shots in the prompt): plan for it directly
+    eng, model = pick_model(Planner(), "seedance2.0")
+    assert eng["id"] == model["id"] == "seedance-2.0"
 
 
 def test_split_respects_hardcut_cap():
@@ -60,8 +63,8 @@ def test_units_scene_product_and_continuity(tmp_path):
     assert all(any(r["tag"] == "@图片1" for r in u["refs"]) for u in units)  # product referenced everywhere
     assert units[1]["continuity"].startswith("首帧：")   # scene changed: no tail-frame hand-over
     assert units[2]["continuity"].startswith("首帧：")   # dissolve: own unit, not a continuation
-    assert units[3]["mode"] == "split" and units[3]["calls"] == 2
-    assert plan["calls"] == 5 and plan["engine_note"]
+    assert units[3]["mode"] == "split" and units[3]["calls"] == 3
+    assert plan["calls"] == 6 and not plan.get("engine_note")  # Seedance 2.0: 15 s per call, so the 40 s shot takes 3 calls
 
 
 def test_shooting_setups_group_non_adjacent(tmp_path):
@@ -127,9 +130,59 @@ def test_framing_goes_into_capsule_prompt():
 def test_english_engine_note_has_no_chinese(tmp_path):
     set_lang("en")
     try:
-        plan = production_plan(_b([_shot(1, 0.0, 3.0, "ai_video", KITCHEN, tmp_path)]), tmp_path)
+        plan = production_plan(_b([_shot(1, 0.0, 3.0, "ai_video", KITCHEN, tmp_path)]), tmp_path, engine="luma-ray3.2")
     finally:
         set_lang("zh")
     note = plan["engine_note"]
     assert "shot by shot, 1 time." in note
     assert not re.search(r"[\u3000-\u303f\u4e00-\u9fff\uff00-\uffef]", note + plan["model_name"])
+
+
+def test_each_unit_says_what_to_feed_the_model(tmp_path):
+    from rea_video.production import _inputs, report_md
+
+    set_lang("zh")
+    kinds = lambda u: {x["kind"]: x["need"] for x in u["inputs"]}  # noqa: E731
+    # Seedance 2.0 takes frames or references, not both. A product to keep: every unit goes by reference,
+    # the first frame only rides along as one more reference image, no last frame
+    shots = [_shot(1, 0.0, 2.0, "ai_video", KITCHEN, tmp_path, product=True),
+             _shot(2, 2.0, 2.0, "ai_video", KITCHEN, tmp_path),
+             _shot(3, 7.0, 4.0, "ai_video", STUDIO, tmp_path)]
+    plan = production_plan(_b(shots), tmp_path)
+    multi, single = plan["units"]
+    assert multi["method"] == single["method"] == "reference"
+    assert kinds(multi) == {"text": "yes", "first_frame": "opt", "last_frame": "no", "ref_image": "yes", "ref_video": "opt"}
+    assert kinds(single)["last_frame"] == "no" and "@图片2 作为首帧" in next(x["source"] for x in single["inputs"] if x["kind"] == "first_frame")
+    # nothing to keep consistent: first / last frames, and no reference clip beside them
+    moving = [_shot(4, 0.0, 4.0, "ai_video", STUDIO, tmp_path)]
+    moving[0]["features"] = {"camera": "smooth_move"}
+    (u,) = production_plan({**_b(moving), "audio": {}}, tmp_path)["units"]
+    assert u["method"] == "first_last" and kinds(u) == {"text": "yes", "first_frame": "yes", "last_frame": "opt", "ref_video": "no"}
+    assert "s4_last.jpg" in next(x["source"] for x in u["inputs"] if x["kind"] == "last_frame") and not u["refs"]
+    md = "\n".join(report_md(plan))
+    assert "| 首帧图 | 建议 |" in md and "| 尾帧图 | 不用 |" in md and "| 参考视频 | 建议 |" in md
+    # a text-only model: nothing but the prompt, and the reader is told why there is no reference video
+    t2v = {"max": 10.0, "first_frame": False, "first_last": False, "ref_video": False}
+    method, inp = _inputs([shots[2]], t2v, [], None, 1)
+    assert method == "t2v" and {x["kind"]: x["need"] for x in inp} == {"text": "yes", "ref_video": "no"}
+    # chained to the previous unit: the first frame is that unit's last frame
+    _, inp = _inputs([shots[1]], t2v | {"first_frame": True}, [], "G1", 1)
+    assert "G1" in next(x["source"] for x in inp if x["kind"] == "first_frame")
+
+
+def test_framing_words_follow_the_report_language():
+    from rea_video.aspects.vocab import canon, show
+    from rea_video.plan import framing_words
+
+    # a breakdown measured in Chinese, a report written in English: no Chinese option words leak through
+    shot = {"aspects": {"framing": {"result": {"shot_size": "中景", "camera_angle": "顶拍（正上方俯拍桌面）"}},
+                        "camera": {"measured": {"move": "摇/移"}}}}
+    set_lang("en")
+    try:
+        assert show("中景") == "medium shot" and show("拉/摇/移") == "pull-out / pan / track" and show("固定（主体在动）") == "static"
+        loc, en = framing_words(shot)
+        assert loc == en == "medium shot, top-down, camera pan / track"
+    finally:
+        set_lang("zh")
+    assert show("medium shot") == "中景" and show("顶拍（正上方俯拍桌面）") == "顶拍（正上方俯拍桌面）"
+    assert canon("Close-up") == canon("特写") == "特写"

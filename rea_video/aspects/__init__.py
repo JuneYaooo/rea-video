@@ -169,15 +169,25 @@ def _src(row: dict) -> str:
     return semi().join(bits)
 
 
-def report_md(b: dict) -> list[str]:
+def report_md(b: dict, user: bool = False) -> list[str]:
+    """user=True (the reader's report): what was seen and measured only. The editing numbers and the shooting plan
+    live in the remake section there, and an image reader's account of the lighting replaces the pixel guess
+    (measured values stay in the fold)."""
     A = b.get("aspects") or {}
     if not any(A.get(a.key) for a in REGISTRY):
         return []
     li = A.get("lighting") or {}
-    L = ["", T("## 拍法、打光与剪辑", "## Camera, lighting and editing"), ""]
-    L += [f"- {x}" for x in summary_lines(b)]
+    L = ["", T("## 拍法与打光", "## Camera and lighting") if user else T("## 拍法、打光与剪辑", "## Camera, lighting and editing"), ""]
+    seen_light = str(((b.get("review_aspects") or {}).get("lighting") or {}).get("lighting_overall") or "")
+    for a in REGISTRY:
+        lines = (A.get(a.key) or {}).get("lines", [])
+        if user and a.key == "editing":
+            continue
+        if user and a.key == "lighting" and seen_light:
+            lines = [T("打光：{l}（看图判断；像素测量见下方折叠）", "Lighting: {l} (image reading; pixel measurements in the fold below)", l=seen_light)]
+        L += [f"- {x}" for x in lines]
     plan = b.get("shooting_plan") or {}
-    if plan:
+    if plan and not user:
         L += ["", T("**复刻拍摄方案**", "**Shooting plan for the remake**"), ""] + [f"{i}. {s}" for i, s in enumerate(plan["steps"], 1)]
         if plan.get("gear"):
             L += ["", T("器材：", "Gear:")] + [f"- {g}" for g in plan["gear"]]
@@ -185,7 +195,7 @@ def report_md(b: dict) -> list[str]:
             L += [T("- 注意：{n}", "- Note: {n}", n=n) for n in li["setup"]["notes"]]
     rows = [(a, r) for a in REGISTRY for r in (A.get(a.key) or {}).get("fields", [])]
     if rows:
-        L += ["", f"<details><summary>{html.escape(T('逐项测量与看图结果（{n} 项）', 'Per-item measurements and image readings ({n})', n=len(rows)))}</summary>", "",
+        L += ["", f"<details class=\"ref\"><summary>{html.escape(T('逐项测量与看图结果（{n} 项）', 'Per-item measurements and image readings ({n})', n=len(rows)))}</summary>", "",
               T("| 维度 | 项目 | 结论 | 来源 |", "| Aspect | Item | Verdict | Sources |"), "|---|---|---|---|"]
         for a, r in rows:
             L.append(f"| {a.title} | {r['zh']} | {str(r['final']).replace('|', '/')} | {_src(r).replace('|', '/')} |")

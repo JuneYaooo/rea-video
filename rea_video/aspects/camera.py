@@ -41,8 +41,10 @@ class Camera(Aspect):
     def interpret(self, shot: dict) -> dict:
         m = ((shot.get("aspects") or {}).get(self.key) or {}).get("measured") or {}
         s = seen(shot, self.key, "camera_support")
+        from .vocab import show
+
         return {"support": m.get("support"), "support_zh": s.get("agent") or s.get("vlm") or SUPPORT_ZH.get(m.get("support")),
-                "move": m.get("move")}
+                "move": show(m.get("move"))}
 
     def summarize(self, shots: list[dict], b: dict) -> dict:
         main = [r for r in shots if r["base"]["label"] in FILMED] or [r for r in shots if r["base"]["label"] in PHOTOGRAPHIC]

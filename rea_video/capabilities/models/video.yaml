@@ -15,6 +15,8 @@ models:
       duration_s: {max: 30}
       resolutions: [480p, 720p, 1080p]
       refs: {image: 30, video: 10, audio: 10}
+      # 首帧 / 首尾帧 和 参考图 / 参考视频 / 参考音频 不能放在同一个请求里（多家接口文档一致；即梦 App 的「全能参考」可用 @图片 作为首帧）
+      exclusive_inputs: [[video.i2v_first_frame, video.i2v_first_last], [video.multi_reference, video.reference_video, video.reference_audio]]
     audio: {native: true}
     strengths:
       - 单次 30 秒，内含多个逻辑连贯的镜头
@@ -30,7 +32,9 @@ models:
     sources:
       - https://seed.bytedance.com/en/blog/one-take-creation-flexible-referencing-introducing-seedance-2-5
       - https://github.com/hypit-ai/hypit/blob/main/packages/provider-hypihub/README.md
-    verified: {date: 2026-10-29, basis: vendor}
+      - https://docs.byteplus.com/docs/en/modelark/seedance-2-5.md
+      - https://apiframe.ai/docs/videos/seedance/seedance-2-5
+    verified: {date: 2026-11-11, basis: vendor}
     confidence: high
 
   - id: seedance-2.0
@@ -40,22 +44,29 @@ models:
     release: 2026-02
     status: ga
     access: [app, api, api-aggregator]
-    primitives: [video.t2v, video.i2v_first_frame, video.i2v_first_last, video.multi_reference, video.reference_video, video.native_audio, video.edit_v2v]
+    primitives: [video.t2v, video.i2v_first_frame, video.i2v_first_last, video.multi_reference, video.reference_video, video.reference_audio, video.multi_shot, video.native_audio, video.edit_v2v]
     limits:
-      duration_s: {max: 15}
+      duration_s: {min: 4, max: 15}
       resolutions: [720p, 1080p]
+      refs: {image: 9, video: 3, audio: 3}
+      # 首帧 / 首尾帧 和 参考素材 不能放在同一个请求里；即梦 App 的「全能参考」可用 @图片 作为首帧
+      exclusive_inputs: [[video.i2v_first_frame, video.i2v_first_last], [video.multi_reference, video.reference_video, video.reference_audio]]
     audio: {native: true}
     strengths:
       - 成本低；Mini 720p 被 Hypit 用作 A-roll / B-roll 主力（单条视频总成本约 1.1 美元）
+      - 一次可出多个镜头：在提示词里按镜头编号写（不支持逐镜时间戳）
     weaknesses:
-      - 单次时长短于 2.5
+      - 单次时长短于 2.5；参考视频、参考音频总长各不超过 15 秒
     cost: {usd_per_s: 0.15, note: "第三方列价约 9.07 美元/分钟"}
     license: {commercial: true, note: 以平台条款为准}
     sources:
       - https://tech-insider.org/best-ai-video-generator-2026/
       - https://en.wikipedia.org/wiki/Seedance_2.0
       - https://github.com/hypit-ai/hypit
-    verified: {date: 2026-10-29, basis: third-party}
+      - https://dev.runwayml.com/learn/seedance-2-0-api
+      - https://ofox.ai/docs/develop/models/seedance
+      - https://evolink.ai/docs/en/api-manual/video-series/seedance2.0/seedance-2.0-overview
+    verified: {date: 2026-11-11, basis: third-party}
     confidence: medium
 
   - id: kling-4.0

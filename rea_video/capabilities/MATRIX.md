@@ -26,8 +26,8 @@
 | `video.keyframes` | 多关键帧控制 | ◐ `kling-4.0`、◐ `runway-gen-4.5` |
 | `video.multi_reference` | 多参考生视频（主体一致） | ◐ `gemini-omni-flash`、◐ `kling-3.0`、◐ `kling-4.0`、◐ `kling-o3`、◐ `minimax-h3`、◐ `pixverse-v6`、◐ `seedance-2.0`、● `seedance-2.5`、◐ `veo-3.1`、◐ `vidu-q3` |
 | `video.reference_video` | 参考视频生成（动作/运镜/特效迁移） | ◐ `gemini-omni-flash`、◐ `kling-4.0`、◐ `kling-o3`、◐ `pixverse-v6`、◐ `seedance-2.0`、● `seedance-2.5` |
-| `video.reference_audio` | 参考音频生成 | ◐ `gemini-omni-flash`、◐ `ltx-2.5`、● `seedance-2.5` |
-| `video.multi_shot` | 单次多镜头 | ◐ `kling-3.0`、◐ `kling-o3`、◐ `ltx-2.5`、◐ `pixverse-v6`、● `seedance-2.5` |
+| `video.reference_audio` | 参考音频生成 | ◐ `gemini-omni-flash`、◐ `ltx-2.5`、◐ `seedance-2.0`、● `seedance-2.5` |
+| `video.multi_shot` | 单次多镜头 | ◐ `kling-3.0`、◐ `kling-o3`、◐ `ltx-2.5`、◐ `pixverse-v6`、◐ `seedance-2.0`、● `seedance-2.5` |
 | `video.extend` | 续写延长 | ● `seedance-2.5`、◐ `veo-3.1` |
 | `video.edit_v2v` | 视频编辑（保留运动） | ◐ `gemini-omni-flash`、◐ `kling-4.0`、◐ `kling-o3`、◐ `ltx-2.5`、○ `luma-ray3.2`、○ `runway-aleph-2`、◐ `runway-gen-4.5`、◐ `seedance-2.0`、● `seedance-2.5`、◐ `wan-2.2-animate`、○ `wan-2.7-edit` |
 | `video.camera_control` | 运镜与镜头参数控制 | ◐ `gemini-omni-flash`、◐ `kling-3.0`、◐ `kling-4.0`、◐ `pixverse-v6`、○ `runway-aleph-2`、◐ `runway-gen-4.5`、● `seedance-2.5` |
@@ -121,8 +121,8 @@
 | PixVerse V6 | PixVerse（爱诗科技） | video | ga | 15 | 是 | 是 | third-party 2026-10-29 |
 | Runway Aleph 2 | Runway | video | ga |  |  | 是 | third-party 2026-10-29 |
 | Runway Gen-4.5（含 Act-Two） | Runway | video | ga | 10 | 是 | 是 | third-party 2026-10-29 |
-| Seedance 2.0（含 Mini / Fast） | ByteDance Seed | video | ga | 15 | 是 | 是 | third-party 2026-10-29 |
-| Seedance 2.5 | ByteDance Seed | video | ga | 30 | 是 | 是 | vendor 2026-10-29 |
+| Seedance 2.0（含 Mini / Fast） | ByteDance Seed | video | ga | 15 | 是 | 是 | third-party 2026-11-11 |
+| Seedance 2.5 | ByteDance Seed | video | ga | 30 | 是 | 是 | vendor 2026-11-11 |
 | Sora 2 / Sora 2 Pro | OpenAI | video | shutdown | 20 |  | 否 | third-party 2026-10-29 |
 | Veo 3.1（含 Lite） | Google | video | ga | 8 | 是 | 是 | third-party 2026-10-29 |
 | Vidu Q3 | Shengshu（生数科技） | video | ga | 16 | 是 | 是 | vendor 2026-10-29 |

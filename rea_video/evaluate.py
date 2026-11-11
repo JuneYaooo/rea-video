@@ -186,6 +186,36 @@ def boundary_f1(pred: list[float], gt: list[float], tol: float = 0.1, ignore: li
     return {"precision": round(prec, 3), "recall": round(rec, 3), "f1": round(f1, 3), "tp": tp, "fp": fp, "fn": len(gt) - tp}
 
 
+def resolution_bucket(src: dict) -> str:
+    """Short side of the picture as shown, rounded to the usual tiers."""
+    w, h = src.get("width") or 0, src.get("height") or 0
+    side = min(w, h) if w and h else (w or h)
+    if not side:
+        return "unknown"
+    return "<=480p" if side <= 540 else "720p" if side <= 800 else "1080p" if side <= 1200 else ">1080p"
+
+
+def _slice_table(slices: dict) -> dict:
+    """{bucket: {seconds, accuracy, errors: {"gt->pred": seconds}}}, buckets with most footage first."""
+    out = {}
+    for k, v in sorted(slices.items(), key=lambda kv: -kv[1]["tot"]):
+        errs = {e: round(t, 1) for e, t in sorted(v["errors"].items(), key=lambda kv: -kv[1]) if t >= 0.05}
+        out[k] = {"seconds": round(v["tot"], 1), "accuracy": round(v["ok"] / v["tot"], 3) if v["tot"] else None,
+                  "shots": v["shots"], "wrong_shots": v["wrong"], **({"errors": errs} if errs else {})}
+    return out
+
+
+def _add_slice(slices: dict, key: str, dur: float, hit: bool, gt: str, pred: str) -> None:
+    v = slices.setdefault(key, {"tot": 0.0, "ok": 0.0, "shots": 0, "wrong": 0, "errors": {}})
+    v["tot"] += dur
+    v["shots"] += 1
+    if hit:
+        v["ok"] += dur
+    else:
+        v["wrong"] += 1
+        v["errors"][f"{gt}->{pred}"] = v["errors"].get(f"{gt}->{pred}", 0.0) + dur
+
+
 def evaluate(labels_path: Path, out: Path, use_vlm: bool = False, ocr: bool = True, reuse: bool = True, only: set[str] | None = None,
              stems: bool = False) -> dict:
     spec = yaml.safe_load(labels_path.read_text(encoding="utf-8"))
@@ -195,6 +225,8 @@ def evaluate(labels_path: Path, out: Path, use_vlm: bool = False, ocr: bool = Tr
     audio_hits: dict[str, list[bool]] = {}
     aspect_hits: dict[str, list[bool]] = {}
     missing: list[str] = []
+    by_res: dict = {}
+    by_cam: dict = {}
     for entry in spec["videos"]:
         path = _expand(entry["path"])
         if not Path(path).is_file():  # the listed location is gone: a copy kept under eval/media/<id>.<ext> stands in
@@ -268,7 +300,11 @@ def evaluate(labels_path: Path, out: Path, use_vlm: bool = False, ocr: bool = Tr
             v_ok += s["duration"] if hit else 0.0
             primary = sorted(acc)[0] if len(acc) > 1 else next(iter(acc))
             confusion[primary if not hit else pred][pred] += s["duration"]
-            shots.append({"shot": s["index"], "t": [s["start"], s["end"]], "pred": pred, "conf": s["base"]["confidence"],
+            # where the misjudgements sit: by picture size and by camera move
+            res, cam = resolution_bucket(b["source"]), (s.get("features") or {}).get("camera", "unknown")
+            _add_slice(by_res, res, s["duration"], hit, primary, pred)
+            _add_slice(by_cam, cam, s["duration"], hit, primary, pred)
+            shots.append({"shot": s["index"], "t": [s["start"], s["end"]], "pred": pred, "conf": s["base"]["confidence"], "camera": cam,
                           "gt": sorted(acc), "ok": hit})
             gt_real = real_at(entry, mid)
             if gt_real is not None:
@@ -276,7 +312,7 @@ def evaluate(labels_path: Path, out: Path, use_vlm: bool = False, ocr: bool = Tr
                 m_tot += s["duration"]
                 m_ok += s["duration"] if pred_real == gt_real else 0.0
                 shots[-1]["real"] = {"gt": gt_real, "pred": pred_real}
-        row = {"id": entry["id"], "accuracy": round(v_ok / v_tot, 3) if v_tot else None, "seconds": round(v_tot, 2),
+        row = {"id": entry["id"], "resolution": resolution_bucket(b["source"]), "accuracy": round(v_ok / v_tot, 3) if v_tot else None, "seconds": round(v_tot, 2),
                "verdict": b["summary"]["verdict"], "shots": shots}
         if m_tot:
             row["real_material_accuracy"] = round(m_ok / m_tot, 3)
@@ -309,6 +345,9 @@ def evaluate(labels_path: Path, out: Path, use_vlm: bool = False, ocr: bool = Tr
     summary = {"videos": len(rows), "videos_listed": len(spec["videos"]), **({"missing": missing} if missing else {}), "duration_weighted_accuracy": round(ok_dur / tot_dur, 3) if tot_dur else None,
                "video_accuracy_mean": round(sum(r["accuracy"] for r in rows if r["accuracy"] is not None) / max(1, sum(r["accuracy"] is not None for r in rows)), 3),
                "per_video": {r["id"]: r["accuracy"] for r in rows if r["accuracy"] is not None}, "vlm": use_vlm}
+    if by_res:
+        summary["by_resolution"] = _slice_table(by_res)
+        summary["by_camera"] = _slice_table(by_cam)
     if real_tot:
         summary["real_material_accuracy"] = round(real_ok / real_tot, 3)
         summary["real_material_per_video"] = {r["id"]: r["real_material_accuracy"] for r in rows if "real_material_accuracy" in r}

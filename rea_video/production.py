@@ -10,8 +10,9 @@ Edit shots (cut detection) are the facts; making them is organised differently:
 """
 from __future__ import annotations
 
-from .i18n import LangDict, T, join, model_name, semi
+from .i18n import LangDict, T, join, model_name, semi, shot_ids
 
+import re
 from pathlib import Path
 
 import cv2
@@ -19,6 +20,7 @@ import cv2
 from .util import read_image
 from .classify import LABEL_ZH
 from .aspects.camera import SUPPORT_ZH
+from .aspects.vocab import canon, show
 from .plan import CODE_STYLES, Planner, code_scene, shot_prompts
 
 GEN_LABELS = ("ai_video", "cg_3d", "anim_2d")
@@ -102,7 +104,7 @@ def code_motion_md(scenes: list[dict]) -> list[str]:
         elif sc.get("transition_in") in ("dissolve", "fade"):
             head += T("（{t}切入）", " ({t} in)", t=T("叠化", "dissolve") if sc["transition_in"] == "dissolve" else T("淡入", "fade"))
         n_ev = len(sc.get("events") or [])
-        L.append("<details><summary>" + T("动效 {h} · {n} 个", "Motion {h} · {n} events", h=head, n=n_ev) + "</summary>")
+        L.append('<details class="ref"><summary>' + T("动效 {h} · {n} 个", "Motion {h} · {n} events", h=head, n=n_ev) + "</summary>")
         L.append("")
         if sc.get("strip"):
             L += [f"![{head}]({sc['strip']})", ""]
@@ -155,22 +157,114 @@ def _limits(m: dict | None) -> dict:
             "ref_video": "video.reference_video" in (m or {}).get("primitives", []),
             "multi_ref": "video.multi_reference" in (m or {}).get("primitives", []),
             "first_frame": "video.i2v_first_frame" in (m or {}).get("primitives", []),
+            "exclusive": bool(lim.get("exclusive_inputs")),
+            "first_last": "video.i2v_first_last" in (m or {}).get("primitives", []),
             "native_audio": bool(((m or {}).get("audio") or {}).get("native"))}
 
 
 # ---------------------------------------------------------------- generation units
+INPUT_ZH = LangDict({"text": "文字提示词", "first_frame": "首帧图", "last_frame": "尾帧图", "ref_image": "参考图", "ref_video": "参考视频"},
+                    en={"text": "text prompt", "first_frame": "first frame", "last_frame": "last frame", "ref_image": "reference image",
+                        "ref_video": "reference video"})
+METHOD_ZH = LangDict({"t2v": "文生视频", "i2v": "首帧图生视频", "first_last": "首尾帧生视频", "reference": "多参考生成"},
+                     en={"t2v": "text to video", "i2v": "first-frame image to video", "first_last": "first + last frame to video",
+                         "reference": "multi-reference generation"})
+
+
+def _fed(u: dict) -> str:
+    """The inputs a unit uses besides the prompt, short: "首帧 + 尾帧 + 参考图"."""
+    return " + ".join(INPUT_ZH[x["kind"]] for x in u.get("inputs") or [] if x["need"] != "no" and x["kind"] != "text")
+
+
+def _first_note(u: dict) -> str:
+    """The plain "first frame from the source" note: already in the unit's input table, so the overview leaves it out."""
+    c = u.get("continuity") or ""
+    return c if c.startswith(T("首帧：", "first frame:")) else ""
+
+
+def _inputs(seg: list[dict], lim: dict, refs: list[dict], prev_id: str | None, parts: int) -> tuple[str, list[dict]]:
+    """What one generation call is fed, each with where it comes from and why -> (method, inputs).
+    need: "yes" required, "opt" worth it, "no" not used (kept so the reader sees it was considered).
+    Models whose frame inputs and reference inputs cannot share a request (lim["exclusive"]: Seedance 2.x API) get
+    one mode per unit: references when a product or person must stay the same, else first / last frames."""
+    first, last = seg[0], seg[-1]
+    one = len(seg) == 1 and parts == 1
+    moves = (first.get("features") or {}).get("camera") not in (None, "static", "unknown")
+    imgs = [r for r in refs if r["tag"].startswith("@图片")]
+    by_ref = bool(imgs) and lim.get("multi_ref", True)
+    frames_alone = lim.get("exclusive") and by_ref  # frames can only ride along as references
+    out = [{"kind": "text", "need": "yes", "source": T("见下面的提示词", "see the prompt below"),
+            "why": T("描述画面、动作和运镜；其他输入都只是约束它", "describes picture, action and camera; every other input only constrains it")}]
+    as_ref = T("。这个模型首帧和参考图不能同时传：作为第 {n} 张参考图传入，提示词写「@图片{n} 作为首帧」（即梦全能参考支持，API 多半不支持）",
+               "; this model takes frame inputs or references, not both: pass it as one more reference image and write "
+               "“@图片{n} as the first frame” in the prompt (Jimeng's omni-reference accepts this; most APIs do not, drop it if refused)",
+               n=len(imgs) + 1)
+    if prev_id or lim["first_frame"]:
+        src = (T("{p} 生成结果的最后一帧", "the last frame of {p}'s result", p=prev_id) if prev_id else
+               T("原片 `{f}`（换产品、人物或画风时，用图像模型照下面的首帧提示词重画）",
+                 "source frame `{f}` (to change product, person or style, redraw it with an image model from the first-frame prompt below)",
+                 f=first["assets"]["first_frame"]))
+        why = (T("和上一段硬切相连，同一场景，首帧接上才不会跳", "hard cut from the previous unit in the same scene; matching the first frame keeps it from jumping")
+               if prev_id else T("构图、景别、主体位置一次锁定；只给文字，每次生成的构图都不一样",
+                                 "locks composition, shot size and subject position; with text alone every generation frames it differently"))
+        out.append({"kind": "first_frame", "need": "opt" if frames_alone else "yes", "source": src + (as_ref if frames_alone else ""), "why": why})
+    if len(seg) > 1:
+        out.append({"kind": "last_frame", "need": "no", "source": "—",
+                    "why": T("一次出多个镜头，尾帧只能约束最后一镜，不用", "several shots in one call; a last frame would only constrain the final shot")})
+    elif frames_alone:
+        out.append({"kind": "last_frame", "need": "no", "source": "—",
+                    "why": T("这一单元用参考图保住商品和人物，这个模型在参考模式下不收尾帧", "this unit uses references to keep the product and people; the model takes no last frame alongside them")})
+    elif one and lim["first_last"] and (moves or first["duration"] >= 3):
+        out.append({"kind": "last_frame", "need": "opt",
+                    "source": T("原片 `{f}`，处理方式同首帧", "source frame `{f}`, treated like the first frame", f=last["assets"]["last_frame"]),
+                    "why": T("镜头有运镜或动作，给定终点画面，模型只补中间过程，动作和落幅更接近原片",
+                             "the shot moves; pinning the end frame leaves the model only the in-between, so motion and the final framing stay close to the source")})
+    if imgs:
+        out.append({"kind": "ref_image", "need": "yes", "source": semi().join(f"`{r['tag']}` " + r["what"] for r in imgs),
+                    "why": T("首帧只管第一帧，后面画面里的商品和人靠参考图保持一致",
+                             "the first frame only fixes frame one; reference images keep the product and people consistent after it")})
+    vid = next((r for r in refs if r["tag"] == "@视频1"), None)
+    if vid:
+        out.append({"kind": "ref_video", "need": "opt", "source": "`@视频1` " + vid["what"].split("：")[0].split(": ")[0],
+                    "why": T("照着学动作、运镜和剪辑节奏；只作参考，不会复制画面",
+                             "follow the action, camera move and cutting rhythm; reference only, the picture is not copied")})
+    elif lim["ref_video"]:
+        out.append({"kind": "ref_video", "need": "no", "source": "—",
+                    "why": T("这一单元用首尾帧锁构图，这个模型在首尾帧模式下不收参考视频，动作和运镜写进提示词",
+                             "this unit locks framing with first / last frames; the model takes no reference video alongside them, so put action and camera move in the prompt")})
+    else:
+        out.append({"kind": "ref_video", "need": "no", "source": "—",
+                    "why": T("这个模型不支持参考视频，动作和运镜都要写进提示词", "this model takes no reference video; put action and camera move in the prompt")})
+    used = {x["kind"] for x in out if x["need"] != "no"}
+    method = ("reference" if used & {"ref_image", "ref_video"} else
+              "first_last" if "last_frame" in used else "i2v" if "first_frame" in used else "t2v")
+    return method, out
+
+
 INSERT_LABELS = CODE_LABELS + LOCAL_LABELS  # made separately and cut in during editing
+def reused_footage(gen: list[dict]) -> dict[int, int]:
+    """Generated shots an image reader marked as the same clip as another generated shot (a trailer cut from the
+    finished clip up front, a replay): {shot shown again: shot it is cut from}. Pixels alone cannot tell this from
+    the same setup at another moment (eval daihuo: the trailer and the finished clip differ as much as two talking-head
+    shots from one camera), so only the reader's mark counts."""
+    ids = {r["index"] for r in gen}
+    out: dict[int, int] = {}
+    for r in gen:
+        src = (r.get("review") or {}).get("same_clip_as") or (r.get("vlm") or {}).get("same_clip_as")
+        if isinstance(src, int) and src in ids and src != r["index"] and src not in out:
+            out[r["index"]] = src
+    return out
 
 
-def _runs(shots: list[dict], same_scene, labels: tuple) -> list[list[dict]]:
+def _runs(shots: list[dict], same_scene, labels: tuple, skip: set[int] | None = None) -> list[list[dict]]:
     """Runs of generated shots that may share one generation: same scene, joined by hard cuts. Shots cut in
     between them (UI, screenshots, stills) do not break a run: the generated shots are produced back to back
     and the inserts are placed in the edit, which is how a talk-plus-UI video is usually made."""
     runs, cur, gap = [], [], False
     for r in shots:
         lab = r["base"]["label"]
-        if lab not in labels:
-            if lab in INSERT_LABELS and cur:
+        if lab not in labels or r["index"] in (skip or ()):
+            if (lab in INSERT_LABELS or r["index"] in (skip or ())) and cur:
                 gap = True
                 continue
             if cur:
@@ -258,16 +352,18 @@ def _unit(seg: list[dict], k: int, lim: dict, model: dict | None, style: str, ca
         tags["person"] = f"@图片{len(refs) + 1}"
         refs.append({"tag": tags["person"], "what": T("人物参考图（每个角色一张正脸 + 半身），保证跨镜头长相一致",
                                                       "character reference images (one frontal face + one half-body per character) so the look stays consistent across shots"), "user": True})
-    if lim["ref_video"]:
+    # frame inputs and references cannot share a request on some models: a unit without product / people refs
+    # goes the first / last frame way and gets no reference clip
+    if lim["ref_video"] and (not lim.get("exclusive") or product or people):
         tags["video"] = "@视频1"
         span = join(f"{a:.1f}–{z:.1f}s" for a, z in ranges)
         refs.append({"tag": "@视频1", "what": T("原片 {span} 片段", "source clip {span}", span=span)
                      + (T("（剪掉中间插入的画面后拼成一段）", " (inserted shots removed, pieces joined)") if not contiguous else "")
                      + T("：参考动作、运镜和剪辑节奏（只作参考，不复制画面）",
                          ": reference for action, camera movement and cutting rhythm (reference only, do not copy the picture)"), "user": False})
-    cont = None
+    cont, chained = None, False
     if prev_unit and same_scene_prev and seg[0].get("transition_in") in ("cut", "jump", "flash") and abs(prev_unit["ranges"][-1][1] - t0) < 1e-3:
-        cont = T("首帧用 {p} 的尾帧，接上动作", "first frame = last frame of {p}, continue the action", p=prev_unit["id"])
+        cont, chained = T("首帧用 {p} 的尾帧，接上动作", "first frame = last frame of {p}, continue the action", p=prev_unit["id"]), True
     elif lim["first_frame"]:
         cont = T("首帧：参照原片第 {i} 镜首帧（{f}）的构图出图", "first frame: generate an image matching the composition of source shot {i}'s first frame ({f})",
                  i=seg[0]["index"], f=seg[0]["assets"]["first_frame"]) + (T("，产品换成 @图片1", ", with the product replaced by @图片1") if product else "")
@@ -305,6 +401,7 @@ def _unit(seg: list[dict], k: int, lim: dict, model: dict | None, style: str, ca
             "prompt": T("。", ". ").join(head) + T("。\n", ".\n") + "\n".join(lines),
             "prompt_en": "\n".join(lines_en) if len(lines_en) == len(seg) else "",
             "image_prompt": shot_prompts(seg[0]).get("image_prompt", "")}
+    unit["method"], unit["inputs"] = _inputs(seg, lim, refs, prev_unit["id"] if chained else None, parts)
     if missing:
         unit["prompt_missing"] = missing
     if parts > 1:
@@ -335,15 +432,29 @@ def _unit(seg: list[dict], k: int, lim: dict, model: dict | None, style: str, ca
 
 # ---------------------------------------------------------------- shooting setups
 def _setups(shots: list[dict], sig: dict, thr: float, b: dict) -> list[dict]:
+    from .entities import cast as _cast
+
     filmed = [r for r in shots if r["base"]["label"] in SHOOT_LABELS]
     scenes: list[list[dict]] = []
-    for r in filmed:
-        d = [(min(scene_distance(sig[r["index"]], sig[m["index"]]) for m in sc), i) for i, sc in enumerate(scenes)]
-        best = min(d) if d else (1.0, -1)
-        if best[0] <= thr:
-            scenes[best[1]].append(r)
-        else:
-            scenes.append([r])
+    named: list[dict] = []
+    # an image reader who named the scenes knows where each shot was filmed better than colour histograms do
+    # (a talking head and a desk shot of a phone in the same office have the same colours)
+    cs = [sc for sc in _cast(b).get("scenes") or [] if sc.get("shots")]
+    where = {i: k for k, sc in enumerate(cs) for i in sc["shots"]}
+    if filmed and all(r["index"] in where for r in filmed):
+        for k, sc in enumerate(cs):
+            rs = [r for r in filmed if where[r["index"]] == k]
+            if rs:
+                scenes.append(rs)
+                named.append(sc)
+    else:
+        for r in filmed:
+            d = [(min(scene_distance(sig[r["index"]], sig[m["index"]]) for m in sc), i) for i, sc in enumerate(scenes)]
+            best = min(d) if d else (1.0, -1)
+            if best[0] <= thr:
+                scenes[best[1]].append(r)
+            else:
+                scenes.append([r])
     out = []
     for si, sc in enumerate(scenes, 1):
         groups: dict[tuple, list[dict]] = {}
@@ -351,25 +462,38 @@ def _setups(shots: list[dict], sig: dict, thr: float, b: dict) -> list[dict]:
             a = r.get("aspects") or {}
             # group on normalised values: free-text answers ("近景（手持物品特写）") would split one setup into many
             raw = str(((a.get("framing") or {}).get("result") or {}).get("shot_size") or "")
-            size = next((k for k in SIZE_ORDER if raw.startswith(k)), raw or "—")
+            size = next((k for k in SIZE_ORDER if (canon(raw) or "").startswith(k)), raw or "—")
             cam = (a.get("camera") or {}).get("result") or {}
             support = SUPPORT_ZH.get(cam.get("support"), cam.get("support_zh") or "—")
             groups.setdefault((size, support), []).append(r)
         light = (((sc[0].get("aspects") or {}).get("lighting") or {}).get("result") or {})
         desc = (sc[0].get("vlm") or sc[0].get("review") or {}).get("description", "")
+        if named:
+            nm = named[si - 1]
+            desc = T("，", ", ").join(str(x) for x in (nm.get("where"), nm.get("look")) if x) or desc
         setups = []
         for (size, support), rs in sorted(groups.items(), key=lambda kv: SIZE_ORDER.get(kv[0][0], 9)):
-            setups.append({"shot_size": size, "support": support, "shots": [r["index"] for r in rs],
+            setups.append({"shot_size": show(size), "support": support, "shots": [r["index"] for r in rs],
                            "screen_s": round(sum(r["duration"] for r in rs), 2),
                            "take_s": round(sum(r["duration"] for r in rs) + 2.0 * len(rs), 1),
-                           "moves": sorted({((r.get("aspects") or {}).get("camera") or {}).get("result", {}).get("move") or T("固定", "static") for r in rs})})
+                           "moves": sorted({show(((r.get("aspects") or {}).get("camera") or {}).get("result", {}).get("move")) or T("固定", "static") for r in rs})})
         post = [dict(e, shot=r["index"]) for r in sc for e in (r.get("ai_edits") or [])]
         out.append({"id": f"S{si}", "kind": "shoot", "shots": [r["index"] for r in sc], "post": post,
                     "stop_motion": [r["index"] for r in sc if r["base"]["label"] == "stop_motion"],
                     "screen_s": round(sum(r["duration"] for r in sc), 2), "description": desc,
-                    "lighting": T("，", ", ").join(x for x in (light.get("setup_name"), light.get("key_direction"), light.get("ratio"), light.get("color_temp")) if x),
+                    "lighting": _light_words(sc[0], light),
                     "setups": setups})
     return out
+
+
+def _light_words(r: dict, light: dict) -> str:
+    """Lighting in a few plain words: what the image reader called the setup, else the measured setup and colour."""
+    seen = (((r.get("review") or r.get("vlm") or {}).get("aspects") or {}).get("lighting") or {}).get("lighting_setup")
+    if seen:
+        return str(seen)
+    short = lambda x: re.split(r"[（(]", str(x))[0].strip() if x else ""  # noqa: E731  "正面（光从镜头方向来…）" -> "正面"
+    return T("，", ", ").join(x for x in (light.get("setup_name"), short(light.get("key_direction")) and T("主光{d}", "key light {d}", d=short(light.get("key_direction"))),
+                                         light.get("color_temp")) if x)
 
 
 # ---------------------------------------------------------------- whole plan
@@ -381,7 +505,14 @@ def production_plan(b: dict, out: Path, engine: str = "seedance2.0") -> dict:
     thr = float(seg.get("same_scene_distance", 0.5))
     unit_min = float((seg.get("generation_unit_s") or {}).get("min", 4))
     sig = scene_signatures(shots, out)
+    from .entities import cast as _cast
+
+    # scenes an image reader named beat colour histograms (a close-up and a wide shot of one table differ in colour)
+    named = {i: k for k, sc in enumerate(_cast(b).get("scenes") or []) for i in sc.get("shots") or []}
+
     def same_scene(a: dict, c: dict) -> bool:
+        if a["index"] in named and c["index"] in named:
+            return named[a["index"]] == named[c["index"]]
         return scene_distance(sig[a["index"]], sig[c["index"]]) <= thr
 
     same_prev = {r["index"]: same_scene(p, r) for p, r in zip(shots, shots[1:])}
@@ -390,17 +521,22 @@ def production_plan(b: dict, out: Path, engine: str = "seedance2.0") -> dict:
     gen = [r for r in shots if r["base"]["label"] in GEN_LABELS]
     # product / people that recur across the video are referenced in every unit, not only where they were detected
     cast = {"product": any(it.get("kind") in PRODUCT_KINDS and (it.get("real_material") or it in m.get("references", []))
-                           for r in gen for m in [r.get("material") or {}] for it in m.get("items", []) + m.get("references", [])),
+                           for r in (shots if gen else []) for m in [r.get("material") or {}] for it in m.get("items", []) + m.get("references", [])),
             "people": sum(r["duration"] for r in gen if (r.get("faces") or 0) > 0.3) >= 1.0}
     style = _style_line(gen, b["source"].get("aspect_ratio", "")) if gen else ""
+    reused = reused_footage(gen)
     units: list[dict] = []
-    for run in _runs(shots, same_scene, GEN_LABELS):
+    for run in _runs(shots, same_scene, GEN_LABELS, skip=set(reused)):
         for segm in _split_run(run, lim, hard, unit_min):
             prev = units[-1] if units else None
             units.append(_unit(segm, len(units) + 1, lim, model, style, cast, prev, same_prev.get(segm[0]["index"], False), unit_min))
     units.sort(key=lambda u: u["start"])
     for k, u in enumerate(units, 1):
         u["id"] = f"G{k}"
+    for again, src in sorted(reused.items()):
+        u = next((u for u in units if src in u["shots"]), None)
+        if u:
+            u.setdefault("reused", []).append({"shot": again, "from": src})
     plan: dict = {"model": (model or {}).get("id"), "model_name": model_name((model or {}).get("name")),
                   "model_limits": {k: lim[k] for k in ("max", "min", "multi_shot", "ref_video", "native_audio")},
                   "rules": {"hardcut_s": hard, "same_scene_distance": thr}, "units": units}
@@ -415,16 +551,21 @@ def production_plan(b: dict, out: Path, engine: str = "seedance2.0") -> dict:
                                     "This plan is for {m} (≤{mx:.0f}s per call, multi-shot in one call), {c} call{cs} in total",
                                     e=model_name(eng["name"]), n=gen_shots, ns=_s(gen_shots), m=model_name(model["name"]), mx=lim["max"], c=calls, cs=_s(calls))
         voice = ((b.get("audio") or {}).get("voice") or {}).get("present")
+        vsrc = ((b.get("sound_sources") or {}).get("voice") or {}).get("source")
         if lim["native_audio"]:
             plan["audio_note"] = T("模型可以同时生成动作音效和环境声", "the model can generate action sound effects and ambience along with the picture") + \
-                (semi() + T("口播建议单独 TTS 再混进去，方便改文案和卡时间", "voice-over is better done as separate TTS and mixed in, so copy and timing stay editable") if voice else "")
+                (semi() + (T("口播建议单独 TTS 再混进去，方便改文案和卡时间", "voice-over is better done as separate TTS and mixed in, so copy and timing stay editable")
+                           if vsrc == "tts" else
+                           T("口播是真人录的：单独录好再混进去，不让视频模型生成，方便改文案和卡时间",
+                             "the voice was recorded by a person: record it separately and mix it in rather than having the video model speak, so copy and timing stay editable"))
+                 if voice else "")
         from .packaging import overlays_at
 
         on_gen = list(dict.fromkeys(k for u in units for a, z in u["ranges"] for k in overlays_at(b.get("packaging"), a, z)))
         if on_gen:  # generated picture stays clean; the packaging is laid on afterwards, so a new wording can move it
-            plan["overlay_note"] = T("生成单元镜头上的{k}属于后期包装，不写进提示词；参考帧上带着的先擦掉，生成后按「剪辑包装层」的时间轴叠回（assemble --overlays）",
+            plan["overlay_note"] = T("生成单元镜头上的{k}属于后期包装，不写进提示词；参考帧上带着的先擦掉，生成后按「剪辑包装层」的时间轴叠回",
                                      "the {k} on the generated shots is post-production packaging: keep it out of the prompts, erase it from reference frames, "
-                                     "and lay it back on from the packaging timeline after generation (assemble --overlays)", k=join(on_gen))
+                                     "and lay it back on from the packaging timeline after generation", k=join(on_gen))
     plan["shoot"] = _setups(shots, sig, thr, b)
     code, cur = [], []
     for r in shots + [None]:
@@ -480,8 +621,10 @@ def summary_line(plan: dict, b: dict) -> str:
                 kinds[lab] = kinds.get(lab, 0) + 1
         what = " + ".join(T("{g} {v} 镜", "{v} {g} shot{s}", g=GEN_ZH.get(k, k), v=v, s=_s(v)) for k, v in kinds.items())
         nu = len(plan["units"])
+        again = sum(len(u.get("reused") or []) for u in plan["units"])
         bits.append(T("{what} → {u} 个生成单元、{c} 次 {m} 调用", "{what} → {u} generation unit{us}, {c} {m} call{cs}",
-                      what=what, u=nu, us=_s(nu), c=plan["calls"], cs=_s(plan["calls"]), m=plan["model_name"]))
+                      what=what, u=nu, us=_s(nu), c=plan["calls"], cs=_s(plan["calls"]), m=plan["model_name"])
+                    + (T("（另有 {n} 镜是同一段成片重复使用，直接剪）", " (plus {n} shot{s} reusing the same clip, just cut)", n=again, s=_s(again)) if again else ""))
     if plan["shoot"]:
         n_set = sum(len(s["setups"]) for s in plan["shoot"])
         n_shot = sum(len(s["shots"]) for s in plan["shoot"])
@@ -510,6 +653,22 @@ def summary_line(plan: dict, b: dict) -> str:
     return semi().join(bits)
 
 
+def report_parts(plan: dict) -> dict[str, list[str]]:
+    """The remake plan cut at its subsections, so a report can place each part under the step it belongs to:
+    pre (AI notes and the input primer), units, shoot, code, local, footage. The summary line is left out."""
+    heads = {T("### 生成单元", "### Generation units"): "units", T("### 拍摄场次", "### Shooting scenes"): "shoot",
+             T("### 代码合成", "### Code composition"): "code", T("### 本地重建", "### Local rebuild"): "local",
+             T("### 影视原片", "### Film / TV source"): "footage"}
+    parts: dict[str, list[str]] = {}
+    key = "pre"
+    for line in report_md(plan)[4:]:  # "", "## 复刻方案", "", "**summary**"
+        if line in heads:
+            key = heads[line]
+            continue
+        parts.setdefault(key, []).append(line)
+    return {k: v for k, v in parts.items() if any(x.strip() for x in v)}
+
+
 def report_md(plan: dict) -> list[str]:
     if not plan:
         return []
@@ -526,20 +685,46 @@ def report_md(plan: dict) -> list[str]:
             L.append(T("- 声音：{a}", "- Audio: {a}", a=plan["audio_note"]))
         if plan.get("overlay_note"):
             L.append(T("- 包装层：{a}", "- Packaging: {a}", a=plan["overlay_note"]))
-        L += ["", T("### 生成单元", "### Generation units"), "",
-              T("| 单元 | 镜头 | 时间 | 时长 | 方式 | 衔接 |", "| Unit | Shots | Time | Duration | Mode | Continuity |"), "|---|---|---|---|---|---|"]
+        L += ["", T("AI 视频模型能吃这几种输入，每个生成单元下面写了要喂哪些、从哪来：",
+                    "A video model can take these inputs; each generation unit below lists which ones to feed and where they come from:"),
+              T("- **文字提示词**：必需，描述画面、动作、运镜", "- **Text prompt**: always; describes the picture, action and camera"),
+              T("- **首帧图**：锁住第一帧的构图和主体。不给就是纯文生，构图每次都不一样",
+                "- **First frame**: locks the composition and subject of frame one. Without it this is plain text-to-video and framing changes every time"),
+              T("- **尾帧图**：再锁住最后一帧，模型只补中间过程。适合单个有运镜或动作的镜头",
+                "- **Last frame**: also locks the final frame so the model only fills in between. Suits a single shot with a camera move or action"),
+              T("- **参考图**：商品、人物的样子，让多个镜头里长得一样（提示词里用 `@图片1` 指代）",
+                "- **Reference images**: how the product and people look, so they stay the same across shots (`@图片1` in the prompt)"),
+              T("- **参考视频**：照着学动作、运镜和节奏，不复制画面（`@视频1`）；不是每个模型都支持",
+                "- **Reference video**: copy the action, camera move and rhythm, not the picture (`@视频1`); not every model takes one"),
+              "", T("### 生成单元", "### Generation units"), "",
+              T("每个单元一次生成。表里是要喂给模型的东西，展开单元看来源和提示词。",
+                "One generation per unit. The table lists what to feed the model; open a unit for where each input comes from and the prompt."), "",
+              T("| 单元 | 镜头 | 时间 | 时长 | 方式 | 要喂的 | 衔接 |", "| Unit | Shots | Time | Duration | Mode | Feed | Continuity |"), "|---|---|---|---|---|---|---|"]
         mode_zh = LangDict({"multi_shot": "一次多镜头", "single": "单镜", "split": "超长切段"},
                            en={"multi_shot": "multi-shot", "single": "single shot", "split": "long shot, split"})
         for u in plan["units"]:
             sh = f"#{u['shots'][0]}" + (f"–#{u['shots'][-1]}" if len(u["shots"]) > 1 else "")
-            sh = join(f"#{i}" for i in u["shots"]) if len(u["ranges"]) > 1 else sh
+            sh = shot_ids(u["shots"]) if len(u["ranges"]) > 1 else sh
             when = join(f"{a:.1f}–{z:.1f}s" for a, z in u["ranges"])
             L.append(f"| {u['id']} | {sh} | {when} | {u['duration']:.1f}s | {mode_zh[u['mode']]}"
-                     f"{T('（{c} 次）', ' ({c} calls)', c=u['calls']) if u['calls'] > 1 else ''} | {u['continuity'] or '—'} |")
+                     f"{T('（{c} 次）', ' ({c} calls)', c=u['calls']) if u['calls'] > 1 else ''}"
+                     f" | {_fed(u) or '—'} | {u['continuity'] if u.get('continuity') and u['continuity'] != _first_note(u) else '—'} |")
+        reuse = [(x, u["id"]) for u in plan["units"] for x in u.get("reused") or []]
+        if reuse:
+            L += ["", T("同一段成片用了不止一次（看图认出的）：只生成一次，剪辑时再放到每一处。",
+                        "The same clip is used more than once (spotted by the image reader): generate it once and place it at each spot in the edit.")]
+            L += [T("- #{a} 和 #{s} 是同一段画面：从 {u} 的成片里剪出来", "- #{a} and #{s} are the same footage: cut it from {u}'s result",
+                    a=x["shot"], s=x["from"], u=uid) for x, uid in reuse]
         for u in plan["units"]:
-            L += ["", T("**{id} · {lab} · 镜头 {sh} · {d:.1f}s**", "**{id} · {lab} · shots {sh} · {d:.1f}s**",
-                        id=u["id"], lab=u["label_zh"], sh=join("#" + str(i) for i in u["shots"]), d=u["duration"]), ""]
-            if u["refs"]:
+            L += ["", "<details><summary>" + T("{id} · 镜头 {sh} · {d:.1f}s · {m}", "{id} · shots {sh} · {d:.1f}s · {m}",
+                                               id=u["id"], sh=shot_ids(u["shots"]), d=u["duration"], m=METHOD_ZH[u["method"]] if u.get("method") else u["label_zh"])
+                  + "</summary>", ""]
+            if u.get("inputs"):
+                need = LangDict({"yes": "要", "opt": "建议", "no": "不用"}, en={"yes": "yes", "opt": "worth it", "no": "no"})
+                L += [T("| 输入 | 要不要 | 从哪来 | 为什么 |", "| Input | Needed | From | Why |"), "|---|---|---|---|"]
+                L += [f"| {INPUT_ZH[x['kind']]} | {need[x['need']]} | {x['source']} | {x['why']} |" for x in u["inputs"]]
+                L.append("")
+            elif u["refs"]:
                 L.append(T("- 参考素材：", "- References: ") + semi().join(f"`{r['tag']}` {r['what']}" for r in u["refs"]))
             if u.get("image_prompt"):
                 L.append(T("- 首帧图像提示词：{p}", "- First-frame image prompt: {p}", p=u["image_prompt"]))
@@ -547,10 +732,11 @@ def report_md(plan: dict) -> list[str]:
                 if u.get(k):
                     L.append(f"- {u[k]}")
             if u.get("prompt_missing"):
-                L.append(T("- 镜头 {sh} 缺提示词", "- Shots {sh} have no prompt", sh=join("#" + str(i) for i in u["prompt_missing"])))
+                L.append(T("- 镜头 {sh} 缺提示词", "- Shots {sh} have no prompt", sh=shot_ids(u["prompt_missing"])))
             L += ["", "```text", u["prompt"], "```"]
             if u.get("prompt_en"):
-                L += ["", "<details><summary>English prompt</summary>", "", "```text", u["prompt_en"], "```", "", "</details>"]
+                L += ["", T("英文提示词：", "English prompt:"), "", "```text", u["prompt_en"], "```"]
+            L += ["", "</details>"]
     if plan["shoot"]:
         L += ["", T("### 拍摄场次", "### Shooting scenes"), "",
               T("同一场景的镜头集中拍完再换场景；场景内先拍大景别再拍特写，不用重新布光。每条前后多留约 1s 余量。",
@@ -558,20 +744,20 @@ def report_md(plan: dict) -> list[str]:
                 "so the lighting is set only once. Leave about 1s of handle at both ends of every take."), ""]
         for s in plan["shoot"]:
             L.append(T("**{id}**：镜头 {sh}（成片 {scr}s）", "**{id}**: shots {sh} ({scr}s on screen)",
-                       id=s["id"], sh=join("#" + str(i) for i in s["shots"]), scr=s["screen_s"])
+                       id=s["id"], sh=shot_ids(s["shots"]), scr=s["screen_s"])
                      + (semi() + s["description"] if s.get("description") else ""))
             if s.get("lighting"):
                 L.append(T("- 布光：{l}", "- Lighting: {l}", l=s["lighting"]))
             for st in s["setups"]:
                 L.append(T("- 机位 {size} · {sup} · {mv}：镜头 {sh}，成片 {scr}s，建议拍 {take}s",
                            "- Setup {size} · {sup} · {mv}: shots {sh}, {scr}s on screen, shoot about {take}s",
-                           size=st["shot_size"], sup=st["support"], mv="/".join(st["moves"]), sh=join("#" + str(i) for i in st["shots"]),
+                           size=st["shot_size"], sup=st["support"], mv="/".join(st["moves"]), sh=shot_ids(st["shots"]),
                            scr=st["screen_s"], take=st["take_s"]))
             if s.get("stop_motion"):
                 L.append(T("- 定格动画（{sh}）：相机固定，每秒约 12 张逐帧拍；用定格 App 的洋葱皮对位，灯光全程不动（避免闪烁）",
                            "- Stop motion ({sh}): camera locked off, about 12 frames per second shot one at a time; line up frames with a "
                            "stop-motion app's onion skin and keep the lighting fixed throughout (avoids flicker)",
-                           sh=join("#" + str(i) for i in s["stop_motion"])))
+                           sh=shot_ids(s["stop_motion"])))
             for e in s.get("post", []):
                 L.append(T("- 拍完后 #{s} 要 AI 加工：{k}", "- After the shoot, #{s} needs AI processing: {k}", s=e["shot"], k=e["kind_zh"])
                          + (T("（{e}）", " ({e})", e=e["evidence"]) if e.get("evidence") else "")
@@ -584,8 +770,8 @@ def report_md(plan: dict) -> list[str]:
                 "change). An LLM can write this project directly."), ""]
         for c in plan["code"]:
             L.append(T("- {id}：镜头 {sh}（{a:.1f}–{z:.1f}s）", "- {id}: shots {sh} ({a:.1f}–{z:.1f}s)",
-                       id=c["id"], sh=join("#" + str(i) for i in c["shots"]), a=c["start"], z=c["end"])
-                     + (semi() + T("其中 {sh} 用真实界面录屏", "{sh} use real screen recordings", sh=join("#" + str(i) for i in c["screen_capture"]))
+                       id=c["id"], sh=shot_ids(c["shots"]), a=c["start"], z=c["end"])
+                     + (semi() + T("其中 {sh} 用真实界面录屏", "{sh} use real screen recordings", sh=shot_ids(c["screen_capture"]))
                         if c["screen_capture"] else ""))
         scenes = [sc for c in plan["code"] for sc in c.get("scenes", [])]
         if any(sc.get("strip") or sc.get("elements_sheet") for sc in scenes):

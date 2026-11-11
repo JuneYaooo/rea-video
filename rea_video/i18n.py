@@ -54,6 +54,22 @@ def join(items) -> str:
     return sep().join(str(x) for x in items)
 
 
+def shot_ids(ids) -> str:
+    """Shot numbers as a short list: runs of three or more become a range, "#5、#8–#24"."""
+    ids = sorted({int(i) for i in ids or []})
+    if not ids:
+        return "—"
+    runs, out = [[ids[0], ids[0]]], []
+    for i in ids[1:]:
+        if i == runs[-1][1] + 1:
+            runs[-1][1] = i
+        else:
+            runs.append([i, i])
+    for a, z in runs:
+        out += [f"#{a}–#{z}"] if z - a >= 2 else [f"#{i}" for i in range(a, z + 1)]
+    return join(out)
+
+
 def semi() -> str:
     """Clause separator: ； in Chinese, "; " in English."""
     return "；" if _lang.get() == "zh" else "; "

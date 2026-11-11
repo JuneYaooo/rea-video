@@ -137,16 +137,24 @@ def open_questions(b: dict) -> list[str]:
             q.append(tag + T("：{k} 是真实素材还是生成的，待确认", ": {k}: real material or generated, to confirm", k=join(unsure)))
     if (b.get("audio") or {}).get("has_audio") and not vlm.get("whole_ok"):
         # an image review covers the picture; the soundtrack is only heard by a model that takes video
-        q.append(T("声音没有模型听过{r}：旁白是 TTS 还是真人、音效清单只来自信号检测，人声和音乐下面的轻音效可能漏检。请听 stems/ 里的干声和配乐核对，或配置能读视频的 VLM 后加 --vlm 重跑",
-                   "No model listened to the soundtrack{r}: TTS versus human narration and the sound-effect list come from signal detection alone, and quiet effects under voice and music may be missed. Listen to the stems/ files to check, or configure a VLM that reads video and rerun with --vlm",
-                   r=T("（看图复核只看画面）", " (the image review covers the picture only)") if reviewed else ""))
+        fx = bool((b.get("stems") or {}).get("effects"))
+        q.append(T("声音没有 AI 听过{r}：人声是真人还是 TTS 是按波形推断的；音效{f}。可以在「声音」里试听分轨和每处音效核对",
+                   "No AI listened to the soundtrack{r}: real voice versus TTS is inferred from the waveform; the effects {f}. "
+                   "Play the stems and each effect under “Sound” to check",
+                   r=T("（复核只看了画面）", " (the review covered the picture only)") if reviewed else "",
+                   f=T("是从单独分离出的音效轨里找的，类型是按声音特征估的", "were found on the separated effects track and their types are estimated from the sound")
+                   if fx else T("是从混音里按突然变响的点找的，人声的爆破音、配乐的鼓点也可能被算进去", "were picked off the mix where the sound jumps, so plosives and drum hits can be counted too")))
+    from .sound_source import MUSIC_ZH, VOICE_ZH
+
     src = b.get("sound_sources") or {}
-    for k, name in (("music", T("背景音乐", "music")), ("voice", T("人声", "voice"))):
+    for k, name, names in (("music", T("背景音乐", "music"), MUSIC_ZH), ("voice", T("人声", "voice"), VOICE_ZH)):
         v = src.get(k) or {}
-        top = max((v.get("probs") or {"x": 1.0}).values())
+        probs = v.get("probs") or {}
+        top = max(probs.values()) if probs else 1.0
         if v and (v.get("source") == "unknown" or top < 0.6):
-            q.append(T("{n}来源待确认：倾向{s}（{p:.0%}）", "{n} source to confirm: leaning {s} ({p:.0%})", n=name, s=v.get("source_zh", ""), p=top)
-                     + (T("。{h}", ". {h}", h=v["how_to_confirm"][0]) if v.get("how_to_confirm") else ""))
+            lean = v.get("leaning") or (max(probs, key=probs.get) if probs else "")
+            q.append(T("{n}来源待确认：更像{s}（{p:.0%}），确认方法见「声音」", "{n} source to confirm: most likely {s} ({p:.0%}); how to check is under “Sound”",
+                       n=name, s=names.get(lean, v.get("source_zh", "")), p=top))
     pack = b.get("packaging") or {}
     low = [st for st in pack.get("stickers", []) if not st.get("in_picture") and st.get("confidence") in ("low", "vlm")]
     if low:

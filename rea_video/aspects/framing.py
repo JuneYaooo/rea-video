@@ -66,7 +66,9 @@ class Framing(Aspect):
         s = seen(shot, self.key, "shot_size")
         size = m.get("shot_size") if m.get("subject") == "face" else (s.get("agent") or s.get("vlm") or m.get("shot_size"))
         ang = seen(shot, self.key, "camera_angle")
-        return {"shot_size": size, "camera_angle": ang.get("agent") or ang.get("vlm"), "position": m.get("position"),
+        from .vocab import show
+
+        return {"shot_size": show(size), "camera_angle": show(ang.get("agent") or ang.get("vlm")), "position": m.get("position"),
                 "subject": m.get("subject")}
 
     def summarize(self, shots: list[dict], b: dict) -> dict:

@@ -52,9 +52,14 @@ rea-video correct out/ref --shots 3 --label still_motion --note "这是定格动
 rea-video prefs vlm on && rea-video prefs --note "报告尽量短"
 rea-video memory
 
-# 只剥离声音：stems/original.wav（原声）、vocals.wav（人声干声）、music.wav（配乐）
+# 只剥离声音：stems/original.wav（原声）、vocals.wav（人声干声）、music.wav（配乐）、effects.wav（音效）
 rea-video stems ref.mp4 -o out/ref
 ```
+
+分轨用两个模型，都在本机 CPU 上跑，第一次用时自动下载到 `$REA_VIDEO_MODELS`（默认 `~/.cache/rea-video/models`）：
+
+- 人声和配乐：UVR MDX-Net Inst HQ 3（约 67 MB）。
+- 音效：BandIt v2 多语种版（约 149 MB；Watcharasupat、Wu、Orife，[arXiv 2407.07275](https://arxiv.org/abs/2407.07275)，权重为 CC BY-SA 4.0），把声音拆成对白、音乐、音效三轨，取音效轨。报告里的音效从这一轨找，试听片段也从这一轨剪，听不到人声和配乐。速度约为音频时长的 1.5 倍；模型下载不了时，退回到在混音上找音效。
 
 输出示例（混合片）：
 
@@ -86,7 +91,7 @@ rea-video capsule-draft out/ref/breakdown.json --capsule-root $CC --capsule-name
 
 | 命令 | 作用 |
 |---|---|
-| `decompose VIDEO [--vlm] [--no-ocr] [--ocr-lang zh\|ja] [--lang zh\|en] [--no-packaging] [--max-vlm-shots N] [--no-asr]` | 拆解，输出 breakdown.json、report.html/md、storyboard.jpg、每镜首尾帧，以及 `packaging/`（字幕 SRT、带样式的 ASS、包装时间轴、贴纸截图）；`--lang en` 让结论、报告、`summary` 输出和 VLM 描述都用英文（默认中文；agent 按用户提问的语言选，`rea-video prefs lang en` 可设成默认；breakdown.json 里的 `*_zh` 字段名保留，内容跟报告语言走）；`--no-packaging` 跳过包装层（省约每分钟 30–50 秒）；`--ocr-lang ja` 用日文识别模型读字幕和花字（首次使用自动下载约 10 MB 到 `$REA_VIDEO_MODELS`，离线时可用 `$REA_OCR_REC_MODEL` 指向本地模型），`rea-video prefs ocr_lang ja` 可设成默认；`--max-vlm-shots N` 是最多发给 VLM 的调用数（默认 60），镜头更多时先看最拿不准的，其余只靠确定性取证，`VLM:` 一行会写明送了多少个；装了可选的 `rea-video[asr]` 时会在人声干声上做本地语音识别，带时间的台词写进 `speech.lines` 和报告的脚本表（机器听写，未校对），`--no-asr` 跳过 |
+| `decompose VIDEO [--vlm] [--no-ocr] [--ocr-lang zh\|ja] [--lang zh\|en] [--no-packaging] [--max-vlm-shots N] [--no-asr]` | 拆解，输出 breakdown.json、report.html/md、拆片包（`REEL.md` + `reel/`）、storyboard.jpg、每镜首尾帧，`packaging/`（字幕 SRT、带样式的 ASS、包装时间轴、贴纸截图），以及 `sfx/`（每处音效从原片剪出的一小段，报告音效表里可直接试听）；`--lang en` 让结论、报告、`summary` 输出和 VLM 描述都用英文（默认中文；agent 按用户提问的语言选，`rea-video prefs lang en` 可设成默认；breakdown.json 里的 `*_zh` 字段名保留，内容跟报告语言走）；`--no-packaging` 跳过包装层（省约每分钟 30–50 秒）；`--ocr-lang ja` 用日文识别模型读字幕和花字（首次使用自动下载约 10 MB 到 `$REA_VIDEO_MODELS`，离线时可用 `$REA_OCR_REC_MODEL` 指向本地模型），`rea-video prefs ocr_lang ja` 可设成默认；`--max-vlm-shots N` 是最多发给 VLM 的调用数（默认 60），镜头更多时先看最拿不准的，其余只靠确定性取证，`VLM:` 一行会写明送了多少个；装了可选的 `rea-video[asr]` 时会在人声干声上做本地语音识别，带时间的台词写进 `speech.lines` 和报告的脚本表（机器听写，未校对），`--no-asr` 跳过 |
 | `review OUT_DIR` | 给能看图的 agent 生成逐镜看图任务（review_tasks.json）和答案模板（review_answers.json） |
 | `apply-review OUT_DIR [ANSWERS] [--by NAME] [--lang zh\|en]` | 把 agent 看图的答案和确定性结果融合，重写 breakdown.json 和报告；`--lang` 可以在这一步换报告语言（结论、证据和报告文字重新生成，VLM 已写好的描述和提示词保持原语言） |
 | `correct OUT_DIR --shots N --label L [--real yes/no] [--note]` | 用户指出判错：改正结论和报告，并记入记忆（以后同一文件自动套用，同类镜头复核时提示） |
@@ -94,6 +99,9 @@ rea-video capsule-draft out/ref/breakdown.json --capsule-root $CC --capsule-name
 | `memory [--export-labels YAML]` | 看记住了什么（偏好、常见纠正类型）；把纠正导出成评测样本 |
 | `probe VIDEO` | 只看元数据线索（拍摄设备、AIGC 隐式标识、C2PA、编辑器签名） |
 | `summary breakdown.json` | 紧凑打印结论，标出需要复核的低置信镜头 |
+| `reel OUT_DIR` | 从 breakdown.json 重新生成拆片包（`REEL.md` + `reel/`，给模型和下游程序读，格式见 [reel.md](reel.md)）；decompose 和 apply-review 会自动生成 |
+| `reel OUT_DIR --check` | 校验目录是否符合拆片包规范，不合格时逐条列出问题 |
+| `pdf OUT_DIR` | 把 report.html 打印成 report.pdf（用本机的 Chrome / Chromium / Edge，`REA_CHROME` 可指定路径；正文的折叠内容展开，时间轴、逐镜取证这类查阅数据保持折叠） |
 | `tiles VIDEO --start --end --every` | 按时间抽帧拼图，近距离复核 |
 | `eval labels.yaml` | 在带标注的样本上评测准确率和切点 F1 |
 | `capsule breakdown.json` | 导出 capsule-cinema 的视频分析 JSON |

@@ -40,7 +40,7 @@ models（具体模型/工具，带边界、价格、许可、来源）
 | `status` | `ga` / `preview` / `limited` / `deprecated` / `shutdown`；路由器跳过 shutdown |
 | `access` | `app` / `api` / `api-aggregator` / `open-weights` |
 | `primitives` | 支持的原语 |
-| `limits` | 时长、分辨率、参考数量、关键帧数等边界 |
+| `limits` | 时长、分辨率、参考数量、关键帧数等边界；`exclusive_inputs` 列出不能放进同一个请求的几组输入（如首尾帧和参考图），复刻方案按它给每个生成单元选一种模式 |
 | `cost.usd_per_s` | 相对成本，用于路由排序和预算估算 |
 | `license` | `commercial: true / false / conditional`，附说明；`regions_excluded` 列出地区限制 |
 | `verified.basis` | 可信度从高到低：`probe`（我们自测）> `user`（用户实测）> `vendor`（官方）> `third-party`（第三方）> `knowledge`（常识或训练知识） |

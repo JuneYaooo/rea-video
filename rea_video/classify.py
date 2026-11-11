@@ -330,7 +330,9 @@ def deterministic(f: dict, overlay: dict | None = None, text: dict | None = None
     pulldown = None
     if 0.12 <= dup <= 0.30 and per in (4, 5, 6) and reg > 0.25:
         pulldown = "24→30"
-    elif 0.50 <= dup <= 0.66 and per in (1, 2, 3):
+    elif 0.50 <= dup <= 0.66 and per in (1, 2, 3) and not (fps and fps < 47):
+        # 24 -> 60 needs a 60 fps file; in a 30 fps file every other frame repeating is a 15 fps source or a picture
+        # that barely moves (a camera filming a still phone screen, eval daihuo #10), not a generator's frame rate
         pulldown = "24→60"
     elif 0.03 <= dup <= 0.10 and per in (5, 6, 7) and reg > 0.25:
         pulldown = "25→30?"
@@ -629,11 +631,15 @@ def drop_scene_text(layers: list[dict], label: str, vlm_overlay: list | None) ->
             keep.append(l)
             continue
         if isinstance(vlm_overlay, list):
-            scene = not any(_same_words(t, str(o)) for t in l["texts"] for o in vlm_overlay)
+            said = [t for t in l["texts"] if any(_same_words(t, str(o)) for o in vlm_overlay)]
+            scene = not said
+            if said and len(said) < len(l["texts"]):  # one track can mix a subtitle with keyboard letters filmed behind it
+                dropped.append(dict(l, texts=[t for t in l["texts"] if t not in said]))
+                l = dict(l, texts=said)
         else:
             scene = (l.get("drift") or 0.0) > SCENE_TEXT_DRIFT
         (dropped if scene else keep).append(l)
-    return keep, [t for l in dropped for t in l["texts"][:3]]
+    return keep, list(dict.fromkeys(t for l in dropped for t in l["texts"][:3]))
 
 
 OVERLAY_KIND_ZH = LangDict({"subtitle": "字幕", "title": "标题", "label": "文字标注", "static_graphic": "图形贴片", "layout_template": "版式模板",

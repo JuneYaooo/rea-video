@@ -39,7 +39,8 @@ def test_review_roundtrip_overrides_and_reports(media, tmp_path, capsys):
     assert any(e.startswith("[tester 看图]") for e in s0["base"]["evidence"])
     assert "tester 看图复核 1/" in b2["summary"]["vlm"]
     md = (out / "report.md").read_text(encoding="utf-8")
-    assert "agent 看图融合" in md and "手持拍摄厨房台面" in md
+    # a named reviewer is named; an AI assistant is never passed off as a person checking the shots
+    assert "tester 看图复核 1 镜" in md and "人工复核" not in md and "手持拍摄厨房台面" in md
     # unanswered shots (empty probs) are skipped silently: one count line, not one line per shot
     assert ("没作答、已跳过" in printed) == (len(b2["shots"]) > 1) and "shot_002: label_probs" not in printed
     # unanswered shots are not applied

@@ -70,18 +70,19 @@ def test_markdown_reading_order_and_cards(breakdown):
     set_lang("zh")
     md = markdown(_with_vlm(b))
     heads = [l for l in md.splitlines() if l.startswith("## ")]
-    want = ["## 内容与结构", "## 角色、场景与道具", "## 声音", "## 复刻方案", "## 分镜表", "## 不确定点", "## 附录"]
+    want = ["## 一眼看懂：画面、包装、声音三层", "## 内容与结构", "## 分镜表", "## 自己复刻：按这个顺序做", "## 角色、场景与道具", "## 声音",
+            "## 不确定点", "## 附录"]
     idx = [heads.index(h) for h in want]
     assert idx == sorted(idx), heads
-    assert md.index("## 内容与结构") < md.index("## 复刻方案") < md.index("### 逐镜取证")
+    assert md.index("## 内容与结构") < md.index("## 自己复刻") < md.index("### 剪辑") < md.index("### 逐镜取证")
     # cast table, scene table, props
-    assert re.search(r"\| A \| 小黄 \| 卡通形象 \| 黄色圆滚滚的小河马.*\| #1、#2、#3 \|", md)
+    assert re.search(r"\| A \| 小黄 \| 卡通形象 \| 黄色圆滚滚的小河马.*\| #1–#3 \|", md)
     assert "| S1 | 城市街道 | 白天 |" in md and "- 粉色小挎包（镜头 #1、#3）：角色一直背着" in md
     # script and music card
     assert "**脚本**（TTS 合成，女声）" in md and "| 0.0–1.0s | A | 你好 |" in md and "| 1.0–2.0s | 旁白 | 再见 |" in md
     assert "- 歌曲：测试歌" in md and "- 风格：轻快；pop；开心；钢琴；纯音乐" in md
     # per-shot forensics folded, one per shot; no internal rule ids in prose
-    assert md.count("<details><summary>#") == len(b["shots"])
+    assert md.count('<details class="ref"><summary>#') == len(b["shots"])
     assert not re.search(r"\bR\d\d-[a-z]|\bS0\d\b|A0\d\)", md), "rule ids leaked into the report"
     assert "capsule_cinema" not in md and "code_render_spec" not in md
 
@@ -90,11 +91,12 @@ def test_markdown_without_vlm_still_complete(breakdown):
     b, _ = breakdown
     set_lang("zh")
     md = markdown(b)
-    assert "没有整片的内容概括" in md and "没有归纳出角色" in md and "## 不确定点" in md
+    assert "这次没有分析整片内容" in md and "这次没有整理出角色" in md and "## 不确定点" in md
+    assert "review_answers.json" not in md  # users are not told to edit agent files
     set_lang("en")
     try:
         md_en = markdown(b)
-        assert "## Cast, scenes and props" in md_en and "## Open questions" in md_en and "<details><summary>#1 " in md_en
+        assert "## Cast, scenes and props" in md_en and "## Open questions" in md_en and '<details class="ref"><summary>#1 ' in md_en
     finally:
         set_lang("zh")
 
@@ -104,8 +106,28 @@ def test_english_markdown_has_no_chinese_punctuation(media, tmp_path):
         md_en = markdown(decompose(media["edit"], tmp_path / "edit", use_vlm=False, ocr=False, stems=False, lang="en"))
     finally:
         set_lang("zh")
-    assert "Probabilities: " in md_en
+    assert "Inference: " in md_en and "Visible on screen" in md_en
     assert not re.findall(r"[（）：，、；]", md_en)
+
+
+def test_shot_detail_separates_seen_from_inferred(breakdown):
+    b, _ = breakdown
+    set_lang("zh")
+    v = _with_vlm(b)
+    v["shots"][0]["base"]["seen"] = ["[VLM] 手指数量不对"]
+    v["shots"][0]["base"]["measured"] = ["24fps 源"]
+    md = markdown(v)
+    start = md.index('<details class="ref"><summary>#1')
+    first = md[start:md.index("</details>", start)]
+    seen_at, made_at = first.index("**画面里看得到的**"), first.index("**工具推断的制作方式**")
+    assert seen_at < first.index("[VLM] 手指数量不对") < made_at < first.index("24fps 源")
+    assert "「制作方式」「素材来源」是工具推断的" in md
+
+
+def test_old_breakdown_evidence_is_split_by_reader_tag():
+    from rea_video.report import _split_evidence
+    seen, measured = _split_evidence({"evidence": ["24fps 源", "[VLM] 文字乱码", "[claude 看图] 手很自然"]})
+    assert seen == ["[VLM] 文字乱码", "[claude 看图] 手很自然"] and measured == ["24fps 源"]
 
 
 def test_html_is_rendered_from_markdown(breakdown):
@@ -144,7 +166,7 @@ def test_open_questions_collects_everything(breakdown):
     b["shots"][1]["base"]["confidence"] = 0.4
     b["sound_sources"] = {"music": {"source": "unknown", "source_zh": "来源待确认", "probs": {"a": 0.5, "b": 0.5}, "how_to_confirm": ["听歌识曲"]}}
     qs = open_questions(b)
-    assert any("工具判 A" in q for q in qs) and any("#2" in q and "40%" in q for q in qs) and any("听歌识曲" in q for q in qs)
+    assert any("工具判 A" in q for q in qs) and any("#2" in q and "40%" in q for q in qs) and any("确认方法见「声音」" in q for q in qs)
 
 
 def test_open_questions_say_when_nobody_heard_the_sound(breakdown):
@@ -155,12 +177,12 @@ def test_open_questions_say_when_nobody_heard_the_sound(breakdown):
     b["analysis"]["vlm"] = {"status": "off", "used": False}
     b["analysis"]["review"] = {"shots": 3, "of": 3, "by": "agent"}
     qs = open_questions(b)
-    assert any("声音没有模型听过" in q and "看图复核只看画面" in q for q in qs) and not any("VLM 没有生效" in q for q in qs)
+    assert any("声音没有 AI 听过" in q and "复核只看了画面" in q and "--vlm" not in q for q in qs) and not any("VLM 没有生效" in q for q in qs)
     b["analysis"]["vlm"] = {"status": "ok", "used": True, "whole_ok": True}
-    assert not any("声音没有模型听过" in q for q in open_questions(b))
+    assert not any("声音没有 AI 听过" in q for q in open_questions(b))
     b["audio"]["has_audio"] = False
     b["analysis"]["vlm"] = {"status": "off", "used": False}
-    assert not any("声音没有模型听过" in q for q in open_questions(b))
+    assert not any("声音没有 AI 听过" in q for q in open_questions(b))
 
 
 def test_narrative_line_from_review_and_whole_video(breakdown):
@@ -169,7 +191,7 @@ def test_narrative_line_from_review_and_whole_video(breakdown):
     b, out = breakdown
     set_lang("zh")
     b = json.loads(json.dumps(b))
-    assert "没有叙事线" in markdown(b) and "在讲什么" not in "".join(l for l in markdown(b).split("\n") if l.startswith("| #"))
+    assert "这次没有整理出叙事线" in markdown(b) and "在讲什么" not in "".join(l for l in markdown(b).split("\n") if l.startswith("| #"))
     last = b["shots"][-1]
     b["whole_video_vlm"] = {"segments": [{"start": 0, "end": b["shots"][0]["end"], "role": "抓注意", "beat": "用一张静帧提问"},
                                          {"start": b["shots"][0]["end"], "end": last["end"], "role": "info", "beat": "逐条讲解"}]}
@@ -194,3 +216,32 @@ def test_narrative_line_from_review_and_whole_video(breakdown):
         assert narrative.shot_roles(b)[last["index"]]["role_zh"] == "deliver the conclusion"
     finally:
         set_lang("zh")
+
+
+def test_shot_numbers_read_as_ranges():
+    from rea_video.i18n import shot_ids
+
+    assert shot_ids([1, 2, 3, 5, 8, 9, 10, 11, 13]) == "#1–#3、#5、#8–#11、#13"
+    assert shot_ids([4, 5]) == "#4、#5" and shot_ids([]) == "—"
+
+
+def test_reviewer_is_named_not_called_human():
+    from rea_video.report import _readers
+
+    b = {"analysis": {"vlm": {}, "review": {"shots": 3, "by": "claude"}}, "shots": [{"base": {"decided_by": "fused_agent"}}]}
+    assert _readers(b) == "工具测量 + AI 助手看图复核 3 镜"
+    b["analysis"]["review"]["by"] = "小王"
+    assert _readers(b) == "工具测量 + 小王 看图复核 3 镜"
+
+
+def test_reader_report_says_each_thing_once(breakdown):  # noqa: F811
+    b, _ = breakdown
+    set_lang("zh")
+    v = _with_vlm(b)
+    v["review_story"] = {"summary": "一句话说清楚", "hook": "0–2 秒先放结果", "highlights": ["先给结果再讲方法"]}
+    v["summary"]["aspects"] = ["剪辑：每分钟 30 刀，平均 2.0s"]
+    md = markdown(v)
+    assert md.count("一句话说清楚") == 1 and md.count("0–2 秒先放结果") == 1 and md.count("先给结果再讲方法") == 1
+    assert md.index("## 核心看点") < md.index("## 一眼看懂") < md.index("## 自己复刻")
+    assert md.count("每分钟 30 刀") == 1 and "### 剪辑" in md          # the cutting numbers live under the remake step only
+    assert "复刻拍摄方案" not in md and "assemble --overlays" not in md   # no second shooting plan, no CLI flags

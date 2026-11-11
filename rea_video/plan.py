@@ -109,22 +109,18 @@ def framing_words(shot: dict) -> tuple[str, str]:
     comp = comp.get("agent") or comp.get("vlm")
     where = _where(fm.get("center_x"), fm.get("center_y")) if fm.get("subject") in ("face", "focus") else None
     move = cm.get("move") or (v.get("camera_move") if v.get("camera_move") not in (None, "", "固定", "static") else None)
-    loc = [x for x in (size, angle, comp or (where and (where[1] if lang() == "en" else where[0])),
-                       move and T("镜头{m}", "camera {m}", m=move)) if x]
-    en_size = {"大特写": "extreme close-up", "特写": "close-up", "近景": "medium close-up", "中景": "medium shot",
-               "全景": "full shot", "远景": "wide shot"}
-    en_move = {"推": "push-in", "拉": "pull-out", "摇/移": "pan / track", "摇": "pan", "移": "track", "跟": "follow",
-               "环绕": "orbit", "手持": "handheld"}
-    en_angle = {"平视": "eye level", "略俯拍": "slightly high angle", "俯拍": "high angle", "顶拍": "top-down overhead",
-                "略仰拍": "slightly low angle", "仰拍": "low angle"}
+    from .aspects.vocab import ZH2EN, canon, show
 
-    def head(x):  # "顶拍（正上方俯拍桌面）" -> "顶拍"
-        return re.split(r"[（(，,]", x)[0].strip() if x else x
+    loc = [x for x in (show(size), show(angle), comp or (where and (where[1] if lang() == "en" else where[0])),
+                       move and T("镜头{m}", "camera {m}", m=show(move))) if x]
 
-    en = [en_size.get(head(size), size if size and size.isascii() else None),
-          en_angle.get(head(angle), angle if angle and angle.isascii() else None),
+    def en_of(x):  # the English prompt always gets English words, whatever the report language
+        c = canon(x) if x else None
+        return ZH2EN.get(c) or (x if x and x.isascii() else None)
+
+    en = [en_of(size), en_of(angle),
           comp if comp and comp.isascii() else (where[1] if where and not comp else None),
-          move and ("camera " + en_move.get(move, move if move.isascii() else "moves"))]
+          move and ("camera " + (en_of(move) or "moves"))]
     return T("，", ", ").join(loc), ", ".join(x for x in en if x)
 
 

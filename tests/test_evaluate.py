@@ -34,6 +34,8 @@ def test_missing_files_are_reported_and_stale_breakdowns_are_decoded_again(media
     out = tmp_path / "out"
     s = E.evaluate(labels, out, ocr=False)["summary"]
     assert s["videos"] == 1 and s["videos_listed"] == 2 and s["missing"] == ["gone"] and s["duration_weighted_accuracy"] == 1.0
+    assert all(v["accuracy"] == 1.0 and "errors" not in v for v in s["by_resolution"].values())
+    assert sum(v["shots"] for v in s["by_camera"].values()) == sum(v["shots"] for v in s["by_resolution"].values())
 
     calls = []
     real = E.decompose
@@ -43,3 +45,15 @@ def test_missing_files_are_reported_and_stale_breakdowns_are_decoded_again(media
     monkeypatch.setattr(E, "decode_fingerprint", lambda: "changed")
     E.evaluate(labels, out, ocr=False)
     assert calls == [1]
+
+
+def test_resolution_buckets_and_error_slices():
+    assert E.resolution_bucket({"width": 1080, "height": 1920}) == "1080p"
+    assert E.resolution_bucket({"width": 720, "height": 1280}) == "720p"
+    assert E.resolution_bucket({"width": 480, "height": 854}) == "<=480p"
+    assert E.resolution_bucket({"width": 2160, "height": 3840}) == ">1080p" and E.resolution_bucket({}) == "unknown"
+    sl = {}
+    E._add_slice(sl, "handheld_like", 3.0, True, "live_action", "live_action")
+    E._add_slice(sl, "handheld_like", 1.0, False, "live_action", "ai_video")
+    t = E._slice_table(sl)["handheld_like"]
+    assert t["accuracy"] == 0.75 and t["wrong_shots"] == 1 and t["errors"] == {"live_action->ai_video": 1.0}

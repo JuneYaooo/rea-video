@@ -1,799 +1,1478 @@
-# Video breakdown report: final.mp4
+# How this video was made: salted_egg.mp4
 
-> English translation of [report.md](report.md), the Markdown report rea-video generated for this video. Section order and content follow the tool output. Text recognized on screen (the "text track" lines) is kept in the original Chinese, since that is what appears in the frame.
+**In one line**: Plush 3D monkeys and a cut-open egg model explain in 4 steps why salted duck eggs ooze oil: the cute characters keep people watching, and every invisible process becomes a visible metaphor animation.
+**How it was made**: Mixed production: 3D render 100%
 
-**Verdict**: mixed production: 3D rendering 100%; overlays: text labels, captions, title (composited in code / an editor); audio: voice + BGM at 110.0 BPM (library music) + 5 sound effects
+- 1:06 · vertical 9:16 · 29 shots, 2.3s each on average
+- Confidence 87%, based on: tool measurements + AI assistant reviewed 29 shots
+- ⚠️ 2 points are uncertain, see “Open questions”
 
-- Duration 66.542 s · 1080×1920 · 24.0 fps · 9:16
-- 21 shots, 3.17 s average; transitions: cut×20, start×1
-- Confidence (duration-weighted): 98%; method: deterministic forensics fused with a vision model (VLM)
-- VLM active (gemini-3.1-pro-preview, gemini-3.1-pro-preview-pc, gcp-gemini-3-pro-preview)
+<!--mix-->
 
 ![storyboard](storyboard_en.jpg)
 
-## Production method share
+## What makes it work
 
-| Underlying picture | Duration | Share |
-|---|---|---|
-| 3D rendering | 66.55 s | 100% |
+- **The hook**: From 0 s a large title fixed at the top asks the question 咸鸭蛋为什么会流油？ (why do salted eggs ooze oil?); at 1.5–7 s Yabao cracks the fluffy egg and the yolk oozes oil and pink wisps on its own, while the 
+- 13.7–15.8 s: salt becomes little white balls with eyes popping out of a bowl, with a ding. The protagonist enters as a character and acts out every later step, so viewers can follow it.
+- 15.8–54.6 s: the step tag under the title changes from 第1步·盐钻气孔 (step 1: salt enters the pores) to 第4步·静待出油 (step 4: wait for the oil). A minute of explanation is cut into 4 parts and viewers always k
+- 41.6–45.3 s: wringing a dripping towel stands in for proteins tightening and squeezing out oil, turning a molecular change into a motion everyone has made.
+- 60.8–63.0 s: a small ball drops onto a balance, the beam levels out and sparkles flash (ding). "Not a drop more, not a drop less" becomes a picture, so the conclusion has visible proof.
 
-## Remake plan
+## At a glance: picture, packaging, sound
 
-**21 3D-rendered shots → 10 generation units, 10 Seedance 2.5 calls**
+Any short video splits into three layers: the picture, what is laid on top of it (subtitles, styled text, stickers), and the sound. Remake it one layer at a time.
 
-- The default engine, Seedance 2.0 (including Mini / Fast), cannot produce several shots in one call; with it you would generate the 21 shots one by one. This plan assumes Seedance 2.5 (≤30 s per call, multi-shot in one call): 10 calls in total
-- Grouping rules: AI shots in the same set joined by hard cuts are merged into one generation (S01); ≤30 s per call; consecutive hard cuts inside a unit should stay ≤8 s, at most 10 s (S06); split at dissolves / fades and set changes (S03)
-- Audio: the model can generate action sound effects and ambience along with the picture; voice-over is better done as separate TTS and mixed in, so you can change the script and timing
-
-### Generation units
-
-| Unit | Shots | Time | Duration | Method | Continuity |
-|---|---|---|---|---|---|
-| G1 | #1 | 0.0–8.9 s | 8.9 s | single shot | First frame: generate an image with the composition of the original shot 1 first frame (shots/shot_001_first.jpg) |
-| G2 | #2–#3 | 8.9–15.8 s | 7.0 s | multi-shot in one call | First frame: the last frame of G1, continuing the action (S05) |
-| G3 | #4–#6 | 15.8–24.3 s | 8.5 s | multi-shot in one call | First frame: the last frame of G2, continuing the action (S05) |
-| G4 | #7–#9 | 24.3–29.5 s | 5.1 s | multi-shot in one call | First frame: generate an image with the composition of the original shot 7 first frame (shots/shot_007_first.jpg) |
-| G5 | #10 | 29.5–30.6 s | 1.2 s | single shot | First frame: generate an image with the composition of the original shot 10 first frame (shots/shot_010_first.jpg) |
-| G6 | #11–#12 | 30.6–38.0 s | 7.4 s | multi-shot in one call | First frame: generate an image with the composition of the original shot 11 first frame (shots/shot_011_first.jpg) |
-| G7 | #13 | 38.0–41.6 s | 3.5 s | single shot | First frame: the last frame of G6, continuing the action (S05) |
-| G8 | #14–#16 | 41.6–49.6 s | 8.0 s | multi-shot in one call | First frame: generate an image with the composition of the original shot 14 first frame (shots/shot_014_first.jpg) |
-| G9 | #17–#18 | 49.6–57.2 s | 7.6 s | multi-shot in one call | First frame: the last frame of G8, continuing the action (S05) |
-| G10 | #19–#21 | 57.2–66.5 s | 9.3 s | multi-shot in one call | First frame: the last frame of G9, continuing the action (S05) |
-
-**G1 · 3D rendering · shot #1 · 8.9 s**
-
-- Reference material: `@image1` character reference (one frontal + one half-body per character) to keep faces consistent across shots; `@video1` the original 0.0–8.9 s segment as a reference for motion, camera and cut rhythm (reference only, do not copy the picture)
-- First-frame image prompt: 3D cartoon style, a yellow fluffy little animal in a minimal green courtyard, a cracked-open salted duck egg in front of it leaking red oil, soft light, centered composition.
-- Alternative route: a 3D project. Have an LLM write a Blender script or a Three.js scene, model the characters / props once and render each shot from its own camera; best for multiple angles and character consistency, and changing copy or shots is just a code change (R08)
-
-```text
-Vertical 9:16; frontal soft light (flat), soft light (almost no shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Character per @image1. Follow @video1 for motion, camera and cut rhythm.
-3D animation, a yellow fluffy little animal cracks open a salted duck egg, red oil gushes out of the yolk, a brown fluffy little animal next to it watches in surprise, static camera, soft light.
-```
-
-<details><summary>English prompt (as generated by the tool)</summary>
-
-```text
-3D animation, a yellow furry little animal cracks open a salted duck egg, red oil gushes out from the yolk, a brown furry little animal watches in surprise nearby, static camera, soft lighting.
-```
-
-</details>
-
-**G2 · 3D rendering · shots #2, #3 · 7.0 s**
-
-- Reference material: `@image1` character reference (one frontal + one half-body per character) to keep faces consistent across shots; `@video1` the original 8.9–15.8 s segment as a reference for motion, camera and cut rhythm (reference only, do not copy the picture)
-- First-frame image prompt: 3D cartoon style, three cute animal characters with fluffy fur stand around a white bowl holding a small clay pot. Simple geometric hill shapes in the background, solid-color backdrop. Soft top light, bright colors.
-- Alternative route: a 3D project. Have an LLM write a Blender script or a Three.js scene, model the characters / props once and render each shot from its own camera; best for multiple angles and character consistency, and changing copy or shots is just a code change (R08)
-
-```text
-Vertical 9:16; frontal soft light (flat), soft light (almost no shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Character per @image1. Follow @video1 for motion, camera and cut rhythm. Hard cuts between shots.
-Shot 1 (0.0–4.8 s): three fluffy cartoon animal characters stand in the frame, then suddenly turn into three white fur balls and roll out to the right together, leaving the bowl and pot in the middle. Static camera.
-Shot 2 (4.8–7.0 s): static camera. In the center is a wooden bowl full of white powder. Several white balls with tiny eyes pop out of the powder one after another and rest on the surface, light and bouncy with an elastic settle.
-```
-
-<details><summary>English prompt (as generated by the tool)</summary>
-
-```text
-Shot 1 (0.0-4.8s): Three fluffy cartoon animal characters stand in the frame, then they suddenly turn into three white fur balls and roll out to the right side of the frame together, leaving the bowl and pot in the middle. Static camera.
-Shot 2 (4.8-7.0s): Static camera. In the center is a wooden bowl filled with white powder. Several small white spheres with tiny eyes pop up sequentially from the powder, resting on the surface with a bouncy, elastic animation.
-```
-
-</details>
-
-**G3 · 3D rendering · shots #4, #5, #6 · 8.5 s**
-
-- Reference material: `@image1` character reference (one frontal + one half-body per character) to keep faces consistent across shots; `@video1` the original 15.8–24.3 s segment as a reference for motion, camera and cut rhythm (reference only, do not copy the picture)
-- First-frame image prompt: 3D cartoon style, macro photography, a brown cylindrical flowerpot in the center with a white fluffy ball showing inside, a fluffy cartoon monkey peeking in from the right, soft solid-color background, Blender 3D render look, soft light
-- Alternative route: a 3D project. Have an LLM write a Blender script or a Three.js scene, model the characters / props once and render each shot from its own camera; best for multiple angles and character consistency, and changing copy or shots is just a code change (R08)
-
-```text
-Vertical 9:16; frontal soft light (flat), soft light (almost no shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Character per @image1. Follow @video1 for motion, camera and cut rhythm. Hard cuts between shots.
-Shot 1 (0.0–3.8 s): static eye-level shot, 3D cartoon scene, the fluffy object in the pot stays still, the little monkey plush on the right blinks its big eyes and watches it, tiny screws hover and drift slightly in the background, a smooth, clean 3D-rendered animation throughout
-Shot 2 (3.8–5.2 s): 3D animation, a few tiny salt grains fly in from the upper right toward a pore in the shell of the duck-egg model, static camera.
-Shot 3 (5.2–8.5 s): 3D educational animation, camera at eye level, fixed, pulling back slightly; on the desk a transparent cylinder of white liquid on the left, a cylinder of translucent yellow liquid on the right, a round semi-permeable membrane model with a wooden rim floating in between; several smooth white balls pass through the membrane ring from left to right at a smooth, even pace.
-```
-
-<details><summary>English prompt (as generated by the tool)</summary>
-
-```text
-Shot 1 (0.0-3.8s): Static eye-level shot, 3D cartoon scene, a fluffy white ball inside a brown cup, a cute furry monkey character on the right looking at it and blinking, soft studio lighting, Blender 3D render style.
-Shot 2 (3.8-5.2s): 3D animation, tiny salt particles fly from the top right towards a pore on a duck egg model, static camera.
-Shot 3 (5.2-8.5s): 3D scientific educational animation, camera slowly pulls back. On a clean desktop, a transparent cylinder with white liquid stands on the left, another cylinder with yellow liquid on the right, and a circular semi-permeable membrane frame suspended in the middle. Small smooth white spheres float and pass smoothly through the membrane from left to right, soft studio lighting.
-```
-
-</details>
-
-**G4 · 3D rendering · shots #7, #8, #9 · 5.1 s**
-
-- Reference material: `@image1` character reference (one frontal + one half-body per character) to keep faces consistent across shots; `@video1` the original 24.3–29.5 s segment as a reference for motion, camera and cut rhythm (reference only, do not copy the picture)
-- First-frame image prompt: 3D cartoon style, close-up of a salted duck egg cut open, translucent egg white wrapping a perfectly round orange yolk, a few round salt grains at the edge, clean solid-color background, soft studio lighting, C4D render, minimalist, high quality.
-- Alternative route: a 3D project. Have an LLM write a Blender script or a Three.js scene, model the characters / props once and render each shot from its own camera; best for multiple angles and character consistency, and changing copy or shots is just a code change (R08)
-
-```text
-Vertical 9:16; frontal soft light (flat), soft light (almost no shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Character per @image1. Follow @video1 for motion, camera and cut rhythm. Hard cuts between shots.
-Shot 1 (0.0–1.8 s): the camera pushes in slowly and steadily toward the orange yolk in the center, keeping the 3D cartoon look, lighting unchanged.
-Shot 2 (1.8–3.5 s): 3D cartoon style, close-up, a salted duck egg cut open, a perfect orange spherical yolk in the middle wrapped in translucent egg white. Over time, blue droplet-shaped particle effects gradually appear in the egg white around the yolk. Camera stays fixed.
-Shot 3 (3.5–5.1 s): static close-up, a 3D cross-section showing water being drawn out of the yolk, several translucent light-blue arrows flow outward from the yolk surface, the yolk firms up and contracts slightly, clean CG animation look throughout.
-```
-
-<details><summary>English prompt (as generated by the tool)</summary>
-
-```text
-Shot 1 (0.0-1.8s): The camera slowly and steadily pushes in towards the orange egg yolk in the center, maintaining the 3D cartoon texture and consistent lighting.
-Shot 2 (1.8-3.5s): 3D cartoon style, close-up shot, a cross-section of a salted duck egg with a perfect orange spherical yolk in the center, surrounded by translucent egg white. Over time, blue water droplet-like particle effects gradually appear in the egg white around the yolk. The camera remains static.
-Shot 3 (3.5-5.1s): Static macro 3D animation showing cross-section of an egg. Semi-transparent light blue arrows flow outward from the central yellow yolk representing osmotic dehydration, clean lighting.
-```
-
-</details>
-
-**G5 · 3D rendering · shot #10 · 1.2 s**
-
-- Reference material: `@image1` character reference (one frontal + one half-body per character) to keep faces consistent across shots; `@video1` the original 29.5–30.6 s segment as a reference for motion, camera and cut rhythm (reference only, do not copy the picture)
-- First-frame image prompt: 3D render, a cute fluffy cartoon monkey stands on the left of the frame looking at a floating fluffy white ball on the right, a simple light-green geometric wall and a brown jar in the background, soft studio lighting bringing out the fur texture, Pixar style, vertical composition.
-- Generate 4 s and trim to 1.2 s (very short shots are unstable when generated on their own)
-- Alternative route: a 3D project. Have an LLM write a Blender script or a Three.js scene, model the characters / props once and render each shot from its own camera; best for multiple angles and character consistency, and changing copy or shots is just a code change (R08)
-
-```text
-Vertical 9:16; frontal soft light (flat), soft light (almost no shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Character per @image1. Follow @video1 for motion, camera and cut rhythm.
-3D animation, a cute fluffy cartoon monkey stands on the left looking at a floating fluffy white ball on the right, the monkey breathes gently, the white ball bobs slightly, fixed camera, soft light.
-```
-
-<details><summary>English prompt (as generated by the tool)</summary>
-
-```text
-3D animation, a cute furry cartoon monkey standing on the left, looking at a floating furry white ball on the right. The monkey has slight breathing movements, the white ball floats slightly, fixed camera, soft lighting.
-```
-
-</details>
-
-**G6 · 3D rendering · shots #11, #12 · 7.4 s**
-
-- Reference material: `@image1` character reference (one frontal + one half-body per character) to keep faces consistent across shots; `@video1` the original 30.6–38.0 s segment as a reference for motion, camera and cut rhythm (reference only, do not copy the picture)
-- First-frame image prompt: 3D render, close-up, a cutaway model of the inside of a duck egg. A smooth yellow sphere in the center stands for the yolk, wrapped in a translucent white shell, resting on a ring-shaped base of beige woven material. Light-green solid background, soft studio light, cartoon educational style, clean and bright.
-- Alternative route: a 3D project. Have an LLM write a Blender script or a Three.js scene, model the characters / props once and render each shot from its own camera; best for multiple angles and character consistency, and changing copy or shots is just a code change (R08)
-
-```text
-Vertical 9:16; frontal soft light (flat), soft light (almost no shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Character per @image1. Follow @video1 for motion, camera and cut rhythm. Hard cuts between shots.
-Shot 1 (0.0–3.1 s): 3D animation, fixed camera. A cutaway duck-egg model in the center of the frame; the yellow sphere (yolk) in the middle shrinks smoothly and proportionally over time while everything else stays still.
-Shot 2 (3.1–7.4 s): several white fluffy ball creatures start out scattered on a wooden tabletop, then move toward the middle and huddle tightly together, and a few small orange balls pop out of them; camera stays fixed.
-```
-
-<details><summary>English prompt (as generated by the tool)</summary>
-
-```text
-Shot 1 (0.0-3.1s): 3D animation, fixed camera. In the center of the frame is a cross-section model of a duck egg structure. The yellow sphere (egg yolk) in the center gradually and smoothly shrinks in scale over time, while the other parts remain stationary.
-Shot 2 (3.1-7.4s): Several white fluffy little ball creatures are initially scattered on a wooden table. Then they move towards the center and huddle tightly together. Next, several small orange spheres pop out from them. The camera remains static.
-```
-
-</details>
-
-**G7 · 3D rendering · shot #13 · 3.5 s**
-
-- Reference material: `@image1` character reference (one frontal + one half-body per character) to keep faces consistent across shots; `@video1` the original 38.0–41.6 s segment as a reference for motion, camera and cut rhythm (reference only, do not copy the picture)
-- First-frame image prompt: 3D cutaway render, a cooked salted duck egg model cut open, a round orange-yellow yolk in the center, translucent gel-like egg white and a slice of shell outside, minimal soft studio lighting, centered composition, refined educational illustration style
-- Alternative route: a 3D project. Have an LLM write a Blender script or a Three.js scene, model the characters / props once and render each shot from its own camera; best for multiple angles and character consistency, and changing copy or shots is just a code change (R08)
-
-```text
-Vertical 9:16; frontal soft light (flat), soft light (almost no shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Character per @image1. Follow @video1 for motion, camera and cut rhythm.
-Static close-up of a 3D cutaway salted duck egg; glistening golden oil slowly seeps out of the top of the orange spherical yolk and gathers and flows, egg white and shell stay still, soft studio top light, a steady view of the oil separating out
-```
-
-<details><summary>English prompt (as generated by the tool)</summary>
-
-```text
-Static close-up 3D animation of a cross-sectioned salted duck egg, golden oil droplets slowly oozing and gathering on top of the smooth orange yolk, soft studio overhead lighting, realistic fluid simulation, educational animation style.
-```
-
-</details>
-
-**G8 · 3D rendering · shots #14, #15, #16 · 8.0 s**
-
-- Reference material: `@image1` character reference (one frontal + one half-body per character) to keep faces consistent across shots; `@video1` the original 41.6–49.6 s segment as a reference for motion, camera and cut rhythm (reference only, do not copy the picture)
-- First-frame image prompt: 3D minimal educational render style, smooth gray background and light tabletop, a light gray-blue square towel with fine fuzz hangs in the center of the frame, threaded on a thin horizontal metal rod, soft even lighting, clean 3D model
-- Alternative route: a 3D project. Have an LLM write a Blender script or a Three.js scene, model the characters / props once and render each shot from its own camera; best for multiple angles and character consistency, and changing copy or shots is just a code change (R08)
-
-```text
-Vertical 9:16; frontal soft light (flat), soft light (almost no shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Character per @image1. Follow @video1 for motion, camera and cut rhythm. Hard cuts between shots.
-Shot 1 (0.0–3.7 s): fixed eye-level camera, 3D animation demo: a square towel with fine fuzz in the center is pushed inward by metal rods from left and right and compressed into a thin T shape; as it is squeezed, several crystal-clear water drops form in the air on both sides of the towel and fall; the background stays minimal and still
-Shot 2 (3.7–5.8 s): 3D cartoon style, three cute fluffy little animals stand side by side, green in the middle, brown and gray on the sides, simple green geometric hills and a brown jar in the background. Fine yellow particles keep falling from the top of the frame. Static camera
-Shot 3 (5.8–8.0 s): 3D cartoon style, close-up, a salted duck egg model cut open sits in a white container, the yolk orange-yellow. Over time more oil spills out over the top of the yolk, with twinkling star effects on the oil surface; camera stays fixed.
-```
-
-<details><summary>English prompt (as generated by the tool)</summary>
-
-```text
-Shot 1 (0.0-3.7s): Static eye-level shot, 3D educational animation: a light blue textured towel block suspended on a metal rod is squeezed inward from both sides by the rod mechanism, compressing into a tight T-shape, releasing transparent water droplets falling down on both sides, minimal studio background
-Shot 2 (3.7-5.8s): 3D cartoon style, three fluffy cute little animals standing side by side, the middle one is green, the ones on the sides are brown and gray, the background is simple green geometric hills and a brown jar. Small yellow particles are continuously falling from the top of the screen. Static camera
-Shot 3 (5.8-8.0s): 3D cartoon style, close-up shot, a cut salted duck egg model placed in a white container, the yolk is orange-yellow. Over time, more oil gradually overflows from the top of the yolk, with twinkling star effects on the oil surface, the camera remains fixed.
-```
-
-</details>
-
-**G9 · 3D rendering · shots #17, #18 · 7.6 s**
-
-- Reference material: `@image1` character reference (one frontal + one half-body per character) to keep faces consistent across shots; `@video1` the original 49.6–57.2 s segment as a reference for motion, camera and cut rhythm (reference only, do not copy the picture)
-- First-frame image prompt: 3D cartoon style, vertical. A fluffy green monkey character on the left, a small brown pot on a white base on the right, the pot open at the top showing a yellow yolk. Simple light-green geometric hill shapes in the background. Soft, even light overall.
-- Alternative route: a 3D project. Have an LLM write a Blender script or a Three.js scene, model the characters / props once and render each shot from its own camera; best for multiple angles and character consistency, and changing copy or shots is just a code change (R08)
-
-```text
-Vertical 9:16; frontal soft light (flat), soft light (almost no shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Character per @image1. Follow @video1 for motion, camera and cut rhythm. Hard cuts between shots.
-Shot 1 (0.0–5.4 s): 3D animation. The green fluffy character on the left stays still. On the right, what was a white fur ball instantly turns into a small brown pot. The pot opens at the top and a stream of pink liquid winds down from above in an S curve, landing on the yellow yolk inside the pot. Fixed camera.
-Shot 2 (5.4–7.6 s): 3D animation, three fluffy monkeys; the middle one raises both hands to lift the bowl and salted duck egg on its head, looking happy, the two monkeys beside it sway slightly, camera fixed.
-```
-
-<details><summary>English prompt (as generated by the tool)</summary>
-
-```text
-Shot 1 (0.0-5.4s): 3D animation. A green fuzzy character on the left remains still. On the right, a white fuzzy ball instantly transforms into a small brown pot. The top of the pot opens, and a stream of pink liquid meanders down from above in an S-shape, landing on the yellow yolk inside the pot. Fixed camera.
-Shot 2 (5.4-7.6s): 3D animation, three furry monkey characters, the middle monkey raises its hands holding a bowl and a salted duck egg on its head, happy expression, the two monkeys on the side sway slightly, fixed camera.
-```
-
-</details>
-
-**G10 · 3D rendering · shots #19, #20, #21 · 9.3 s**
-
-- Reference material: `@image1` character reference (one frontal + one half-body per character) to keep faces consistent across shots; `@video1` the original 57.2–66.5 s segment as a reference for motion, camera and cut rhythm (reference only, do not copy the picture)
-- First-frame image prompt: 3D-rendered fluffy cartoon monkey plushies, dense realistic fur all over, big smiling eyes, one yellow and one brown, a salted duck egg cut open and leaking oil and a small brown jar on the table, minimal clean background, soft studio lighting, vertical composition.
-- Alternative route: a 3D project. Have an LLM write a Blender script or a Three.js scene, model the characters / props once and render each shot from its own camera; best for multiple angles and character consistency, and changing copy or shots is just a code change (R08)
-
-```text
-Vertical 9:16; frontal soft light (flat), soft light (almost no shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Character per @image1. Follow @video1 for motion, camera and cut rhythm. Hard cuts between shots.
-Shot 1 (0.0–3.5 s): fixed camera, two fluffy cartoon monkeys stand at a table, the brown monkey blinks and raises a hand slightly and waves, a red prohibition sign slides in from the right, the characters' fur is fine and flicker-free, the whole frame steady and lifelike.
-Shot 2 (3.5–5.8 s): fixed eye-level camera, a 3D-rendered wooden balance scale. A small yolk ball drops straight down from above and merges into the large yolk ball on the left pan, the beam tilts down to the left, then a few sparkling four-point stars pop up above it, and the scale comes to rest tilted.
-Shot 3 (5.8–9.3 s): camera fixed, three fluffy cartoon animal characters stand side by side, blinking and swaying slightly, the geometric spheres in the background stay floating and still, lighting steady.
-```
-
-<details><summary>English prompt (as generated by the tool)</summary>
-
-```text
-Shot 1 (0.0-3.5s): Static camera shot, two fluffy 3D cartoon monkeys standing in front of a table with salted duck eggs, the brown monkey blinks and moves slightly, a red prohibition sign enters from the right, realistic hair particle rendering, soft studio lighting.
-Shot 2 (3.5-5.8s): Static eye-level shot, 3D rendered wooden scale. A small egg yolk ball falls from above and merges into a larger yolk ball on the left tray, causing the scale to tilt down to the left, followed by sparkling four-point star graphics popping up above, ending in a tilted rest.
-Shot 3 (5.8-9.3s): Static camera, three fluffy cartoon animal characters standing side by side, characters slightly blinking and swaying their bodies, geometric spheres in the background remain suspended and still, stable lighting.
-```
-
-</details>
-
-## Framing, lighting and editing
-
-- Framing: medium shot 49%, close-up 25%, extreme close-up 23%; eye-level angle; subject is the sharpest region of the frame (no face, so shot size is an estimate)
-- Camera: fixed (tripod / stand / on a table) 78%, moving (gimbal / handheld pan) 22%; common move: push-in
-- Lighting: frontal soft light (flat). Key light frontal (from the camera direction, both sides of the subject equally bright), at subject height; contrast ratio about 1.0:1 (0.0 stops); medium softness; neutral color temperature (about 5000K); background clearly blurred (shallow depth of field / portrait mode)
-- (The picture is not live footage: the above describes the light in the frame, for writing generation prompts, not a shooting plan)
-- Grade: Japanese pastel (bright, low saturation, lifted blacks); low saturation, low contrast, lifted blacks (grayish shadows), neutral overall
-- Editing: 18.0 cuts per minute, 3.17 s average shot; no live-action shots
-
-| Dimension | Item | Conclusion | Source |
+| Layer | In this video | How to make it | Detail |
 |---|---|---|---|
-| Framing | Shot size | Medium shot | Measured: medium shot; VLM: medium shot |
-| Framing | Angle | Eye level | VLM: eye level |
-| Framing | Composition | Subject centered, vertical | VLM: subject centered, vertical |
-| Camera | Support | Tripod / stand, fixed | Measured: fixed (tripod / stand / on a table); VLM: tripod / stand, fixed |
-| Camera | Lens | Virtual standard lens | VLM: virtual standard lens |
-| Camera | Setups / scene | Pure 3D virtual camera: character wide / medium interaction shots + microscopic duck-egg cross-section views + towel-wringing / balance-scale metaphor views | VLM: same |
-| Camera | Likely gear | No camera equipment, pure 3D digital rendering (e.g. Blender / C4D) | VLM: same |
-| Lighting | Scene | Indoor | VLM: indoor |
-| Lighting | Key | Soft skylight | VLM: soft skylight |
-| Lighting | Softness | Medium | Measured: medium; VLM: soft |
-| Lighting | Fill | Even fill | VLM: even fill |
-| Lighting | Rim | None | VLM: none |
-| Lighting | Catchlight | Highlights in the characters' eyes | VLM: highlights in the characters' eyes |
-| Lighting | Visible sources | None | VLM: none |
-| Lighting | Color temperature | Neutral (about 5000K) | Measured: neutral (about 5000K); VLM: neutral |
-| Lighting | Setup | Even soft lighting | VLM: even soft lighting |
-| Lighting | Overall | Bright, soft 3D cartoon lighting, slightly warm, key frontal and slightly to one side, soft natural shadows, diffuse reflection with a plush-material feel. | VLM: same |
-| Grade | Style | Japanese pastel (bright, low saturation, lifted blacks) | Measured: Japanese pastel (bright, low saturation, lifted blacks) |
+| **Picture** (base) | 3D render 29 shots | AI in 14 generations | “Remake it yourself” |
+| **Packaging** (on top) | text, title, subtitle, styled text | add in the editor: subtitles, styled text and stickers by the timeline | “Packaging layer” |
+| **Sound** | voice（TTS voice-over）, music (110 BPM, to confirm), 6 sound effects | voice: TTS voice-over; music: find a track with the same tempo and mood; effects: add from a library at the listed times | “Sound” |
 
-- Note: contrast ratio, softness, color temperature and shot size are measured on the subject's pixels (the face when there is one, otherwise the sharpest region, which is an estimate); platform transcoding crushes shadows, so softness and fill read conservative; angle, light source type, catchlight and rim come from visual review. Where measurement and visual review disagree, both are listed.
+## Content and structure
 
-## Metadata clues
+- The narrative line below comes from reading each shot; the lines were not transcribed separately, subtitle text is under “Packaging layer”
 
-- Encoder: `Lavf61.7.100`
+**Narrative line**
 
-## Audio breakdown
+Keep this line in a remake: same order, same job at each step, with the point refilled from your own cases, numbers and material, so it is more than a change of subject.
 
-![audio](audio_en.png)
-
-- Overall loudness −17.3 dBFS, peak −1.6 dBFS
-- **Voice**: present, 76% of duration, fundamental about 319.6 Hz (reads female)
-- **Background music**: 97% of duration (1.5–66.0 s), about 110.0 BPM (or 55.0 / 219.9), key D major (confidence 0.866), section changes at 4.0 s, 8.5 s, 13.0 s, 17.0 s, 26.5 s, 42.5 s, 46.5 s, 51.0 s
-- **Cuts vs beat**: 45% of cuts land on a beat (random baseline about 25%)
-
-**Audio source: AI-generated or existing material**
-
-- **Conclusion**: video type: narration / voice-over + music → voice: TTS; music: library music; sound effects: added in post from a sound library / editor (leaning, to be confirmed)
-- **Separated stems**: `stems/original.wav` (original), `stems/vocals.wav` (dry voice; transient effects land here too), `stems/music.wav` (music + ambience)
-- Video form: explainer; AI picture 0%, live footage 0%
-- **Background music**: library music (existing_library 67%, ai_generated 21%, popular_song 12%)
-  - The music is a bed under the picture: for an ordinary video the bed is most likely from a library (prior)
-  - The voice is speech / narration rather than singing (sustained-pitch ratio 0.15): this is the ordinary "narration + BGM" form
-  - VLM listening judgment: library music
-  - Music and video end together: cut to length or custom-made (either source is possible, weak evidence)
-  - How to confirm: on the Douyin / Xiaohongshu page check the music tag: a song title → existing track; "original sound by @author" → uploaded by the author (for music videos this is usually an AI song)
-  - How to confirm: run Soda Music / QQ Music song recognition or ACRCloud: a hit means an existing song
-  - How to confirm: listen: AI songs often have slurred diction, thin metallic highs and lyrics that track the picture closely; library beds are mostly instrumental, standard structure, cut off or faded at the end
-- **Voice**: TTS (tts 81%, human_recording 14%, ai_video_native 5%)
-  - VLM judged it a synthesized TTS voice
-  - Voice and background sound are continuous across cuts: the whole narration was laid on separately in post (TTS or a human voice-over)
-- **Sound effects**: added in post from a sound library / editor (library_editor 57%, ai_native 29%, live_sync 14%)
-  - Cartoon effects in 3D / animated videos are also commonly synthesized procedurally or added from a library (for example the capsule-cinema plush recipe synthesizes them procedurally)
-- Per-segment native-audio check: background change 10.4 dB at cuts, 9.6 dB within shots (ratio 1.08) → sound is continuous across cuts, laid as one bed in post
-
-**Sound effects** (5; source: vlm = heard by the model, deterministic = signal-detected candidate, low confidence)
-
-| Time | Type | Description | Matching picture | Source |
-|---|---|---|---|---|
-| 1.50 s | pop | the salted duck egg cracking and oil bursting out | action | vlm |
-| 18.00 s | pop | tiny pops of salt grains hopping and burrowing in | action | vlm |
-| 31.00 s | whoosh | the yolk dehydrating and shrinking | action | vlm |
-| 43.00 s | other | wringing water out of a towel | action | vlm |
-| 55.00 s | ding | success chime for the oily salted duck egg | text_pop | vlm |
-
-**Audio remake plan**
-
-- voice (A01-narration): TTS narration, a sweet young-female / children's-educational voice, crisp clear diction, moderate pace with a storytelling rhythm, inspiring and approachable → capsule-cinema DoubaoTTSTool / UniversalTTSTool (or a MiniMax cloned voice); use duration-controlled TTS (A02) when you must fit the original timing
-- music (A03-music): light, lively, childlike cartoon score; relaxed, cheerful, full of curiosity and exploration; 110.0 BPM; D major → the original leans library: search a library by BPM / mood / key, or generate a royalty-free track in a similar style with AI
-- sfx (A04-sfx): 5 effects → place them at the time points: capsule-cinema SoundEffectsTool / a sound library, or synthesize them procedurally like the plush recipe (pitch aligned to the BGM key)
-- ambience (A04-sfx): no location ambience → ambience stock or a video-to-audio model
-- Mix: voice prominent and clear, BGM as a bed with light sidechain ducking under the voice, effects at moderate level matched to the action points.
-
-## Structure and copy (VLM)
-
-- Summary: cute 3D plush cartoon characters and explanatory animation give a fun science explainer on why salted duck eggs ooze oil, the science behind the curing.
-- Form: explainer; hook: opens with a puzzle, "why does a salted duck egg ooze oil when not a drop of oil was added?", paired with a close-up of a plush duckling cracking an egg that bursts with red oil, which grabs curiosity right away.
-- Narration: TTS, a sweet young-female / children's-educational voice, crisp clear diction; music: light, lively, childlike cartoon score; captions: a persistent large yellow outlined title at the top, centered black explainer captions with white outline in a cute font at the bottom, small step-indicator labels in the middle
-- Overall judgment (VLM): the whole piece is 3D character animation and 3D diagram rendering (plush animal characters and internal cross-section demos made in C4D / Blender or similar), composited in post with TTS voice-over and library BGM: a pure CG animated science short.
-  - 0.0–8.88 s · the question and the visual · In a small courtyard in the morning, the duckling cracks open a cured salted duck egg and bright red oil pours out. Not a drop of oil was ever added, and the cat stares wide-eyed: where on earth does this oil come from?
-  - 8.88–15.83 s · the hidden hand revealed · It turns out the director behind this oily show is plain ordinary salt.
-  - 15.83–21.04 s · step 1: salt enters the pores · Step one: in the brine, salt creeps in grain by grain through the pores in the shell.
-  - 21.04–33.75 s · step 2: salt enters the yolk and dehydrates it · Step two: salt fills the egg white first, then crosses the yolk membrane and sinks deep into the yolk. The water stored in the yolk gets pulled out by the salt. The dehydrated yolk shrinks into a ball, smaller and smaller, harder and harder.
-  - 33.75–45.25 s · step 3: the proteins squeeze the oil out · Step three: the high salt makes the proteins in the yolk tighten up and clump together. The oil that was wrapped up tight suddenly all comes loose. Like wringing a towel: tighten your grip and the water is squeezed out.
-  - 45.25–57.21 s · step 4: wait for the oil, and the result · Step four: leave the rest to time. Home curing takes 30 to 40 days. Crack one open after enough days and red oil pools on the yolk, trembling and glistening. That is an oily salted duck egg!
-  - 57.21–66.0 s · wrap-up: where the oil really comes from · But this oil is not some mysterious substance someone sneaked in. It was always the fat in the yolk, not a drop more, not a drop less.
+| Time | Shots | Job | What it says |
+|---|---|---|---|
+| 0.0–11.5s | #1–#6 | grab attention | Opens with cute characters in an everyday setting: who, and where → The hero cracks the egg, tying the question to a concrete action → Shows the counterintuitive result straight away: the yolk makes its own oil → Stresses the contradiction (oil appears though none was added) and sets up the mystery → A wide-eyed character reaction amplifies the viewer's curiosity → (… 6 points, each shot in the shot list) |
+| 11.5–13.7s | #7 | turn | Turns the story toward revealing the real cause |
+| 13.7–41.6s | #8–#20 | add information | Names the real protagonist and turns it into a character → Step 1: sets up the curing environment → Uses a cross-section model to draw the path salt takes into the shell → Step 2, first half: salt fills the egg white → Step 2, second half: salt crosses the yolk membrane into the yolk → (… 13 points, each shot in the shot list) |
+| 41.6–45.2s | #21 | show evidence | Compares proteins squeezing out oil to wringing a towel, an everyday experience |
+| 45.2–49.6s | #22, #23 | add information | Step 4: lets the picture carry the waiting time → Gives a concrete number of days for how long curing takes |
+| 49.6–57.2s | #24–#26 | deliver the conclusion | After enough curing time the egg is opened: the result → Replays the opening oil shot, now that the viewer knows why → A celebratory character move delivers the conclusion: it worked |
+| 57.2–60.8s | #27 | turn | A "however" clears up a misconception: nothing was added |
+| 60.8–66.5s | #28, #29 | deliver the conclusion | A balance shows the oil was in the yolk all along: the total is unchanged → Ends on a balanced line that nails the conclusion |
 
 ## Shot list
 
-| # | Time | Duration | Underlying picture | Confidence | Material | Overlays | Camera | Remake route |
-|---|---|---|---|---|---|---|---|---|
-| 1 | 00:00.000 | 8.88 s | 3D rendering | 99% | Rendered by the producer | Captions, title | Static | R08-product-multiview → capsule_cinema |
-| 2 | 00:08.875 | 4.79 s | 3D rendering | 99% | Rendered by the producer | Captions, title | Static | R08-product-multiview → capsule_cinema |
-| 3 | 00:13.667 | 2.17 s | 3D rendering | 99% | Rendered by the producer | Text, title | Static | R08-product-multiview → capsule_cinema |
-| 4 | 00:15.833 | 3.75 s | 3D rendering | 99% | Rendered by the producer | Captions, title | Static | R08-product-multiview → capsule_cinema |
-| 5 | 00:19.583 | 1.46 s | 3D rendering | 99% | Rendered by the producer | Text, title | Smooth move | R08-product-multiview → capsule_cinema |
-| 6 | 00:21.042 | 3.29 s | 3D rendering | 99% | Rendered by the producer | Captions, title | Static | R08-product-multiview → capsule_cinema |
-| 7 | 00:24.333 | 1.79 s | 3D rendering | 99% | Rendered by the producer | Text, title | Smooth move | R08-product-multiview → capsule_cinema |
-| 8 | 00:26.125 | 1.67 s | 3D rendering | 99% | Rendered by the producer | Text, title | Smooth move | R08-product-multiview → capsule_cinema |
-| 9 | 00:27.792 | 1.67 s | 3D rendering | 99% | Rendered by the producer | Text, title | Static | R08-product-multiview → capsule_cinema |
-| 10 | 00:29.458 | 1.17 s | 3D rendering | 99% | Rendered by the producer | Text, title | Smooth move | R08-product-multiview → capsule_cinema |
-| 11 | 00:30.625 | 3.12 s | 3D rendering | 99% | Rendered by the producer | Captions, title | Smooth move | R08-product-multiview → capsule_cinema |
-| 12 | 00:33.750 | 4.29 s | 3D rendering | 99% | Rendered by the producer | Captions, title | Static (subject moving) | R08-product-multiview → capsule_cinema |
-| 13 | 00:38.042 | 3.54 s | 3D rendering | 90% | Rendered by the producer | Captions, title | Static | R08-product-multiview → capsule_cinema |
-| 14 | 00:41.583 | 3.67 s | 3D rendering | 99% | Rendered by the producer | Captions, title | Static | R08-product-multiview → capsule_cinema |
-| 15 | 00:45.250 | 2.08 s | 3D rendering | 99% | Rendered by the producer | Text, title | Static | R08-product-multiview → capsule_cinema |
-| 16 | 00:47.333 | 2.25 s | 3D rendering | 99% | Rendered by the producer | Text, title | Smooth move | R08-product-multiview → capsule_cinema |
-| 17 | 00:49.583 | 5.38 s | 3D rendering | 99% | Rendered by the producer | Captions, text, title | Static | R08-product-multiview → capsule_cinema |
-| 18 | 00:54.958 | 2.25 s | 3D rendering | 99% | Rendered by the producer | Text, captions, title | Static | R08-product-multiview → capsule_cinema |
-| 19 | 00:57.208 | 3.54 s | 3D rendering | 90% | Rendered by the producer | Captions, title | Static | R08-product-multiview → capsule_cinema |
-| 20 | 01:00.750 | 2.25 s | 3D rendering | 99% | Rendered by the producer | Text, title | Static | R08-product-multiview → capsule_cinema |
-| 21 | 01:03.000 | 3.54 s | 3D rendering | 99% | Rendered by the producer | Captions, title | Smooth move | R08-product-multiview → capsule_cinema |
+Picture, Camera and Overlays are what is visible on screen; Made with and Material are the tools' inference, with the basis in the shot-by-shot appendix.
 
-## Shot details
+| # | Frames | Time | Length | What it says | Picture | Camera | Overlays | Made with (inferred) | Material (inferred) | Remake |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | ![#1](shots/shot_001_first.jpg) | 0:00.0 | 1.5s | grab attention: Opens with cute characters in an… | Medium eye-level shot. White tabletop, s… | static (subject moves) | text, title | 3D render 89% | rendered by the creator | AI generation / 3D render · G1 |
+| 2 | ![#2](shots/shot_002_first.jpg) | 0:01.5 | 2.2s | grab attention: The hero cracks the egg, tying t… | Close eye-level shot. The yellow-green p… | static | subtitle, title | 3D render 85% | rendered by the creator | AI generation / 3D render · G1 |
+| 3 | ![#3](shots/shot_003_first.jpg) | 0:03.7 | 1.5s | grab attention: Shows the counterintuitive resul… | Medium eye-level shot. An orange yolk in… | smooth move | text, title | 3D render 86% | rendered by the creator | AI generation / 3D render · G1 |
+| 4 | ![#4](shots/shot_004_first.jpg) | 0:05.2 | 1.8s | grab attention: Stresses the contradiction (oil … | Medium eye-level shot. The oily yolk in … | static | text, title | 3D render 89% | rendered by the creator | AI generation / 3D render · G1 |
+| 5 | ![#5](shots/shot_005_first.jpg) | 0:07.0 | 1.9s | grab attention: A wide-eyed character reaction a… | Close eye-level shot. The long-haired or… | smooth move | text, title | 3D render 79% | rendered by the creator | AI generation / 3D render · G2 |
+| 6 | ![#6](shots/shot_006_first.jpg) | 0:08.9 | 2.6s | grab attention: Asks the question again: where d… | Medium eye-level shot. Yabao, Huamao, th… | static | subtitle, title | 3D render 84% | rendered by the creator | AI generation / 3D render · G2 |
+| 7 | ![#7](shots/shot_007_first.jpg) | 0:11.5 | 2.2s | turn: Turns the story toward revealing the real … | Medium eye-level shot. Three long-haired… | smooth move | subtitle, title | 3D render 90% | rendered by the creator | AI generation / 3D render · G2 |
+| 8 | ![#8](shots/shot_008_first.jpg) | 0:13.7 | 2.2s | add information: Names the real protagonist and … | Medium, slightly high-angle shot. A shal… | static | text, title | 3D render 91% | rendered by the creator | AI generation / 3D render · G3 |
+| 9 | ![#9](shots/shot_009_first.jpg) | 0:15.8 | 3.8s | add information: Step 1: sets up the curing envi… | Medium eye-level shot. A large brown tra… | static | subtitle, title | 3D render 90% | rendered by the creator | AI generation / 3D render · G4 |
+| 10 | ![#10](shots/shot_010_first.jpg) | 0:19.6 | 1.5s | add information: Uses a cross-section model to d… | Close eye-level shot. An upright egg cro… | smooth move | subtitle, title | 3D render 86% | rendered by the creator | AI generation / 3D render · G5 |
+| 11 | ![#11](shots/shot_011_first.jpg) | 0:21.0 | 2.0s | add information: Step 2, first half: salt fills … | Medium eye-level shot. A glass cylinder … | static | subtitle, title | 3D render 91% | rendered by the creator | AI generation / 3D render · G5 |
+| 12 | ![#12](shots/shot_012_first.jpg) | 0:23.0 | 1.3s | add information: Step 2, second half: salt cross… | Medium eye-level shot. A glass of white … | static | text, title | 3D render 91% | rendered by the creator | AI generation / 3D render · G5 |
+| 13 | ![#13](shots/shot_013_first.jpg) | 0:24.3 | 1.8s | add information: The camera moves into the yolk:… | Close-up, eye level. The yolk of the cro… | smooth move | subtitle, text, title | 3D render 85% | rendered by the creator | AI generation / 3D render · G5 |
+| 14 | ![#14](shots/shot_014_first.jpg) | 0:26.1 | 1.7s | add information: Points out that the yolk holds … | Close-up, eye level. The cross-section y… | smooth move | text, title | 3D render 84% | rendered by the creator | AI generation / 3D render · G5 |
+| 15 | ![#15](shots/shot_015_first.jpg) | 0:27.8 | 1.7s | add information: Shows salt pulling water out of… | Close-up, eye level. The cross-section m… | smooth move | text, title | 3D render 84% | rendered by the creator | AI generation / 3D render · G5 |
+| 16 | ![#16](shots/shot_016_first.jpg) | 0:29.5 | 1.2s | add information: A character reaction bridges to… | Close eye-level shot. The grey-brown plu… | smooth move | subtitle, title | 3D render 89% | rendered by the creator | AI generation / 3D render · G6 |
+| 17 | ![#17](shots/shot_017_first.jpg) | 0:30.6 | 3.1s | add information: Gives the result of dehydration… | Close-up, eye level. In the cross-sectio… | smooth move | subtitle, title | 3D render 84% | rendered by the creator | AI generation / 3D render · G7 |
+| 18 | ![#18](shots/shot_018_first.jpg) | 0:33.8 | 4.3s | add information: Step 3: turns proteins clumping… | Medium eye-level shot. A wooden plank ac… | static (subject moves) | subtitle, title | 3D render 91% | rendered by the creator | AI generation / 3D render · G7 |
+| 19 | ![#19](shots/shot_019_first.jpg) | 0:38.0 | 2.0s | add information: Shows the trapped oil starting … | Close-up, eye level. In the cross-sectio… | smooth move | text, title | 3D render 84% | rendered by the creator | AI generation / 3D render · G8 |
+| 20 | ![#20](shots/shot_020_first.jpg) | 0:40.0 | 1.6s | add information: The released oil gathers on the… | Close-up, eye level. In the cross-sectio… | smooth move | subtitle, title | 3D render 85% | rendered by the creator | AI generation / 3D render · G8 |
+| 21 | ![#21](shots/shot_021_first.jpg) | 0:41.6 | 3.7s | show evidence: Compares proteins squeezing out o… | Medium eye-level shot. A pale blue fuzzy… | static | subtitle, title | 3D render 92% | rendered by the creator | AI generation / 3D render · G8 |
+| 22 | ![#22](shots/shot_022_first.jpg) | 0:45.2 | 2.1s | add information: Step 4: lets the picture carry … | Medium eye-level shot. Huamao, Yabao and… | static | text, title | 3D render 85% | rendered by the creator | AI generation / 3D render · G9 |
+| 23 | ![#23](shots/shot_023_first.jpg) | 0:47.3 | 2.2s | add information: Gives a concrete number of days… | Close-up, eye level. In the cross-sectio… | smooth move | subtitle, title | 3D render 82% | rendered by the creator | AI generation / 3D render · G10 |
+| 24 | ![#24](shots/shot_024_first.jpg) | 0:49.6 | 1.7s | deliver the conclusion: After enough curing time… | Close eye-level shot. Yabao stands at le… | static | text, title | 3D render 86% | rendered by the creator | AI generation / 3D render · G11 |
+| 25 | ![#25](shots/shot_025_first.jpg) | 0:51.3 | 3.7s | deliver the conclusion: Replays the opening oil … | Medium eye-level shot. The oily yolk in … | static (subject moves) | subtitle, text, title | 3D render 89% | rendered by the creator | AI generation / 3D render · G11 |
+| 26 | ![#26](shots/shot_026_first.jpg) | 0:55.0 | 2.2s | deliver the conclusion: A celebratory character … | Close eye-level shot. Yabao, in the cent… | static | subtitle, title, styled text | 3D render 84% | rendered by the creator | AI generation / 3D render · G12 |
+| 27 | ![#27](shots/shot_027_first.jpg) | 0:57.2 | 3.5s | turn: A "however" clears up a misconception: not… | Close eye-level shot. Yabao and Huamao s… | static | subtitle, title | 3D render 82% | rendered by the creator | AI generation / 3D render · G12 |
+| 28 | ![#28](shots/shot_028_first.jpg) | 1:00.8 | 2.2s | deliver the conclusion: A balance shows the oil … | Medium eye-level shot. A wooden balance … | static | text, title | 3D render 91% | rendered by the creator | AI generation / 3D render · G13 |
+| 29 | ![#29](shots/shot_029_first.jpg) | 1:03.0 | 3.5s | deliver the conclusion: Ends on a balanced line … | Close to medium shot. Yabao, Huamao and … | static (subject moves) | subtitle, title | 3D render 85% | rendered by the creator | AI generation / 3D render · G14 |
 
-### #1 00:00.000–00:08.875 · 3D rendering + code / editor overlays (captions, title)
+## Remake it yourself: do it in this order
+
+Copy the method and the rhythm, not the pictures.
+
+1. **Plan the content**: write your script on the narrative line under “Content and structure”
+2. **Collect material**: see “What to prepare” below
+3. **Generate**: 14 generations, see “AI generation” below
+4. **Edit**: see “Edit” below
+5. **Packaging**: the subtitle file `packaging/subtitles.srt` imports straight into an editor; styles and timeline under “Packaging layer”
+6. **Sound**: see “Sound”; every effect can be played first
+7. **Compare**: watch yours next to the original: shot lengths, subtitle positions, where the music comes in and drops
+
+### What to prepare
+
+- `@图片1` character reference images (one frontal face + one half-body per character) so the look stays consistent across shots: Yabao, Huamao, Grey-brown monkey (unnamed), Salt balls, Protein blobs
+
+### AI generation
+
+**29 3D render shots → 14 generation units, 14 Seedance 2.0 calls**
+
+- Grouping: AI shots in the same scene joined by hard cuts are generated in one call; ≤15s per call; consecutive hard cuts inside a unit preferably ≤8s, at most 10s; split at dissolves / fades and scene changes
+- Audio: the model can generate action sound effects and ambience along with the picture; voice-over is better done as separate TTS and mixed in, so copy and timing stay editable
+- Packaging: the title, subtitle, text label, styled text on the generated shots is post-production packaging: keep it out of the prompts, erase it from reference frames, and lay it back on from the packaging timeline after generation
+
+A video model can take these inputs; each generation unit below lists which ones to feed and where they come from:
+- **Text prompt**: always; describes the picture, action and camera
+- **First frame**: locks the composition and subject of frame one. Without it this is plain text-to-video and framing changes every time
+- **Last frame**: also locks the final frame so the model only fills in between. Suits a single shot with a camera move or action
+- **Reference images**: how the product and people look, so they stay the same across shots (`@图片1` in the prompt)
+- **Reference video**: copy the action, camera move and rhythm, not the picture (`@视频1`); not every model takes one
+
+One generation per unit. The table lists what to feed the model; open a unit for where each input comes from and the prompt.
+
+| Unit | Shots | Time | Duration | Mode | Feed | Continuity |
+|---|---|---|---|---|---|---|
+| G1 | #1–#4 | 0.0–7.0s | 7.0s | multi-shot | first frame + reference image + reference video | — |
+| G2 | #5–#7 | 7.0–13.7s | 6.7s | multi-shot | first frame + reference image + reference video | first frame = last frame of G1, continue the action |
+| G3 | #8 | 13.7–15.8s | 2.2s | single shot | first frame + reference image + reference video | — |
+| G4 | #9 | 15.8–19.6s | 3.8s | single shot | first frame + reference image + reference video | — |
+| G5 | #10–#15 | 19.6–29.5s | 9.9s | multi-shot | first frame + reference image + reference video | — |
+| G6 | #16 | 29.5–30.6s | 1.2s | single shot | first frame + reference image + reference video | — |
+| G7 | #17–#18 | 30.6–38.0s | 7.4s | multi-shot | first frame + reference image + reference video | — |
+| G8 | #19–#21 | 38.0–45.2s | 7.2s | multi-shot | first frame + reference image + reference video | first frame = last frame of G7, continue the action |
+| G9 | #22 | 45.2–47.3s | 2.1s | single shot | first frame + reference image + reference video | — |
+| G10 | #23 | 47.3–49.6s | 2.2s | single shot | first frame + reference image + reference video | — |
+| G11 | #24–#25 | 49.6–55.0s | 5.4s | multi-shot | first frame + reference image + reference video | — |
+| G12 | #26–#27 | 55.0–60.8s | 5.8s | multi-shot | first frame + reference image + reference video | first frame = last frame of G11, continue the action |
+| G13 | #28 | 60.8–63.0s | 2.2s | single shot | first frame + reference image + reference video | — |
+| G14 | #29 | 63.0–66.5s | 3.5s | single shot | first frame + reference image + reference video | — |
+
+<details><summary>G1 · shots #1–#4 · 7.0s · multi-reference generation</summary>
+
+| Input | Needed | From | Why |
+|---|---|---|---|
+| text prompt | yes | see the prompt below | describes picture, action and camera; every other input only constrains it |
+| first frame | worth it | source frame `shots/shot_001_first.jpg` (to change product, person or style, redraw it with an image model from the first-frame prompt below); this model takes frame inputs or references, not both: pass it as one more reference image and write “@图片2 as the first frame” in the prompt (Jimeng's omni-reference accepts this; most APIs do not, drop it if refused) | locks composition, shot size and subject position; with text alone every generation frames it differently |
+| last frame | no | — | several shots in one call; a last frame would only constrain the final shot |
+| reference image | yes | `@图片1` character reference images (one frontal face + one half-body per character) so the look stays consistent across shots | the first frame only fixes frame one; reference images keep the product and people consistent after it |
+| reference video | worth it | `@视频1` source clip 0.0–7.0s | follow the action, camera move and cutting rhythm; reference only, the picture is not copied |
+
+- First-frame image prompt: Medium eye-level shot, vertical 9:16. White tabletop with a sage-green wall and pale low-poly mountain shapes behind. At left, a shallow woven basket holding two long-haired white fluffy balls; three plush monkeys (grey-brown, orange-brown, yellow-green) stand in a line from left to right, side-on, facing right. Soft diffuse light, Blender fur render, low-saturation fresh palette.
+- Alternative: a 3D project. Have an LLM write a Blender script or a Three.js scene; model the characters / props once and render each shot from its own camera. Best for multiple angles and character consistency, and changing copy or shots is just a code change
+
+```text
+Vertical 9:16; soft frontal light (flat light), soft light (almost no lit / shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Characters follow @图片1. Follow the action, camera movement and cutting rhythm of @视频1. Hard cuts between shots.
+Shot 1 (0.0–1.5s): Medium eye-level shot. Three plush monkeys walk in a line from left to right, bodies swaying gently, while two white fluffy balls stay in a woven basket at lower left. Static camera.
+Shot 2 (1.5–3.7s): Close eye-level shot. A yellow-green plush monkey on the left watches a white fluffy ball float up from a small bowl and slowly turn; the monkey lifts a hand. Static camera.
+Shot 3 (3.7–5.2s): Medium eye-level shot. A layer of pale oil swells on top of an orange yolk in a white bowl, a few droplets pop up, then three pinkish-white S-shaped wisps rise above it. Static camera.
+Shot 4 (5.2–7.0s): Medium eye-level shot. The camera slowly pushes in toward the oily yolk in the white bowl; the yolk and oil stay still.
+```
+
+English prompt:
+
+```text
+Shot 1 (0.0-1.5s): Medium eye-level shot. Three plush monkeys walk in a line from left to right, bodies swaying gently, while two white fluffy balls stay in a woven basket at lower left. Static camera.
+Shot 2 (1.5-3.7s): Close eye-level shot. A yellow-green plush monkey on the left watches a white fluffy ball float up from a small bowl and slowly turn; the monkey lifts a hand. Static camera.
+Shot 3 (3.7-5.2s): Medium eye-level shot. A layer of pale oil swells on top of an orange yolk in a white bowl, a few droplets pop up, then three pinkish-white S-shaped wisps rise above it. Static camera.
+Shot 4 (5.2-7.0s): Medium eye-level shot. The camera slowly pushes in toward the oily yolk in the white bowl; the yolk and oil stay still.
+```
+
+</details>
+
+<details><summary>G2 · shots #5–#7 · 6.7s · multi-reference generation</summary>
+
+| Input | Needed | From | Why |
+|---|---|---|---|
+| text prompt | yes | see the prompt below | describes picture, action and camera; every other input only constrains it |
+| first frame | worth it | the last frame of G1's result; this model takes frame inputs or references, not both: pass it as one more reference image and write “@图片2 as the first frame” in the prompt (Jimeng's omni-reference accepts this; most APIs do not, drop it if refused) | hard cut from the previous unit in the same scene; matching the first frame keeps it from jumping |
+| last frame | no | — | several shots in one call; a last frame would only constrain the final shot |
+| reference image | yes | `@图片1` character reference images (one frontal face + one half-body per character) so the look stays consistent across shots | the first frame only fixes frame one; reference images keep the product and people consistent after it |
+| reference video | worth it | `@视频1` source clip 7.0–13.7s | follow the action, camera move and cutting rhythm; reference only, the picture is not copied |
+
+- First-frame image prompt: Close eye-level shot, vertical. An orange-brown long-haired plush monkey faces the camera in the center, two small pointed ears on top, beige face, big glossy black eyes, pink cheeks and a pale blue ring collar. Sage-green wall, white tabletop. Soft light, Blender fur render.
+- Alternative: a 3D project. Have an LLM write a Blender script or a Three.js scene; model the characters / props once and render each shot from its own camera. Best for multiple angles and character consistency, and changing copy or shots is just a code change
+
+```text
+Vertical 9:16; soft frontal light (flat light), soft light (almost no lit / shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Characters follow @图片1. Follow the action, camera movement and cutting rhythm of @视频1. Hard cuts between shots.
+Shot 1 (0.0–1.9s): Close eye-level shot. A brown plush monkey faces the camera, its eyes widen and blink, its body sways slightly, and white four-point sparkles pop above its head. Static camera.
+Shot 2 (1.9–4.5s): Medium eye-level shot. Three plush monkeys stand around the oily yolk, swaying and tilting their heads, while two orange question marks float up at upper right. Static camera.
+Shot 3 (4.5–6.7s): Medium eye-level shot. The camera slowly trucks right past three white fluffy balls on the table while white sparkles twinkle in the background.
+```
+
+English prompt:
+
+```text
+Shot 1 (0.0-1.9s): Close eye-level shot. A brown plush monkey faces the camera, its eyes widen and blink, its body sways slightly, and white four-point sparkles pop above its head. Static camera.
+Shot 2 (1.9-4.5s): Medium eye-level shot. Three plush monkeys stand around the oily yolk, swaying and tilting their heads, while two orange question marks float up at upper right. Static camera.
+Shot 3 (4.5-6.7s): Medium eye-level shot. The camera slowly trucks right past three white fluffy balls on the table while white sparkles twinkle in the background.
+```
+
+</details>
+
+<details><summary>G3 · shots #8 · 2.2s · multi-reference generation</summary>
+
+| Input | Needed | From | Why |
+|---|---|---|---|
+| text prompt | yes | see the prompt below | describes picture, action and camera; every other input only constrains it |
+| first frame | worth it | source frame `shots/shot_008_first.jpg` (to change product, person or style, redraw it with an image model from the first-frame prompt below); this model takes frame inputs or references, not both: pass it as one more reference image and write “@图片2 as the first frame” in the prompt (Jimeng's omni-reference accepts this; most APIs do not, drop it if refused) | locks composition, shot size and subject position; with text alone every generation frames it differently |
+| last frame | no | — | this unit uses references to keep the product and people; the model takes no last frame alongside them |
+| reference image | yes | `@图片1` character reference images (one frontal face + one half-body per character) so the look stays consistent across shots | the first frame only fixes frame one; reference images keep the product and people consistent after it |
+| reference video | worth it | `@视频1` source clip 13.7–15.8s | follow the action, camera move and cutting rhythm; reference only, the picture is not copied |
+
+- First-frame image prompt: Medium slightly high-angle shot, vertical. In the lower middle, a pale wood-grain round bowl heaped with white salt on a white tabletop; blurred sage-green wall behind. Soft diffuse light, minimal 3D cartoon render.
+- Generate 4s and trim to 2.2s (very short shots are unstable when generated on their own)
+- Alternative: a 3D project. Have an LLM write a Blender script or a Three.js scene; model the characters / props once and render each shot from its own camera. Best for multiple angles and character consistency, and changing copy or shots is just a code change
+
+```text
+Vertical 9:16; soft frontal light (flat light), soft light (almost no lit / shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Characters follow @图片1. Follow the action, camera movement and cutting rhythm of @视频1.
+Medium slightly high-angle shot. Five or six small white balls with tiny black eyes pop out of the salt pile in a wooden bowl one by one and wobble on the surface. Static camera.
+```
+
+English prompt:
+
+```text
+Medium slightly high-angle shot. Five or six small white balls with tiny black eyes pop out of the salt pile in a wooden bowl one by one and wobble on the surface. Static camera.
+```
+
+</details>
+
+<details><summary>G4 · shots #9 · 3.8s · multi-reference generation</summary>
+
+| Input | Needed | From | Why |
+|---|---|---|---|
+| text prompt | yes | see the prompt below | describes picture, action and camera; every other input only constrains it |
+| first frame | worth it | source frame `shots/shot_009_first.jpg` (to change product, person or style, redraw it with an image model from the first-frame prompt below); this model takes frame inputs or references, not both: pass it as one more reference image and write “@图片2 as the first frame” in the prompt (Jimeng's omni-reference accepts this; most APIs do not, drop it if refused) | locks composition, shot size and subject position; with text alone every generation frames it differently |
+| last frame | no | — | this unit uses references to keep the product and people; the model takes no last frame alongside them |
+| reference image | yes | `@图片1` character reference images (one frontal face + one half-body per character) so the look stays consistent across shots | the first frame only fixes frame one; reference images keep the product and people consistent after it |
+| reference video | worth it | `@视频1` source clip 15.8–19.6s | follow the action, camera move and cutting rhythm; reference only, the picture is not copied |
+
+- First-frame image prompt: Medium eye-level shot, vertical. In the center, a large brown translucent cylindrical cup with the top of a long-haired white fluffy ball showing at the rim; at lower right a grey-brown plush monkey leans in, looking left. Sage-green wall, low-poly mountain shapes and a small wooden-handled hammer behind. Soft light, 3D cartoon render.
+- Alternative: a 3D project. Have an LLM write a Blender script or a Three.js scene; model the characters / props once and render each shot from its own camera. Best for multiple angles and character consistency, and changing copy or shots is just a code change
+
+```text
+Vertical 9:16; soft frontal light (flat light), soft light (almost no lit / shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Characters follow @图片1. Follow the action, camera movement and cutting rhythm of @视频1.
+Medium eye-level shot. The white fluffy ball sinks slightly into the brown cup while a grey-brown plush monkey on the right blinks and watches. Static camera.
+```
+
+English prompt:
+
+```text
+Medium eye-level shot. The white fluffy ball sinks slightly into the brown cup while a grey-brown plush monkey on the right blinks and watches. Static camera.
+```
+
+</details>
+
+<details><summary>G5 · shots #10–#15 · 9.9s · multi-reference generation</summary>
+
+| Input | Needed | From | Why |
+|---|---|---|---|
+| text prompt | yes | see the prompt below | describes picture, action and camera; every other input only constrains it |
+| first frame | worth it | source frame `shots/shot_010_first.jpg` (to change product, person or style, redraw it with an image model from the first-frame prompt below); this model takes frame inputs or references, not both: pass it as one more reference image and write “@图片2 as the first frame” in the prompt (Jimeng's omni-reference accepts this; most APIs do not, drop it if refused) | locks composition, shot size and subject position; with text alone every generation frames it differently |
+| last frame | no | — | several shots in one call; a last frame would only constrain the final shot |
+| reference image | yes | `@图片1` character reference images (one frontal face + one half-body per character) so the look stays consistent across shots | the first frame only fixes frame one; reference images keep the product and people consistent after it |
+| reference video | worth it | `@视频1` source clip 19.6–29.5s | follow the action, camera move and cutting rhythm; reference only, the picture is not copied |
+
+- First-frame image prompt: Close eye-level shot, vertical. In the center, an upright oval egg cross-section model: off-white shell with fine fuzz along the rim, translucent egg white inside and an orange spherical yolk in the middle, resting on a woven rope ring. Sage-green background. Soft light, 3D science-explainer render.
+- Alternative: a 3D project. Have an LLM write a Blender script or a Three.js scene; model the characters / props once and render each shot from its own camera. Best for multiple angles and character consistency, and changing copy or shots is just a code change
+
+```text
+Vertical 9:16; soft frontal light (flat light), soft light (almost no lit / shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Characters follow @图片1. Follow the action, camera movement and cutting rhythm of @视频1. Hard cuts between shots.
+Shot 1 (0.0–1.5s): Close eye-level shot. A few small white salt balls drop onto the top of the egg cross-section model from the upper right and slip one by one through tiny pores into the egg white. Static camera.
+Shot 2 (1.5–3.5s): Medium eye-level shot. A few small white salt grains fall one by one into a glass cylinder of milky liquid. Static camera.
+Shot 3 (3.5–4.8s): Medium eye-level shot. Small white salt grains fly out above the left glass, pass through the wooden-framed round membrane in the middle and drop into the orange liquid in the right glass. Static camera.
+Shot 4 (4.8–6.5s): Close-up, eye level. The camera slowly pushes in on the orange yolk at the center of the egg model; two white sparkles flash above it. Ends with the yolk filling half the frame.
+Shot 5 (6.5–8.2s): Close-up, eye level. A faint wet highlight shimmers on the yolk surface while the camera creeps in very slowly.
+Shot 6 (8.2–9.9s): Close-up, eye level. A few pale blue droplets seep out of the yolk, drift through the egg white to the right edge of the shell and vanish. Static camera.
+```
+
+English prompt:
+
+```text
+Shot 1 (0.0-1.5s): Close eye-level shot. A few small white salt balls drop onto the top of the egg cross-section model from the upper right and slip one by one through tiny pores into the egg white. Static camera.
+Shot 2 (1.5-3.5s): Medium eye-level shot. A few small white salt grains fall one by one into a glass cylinder of milky liquid. Static camera.
+Shot 3 (3.5-4.8s): Medium eye-level shot. Small white salt grains fly out above the left glass, pass through the wooden-framed round membrane in the middle and drop into the orange liquid in the right glass. Static camera.
+Shot 4 (4.8-6.5s): Close-up, eye level. The camera slowly pushes in on the orange yolk at the center of the egg model; two white sparkles flash above it. Ends with the yolk filling half the frame.
+Shot 5 (6.5-8.2s): Close-up, eye level. A faint wet highlight shimmers on the yolk surface while the camera creeps in very slowly.
+Shot 6 (8.2-9.9s): Close-up, eye level. A few pale blue droplets seep out of the yolk, drift through the egg white to the right edge of the shell and vanish. Static camera.
+```
+
+</details>
+
+<details><summary>G6 · shots #16 · 1.2s · multi-reference generation</summary>
+
+| Input | Needed | From | Why |
+|---|---|---|---|
+| text prompt | yes | see the prompt below | describes picture, action and camera; every other input only constrains it |
+| first frame | worth it | source frame `shots/shot_016_first.jpg` (to change product, person or style, redraw it with an image model from the first-frame prompt below); this model takes frame inputs or references, not both: pass it as one more reference image and write “@图片2 as the first frame” in the prompt (Jimeng's omni-reference accepts this; most APIs do not, drop it if refused) | locks composition, shot size and subject position; with text alone every generation frames it differently |
+| last frame | no | — | this unit uses references to keep the product and people; the model takes no last frame alongside them |
+| reference image | yes | `@图片1` character reference images (one frontal face + one half-body per character) so the look stays consistent across shots | the first frame only fixes frame one; reference images keep the product and people consistent after it |
+| reference video | worth it | `@视频1` source clip 29.5–30.6s | follow the action, camera move and cutting rhythm; reference only, the picture is not copied |
+
+- First-frame image prompt: Close eye-level shot, vertical. At left, a grey-brown plush monkey with a beige face, big black eyes and pink cheeks, side-on facing right; at right, a long-haired white oval fluffy ball hovering above the table; behind on the right, a brown red-lidded clay jar. Sage-green wall, low-poly mountain shapes. Soft light, Blender fur render.
+- Generate 4s and trim to 1.2s (very short shots are unstable when generated on their own)
+- Alternative: a 3D project. Have an LLM write a Blender script or a Three.js scene; model the characters / props once and render each shot from its own camera. Best for multiple angles and character consistency, and changing copy or shots is just a code change
+
+```text
+Vertical 9:16; soft frontal light (flat light), soft light (almost no lit / shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Characters follow @图片1. Follow the action, camera movement and cutting rhythm of @视频1.
+Close eye-level shot. A white fluffy ball rises from the table and slowly turns while the grey-brown plush monkey on the left looks up and blinks. The camera slowly pushes in.
+```
+
+English prompt:
+
+```text
+Close eye-level shot. A white fluffy ball rises from the table and slowly turns while the grey-brown plush monkey on the left looks up and blinks. The camera slowly pushes in.
+```
+
+</details>
+
+<details><summary>G7 · shots #17, #18 · 7.4s · multi-reference generation</summary>
+
+| Input | Needed | From | Why |
+|---|---|---|---|
+| text prompt | yes | see the prompt below | describes picture, action and camera; every other input only constrains it |
+| first frame | worth it | source frame `shots/shot_017_first.jpg` (to change product, person or style, redraw it with an image model from the first-frame prompt below); this model takes frame inputs or references, not both: pass it as one more reference image and write “@图片2 as the first frame” in the prompt (Jimeng's omni-reference accepts this; most APIs do not, drop it if refused) | locks composition, shot size and subject position; with text alone every generation frames it differently |
+| last frame | no | — | several shots in one call; a last frame would only constrain the final shot |
+| reference image | yes | `@图片1` character reference images (one frontal face + one half-body per character) so the look stays consistent across shots | the first frame only fixes frame one; reference images keep the product and people consistent after it |
+| reference video | worth it | `@视频1` source clip 30.6–38.0s | follow the action, camera move and cutting rhythm; reference only, the picture is not copied |
+
+- First-frame image prompt: Close-up, eye level, vertical. The egg cross-section model with an orange spherical yolk in the center, surrounded by translucent white and an off-white shell. Soft light, 3D science-explainer render.
+- Alternative: a 3D project. Have an LLM write a Blender script or a Three.js scene; model the characters / props once and render each shot from its own camera. Best for multiple angles and character consistency, and changing copy or shots is just a code change
+
+```text
+Vertical 9:16; soft frontal light (flat light), soft light (almost no lit / shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Characters follow @图片1. Follow the action, camera movement and cutting rhythm of @视频1. Hard cuts between shots.
+Shot 1 (0.0–3.1s): Close-up, eye level. The orange yolk shrinks evenly by about ten percent, leaving a pale ring of space around it, and comes to rest. Static camera.
+Shot 2 (3.1–7.4s): Medium eye-level shot. Several white furry blobs with shiny black eyes bounce down onto a wooden plank one after another and squeeze together in a row, then a few small orange balls pop up from between them. Static camera.
+```
+
+English prompt:
+
+```text
+Shot 1 (0.0-3.1s): Close-up, eye level. The orange yolk shrinks evenly by about ten percent, leaving a pale ring of space around it, and comes to rest. Static camera.
+Shot 2 (3.1-7.4s): Medium eye-level shot. Several white furry blobs with shiny black eyes bounce down onto a wooden plank one after another and squeeze together in a row, then a few small orange balls pop up from between them. Static camera.
+```
+
+</details>
+
+<details><summary>G8 · shots #19–#21 · 7.2s · multi-reference generation</summary>
+
+| Input | Needed | From | Why |
+|---|---|---|---|
+| text prompt | yes | see the prompt below | describes picture, action and camera; every other input only constrains it |
+| first frame | worth it | the last frame of G7's result; this model takes frame inputs or references, not both: pass it as one more reference image and write “@图片2 as the first frame” in the prompt (Jimeng's omni-reference accepts this; most APIs do not, drop it if refused) | hard cut from the previous unit in the same scene; matching the first frame keeps it from jumping |
+| last frame | no | — | several shots in one call; a last frame would only constrain the final shot |
+| reference image | yes | `@图片1` character reference images (one frontal face + one half-body per character) so the look stays consistent across shots | the first frame only fixes frame one; reference images keep the product and people consistent after it |
+| reference video | worth it | `@视频1` source clip 38.0–45.2s | follow the action, camera move and cutting rhythm; reference only, the picture is not copied |
+
+- First-frame image prompt: Close-up, eye level, vertical. The egg cross-section model with an orange spherical yolk in the center, surrounded by translucent egg white. Soft light, 3D science-explainer render.
+- Alternative: a 3D project. Have an LLM write a Blender script or a Three.js scene; model the characters / props once and render each shot from its own camera. Best for multiple angles and character consistency, and changing copy or shots is just a code change
+
+```text
+Vertical 9:16; soft frontal light (flat light), soft light (almost no lit / shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Characters follow @图片1. Follow the action, camera movement and cutting rhythm of @视频1. Hard cuts between shots.
+Shot 1 (0.0–2.0s): Close-up, eye level. Four or five translucent orange oil beads rise one by one from the top of the yolk and hover above it. Static camera.
+Shot 2 (2.0–3.5s): Close-up, eye level. The oil beads above the yolk spread out and fall back onto its top, forming a wrinkled pale oil layer. Static camera.
+Shot 3 (3.5–7.2s): Medium eye-level shot. The towel is lifted by the metal rod and wrung tight in the middle into a narrow T shape while clear water drops fall on both sides. Static camera.
+```
+
+English prompt:
+
+```text
+Shot 1 (0.0-2.0s): Close-up, eye level. Four or five translucent orange oil beads rise one by one from the top of the yolk and hover above it. Static camera.
+Shot 2 (2.0-3.5s): Close-up, eye level. The oil beads above the yolk spread out and fall back onto its top, forming a wrinkled pale oil layer. Static camera.
+Shot 3 (3.5-7.2s): Medium eye-level shot. The towel is lifted by the metal rod and wrung tight in the middle into a narrow T shape while clear water drops fall on both sides. Static camera.
+```
+
+</details>
+
+<details><summary>G9 · shots #22 · 2.1s · multi-reference generation</summary>
+
+| Input | Needed | From | Why |
+|---|---|---|---|
+| text prompt | yes | see the prompt below | describes picture, action and camera; every other input only constrains it |
+| first frame | worth it | source frame `shots/shot_022_first.jpg` (to change product, person or style, redraw it with an image model from the first-frame prompt below); this model takes frame inputs or references, not both: pass it as one more reference image and write “@图片2 as the first frame” in the prompt (Jimeng's omni-reference accepts this; most APIs do not, drop it if refused) | locks composition, shot size and subject position; with text alone every generation frames it differently |
+| last frame | no | — | this unit uses references to keep the product and people; the model takes no last frame alongside them |
+| reference image | yes | `@图片1` character reference images (one frontal face + one half-body per character) so the look stays consistent across shots | the first frame only fixes frame one; reference images keep the product and people consistent after it |
+| reference video | worth it | `@视频1` source clip 45.2–47.3s | follow the action, camera move and cutting rhythm; reference only, the picture is not copied |
+
+- First-frame image prompt: Medium eye-level shot, vertical. Three plush monkeys side by side facing the camera: orange-brown at left, yellow-green in the middle, grey-brown at right; behind on the right a brown red-lidded jar with a red diamond 咸 label; a rope ring at left. Sage-green wall and low-poly mountain shapes. Soft light, Blender fur render.
+- Generate 4s and trim to 2.1s (very short shots are unstable when generated on their own)
+- Alternative: a 3D project. Have an LLM write a Blender script or a Three.js scene; model the characters / props once and render each shot from its own camera. Best for multiple angles and character consistency, and changing copy or shots is just a code change
+
+```text
+Vertical 9:16; soft frontal light (flat light), soft light (almost no lit / shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Characters follow @图片1. Follow the action, camera movement and cutting rhythm of @视频1.
+Medium eye-level shot. Three plush monkeys stand side by side swaying gently while small brown flakes keep drifting down from above. Static camera.
+```
+
+English prompt:
+
+```text
+Medium eye-level shot. Three plush monkeys stand side by side swaying gently while small brown flakes keep drifting down from above. Static camera.
+```
+
+</details>
+
+<details><summary>G10 · shots #23 · 2.2s · multi-reference generation</summary>
+
+| Input | Needed | From | Why |
+|---|---|---|---|
+| text prompt | yes | see the prompt below | describes picture, action and camera; every other input only constrains it |
+| first frame | worth it | source frame `shots/shot_023_first.jpg` (to change product, person or style, redraw it with an image model from the first-frame prompt below); this model takes frame inputs or references, not both: pass it as one more reference image and write “@图片2 as the first frame” in the prompt (Jimeng's omni-reference accepts this; most APIs do not, drop it if refused) | locks composition, shot size and subject position; with text alone every generation frames it differently |
+| last frame | no | — | this unit uses references to keep the product and people; the model takes no last frame alongside them |
+| reference image | yes | `@图片1` character reference images (one frontal face + one half-body per character) so the look stays consistent across shots | the first frame only fixes frame one; reference images keep the product and people consistent after it |
+| reference video | worth it | `@视频1` source clip 47.3–49.6s | follow the action, camera move and cutting rhythm; reference only, the picture is not copied |
+
+- First-frame image prompt: Close-up, eye level, vertical. The egg cross-section model with an orange spherical yolk in the center, topped with a layer of pale yellow oil. Soft light, 3D science-explainer render.
+- Generate 4s and trim to 2.2s (very short shots are unstable when generated on their own)
+- Alternative: a 3D project. Have an LLM write a Blender script or a Three.js scene; model the characters / props once and render each shot from its own camera. Best for multiple angles and character consistency, and changing copy or shots is just a code change
+
+```text
+Vertical 9:16; soft frontal light (flat light), soft light (almost no lit / shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Characters follow @图片1. Follow the action, camera movement and cutting rhythm of @视频1.
+Close-up, eye level. The pale oil layer on top of the yolk slowly thickens and spreads while white sparkles flash around it. The camera slowly pushes in.
+```
+
+English prompt:
+
+```text
+Close-up, eye level. The pale oil layer on top of the yolk slowly thickens and spreads while white sparkles flash around it. The camera slowly pushes in.
+```
+
+</details>
+
+<details><summary>G11 · shots #24, #25 · 5.4s · multi-reference generation</summary>
+
+| Input | Needed | From | Why |
+|---|---|---|---|
+| text prompt | yes | see the prompt below | describes picture, action and camera; every other input only constrains it |
+| first frame | worth it | source frame `shots/shot_024_first.jpg` (to change product, person or style, redraw it with an image model from the first-frame prompt below); this model takes frame inputs or references, not both: pass it as one more reference image and write “@图片2 as the first frame” in the prompt (Jimeng's omni-reference accepts this; most APIs do not, drop it if refused) | locks composition, shot size and subject position; with text alone every generation frames it differently |
+| last frame | no | — | several shots in one call; a last frame would only constrain the final shot |
+| reference image | yes | `@图片1` character reference images (one frontal face + one half-body per character) so the look stays consistent across shots | the first frame only fixes frame one; reference images keep the product and people consistent after it |
+| reference video | worth it | `@视频1` source clip 49.6–55.0s | follow the action, camera move and cutting rhythm; reference only, the picture is not copied |
+
+- First-frame image prompt: Close eye-level shot, vertical. At left, a yellow-green long-haired plush monkey facing right; in front of it a long-haired white fluffy ball hovering above a small coconut-shell bowl; behind on the right, a brown red-lidded clay jar. Sage-green wall, white tabletop. Soft light, Blender fur render.
+- Alternative: a 3D project. Have an LLM write a Blender script or a Three.js scene; model the characters / props once and render each shot from its own camera. Best for multiple angles and character consistency, and changing copy or shots is just a code change
+
+```text
+Vertical 9:16; soft frontal light (flat light), soft light (almost no lit / shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Characters follow @图片1. Follow the action, camera movement and cutting rhythm of @视频1. Hard cuts between shots.
+Shot 1 (0.0–1.7s): Close eye-level shot. The white fluffy ball quivers and turns into an orange yolk topped with pale oil in a white bowl, while the monkey on the left raises a hand and watches. Static camera.
+Shot 2 (1.7–5.4s): Medium eye-level shot. Three pinkish-white S-shaped wisps rise above the oily yolk and drift slowly while the oil layer quivers. Static camera.
+```
+
+English prompt:
+
+```text
+Shot 1 (0.0-1.7s): Close eye-level shot. The white fluffy ball quivers and turns into an orange yolk topped with pale oil in a white bowl, while the monkey on the left raises a hand and watches. Static camera.
+Shot 2 (1.7-5.4s): Medium eye-level shot. Three pinkish-white S-shaped wisps rise above the oily yolk and drift slowly while the oil layer quivers. Static camera.
+```
+
+</details>
+
+<details><summary>G12 · shots #26, #27 · 5.8s · multi-reference generation</summary>
+
+| Input | Needed | From | Why |
+|---|---|---|---|
+| text prompt | yes | see the prompt below | describes picture, action and camera; every other input only constrains it |
+| first frame | worth it | the last frame of G11's result; this model takes frame inputs or references, not both: pass it as one more reference image and write “@图片2 as the first frame” in the prompt (Jimeng's omni-reference accepts this; most APIs do not, drop it if refused) | hard cut from the previous unit in the same scene; matching the first frame keeps it from jumping |
+| last frame | no | — | several shots in one call; a last frame would only constrain the final shot |
+| reference image | yes | `@图片1` character reference images (one frontal face + one half-body per character) so the look stays consistent across shots | the first frame only fixes frame one; reference images keep the product and people consistent after it |
+| reference video | worth it | `@视频1` source clip 55.0–60.8s | follow the action, camera move and cutting rhythm; reference only, the picture is not copied |
+
+- First-frame image prompt: Close eye-level shot, vertical. In the center, a yellow-green plush monkey holding up a white bowl with both hands, an orange yolk topped with oil in the bowl; an orange-brown plush monkey at left and a grey-brown one at right, half in frame. Sage-green wall. Soft light, Blender fur render.
+- Alternative: a 3D project. Have an LLM write a Blender script or a Three.js scene; model the characters / props once and render each shot from its own camera. Best for multiple angles and character consistency, and changing copy or shots is just a code change
+
+```text
+Vertical 9:16; soft frontal light (flat light), soft light (almost no lit / shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Characters follow @图片1. Follow the action, camera movement and cutting rhythm of @视频1. Hard cuts between shots.
+Shot 1 (0.0–2.2s): Close eye-level shot. The monkey in the middle lifts the white bowl over its head and smiles with closed eyes, the two monkeys beside it smile too, and white sparkles flash around. The camera pushes in slightly.
+Shot 2 (2.2–5.8s): Close eye-level shot. Two plush monkeys stand blinking and swaying, the brown one raises a hand, then a red circular no-sign slides in from the right and covers the purple bottle. Static camera.
+```
+
+English prompt:
+
+```text
+Shot 1 (0.0-2.2s): Close eye-level shot. The monkey in the middle lifts the white bowl over its head and smiles with closed eyes, the two monkeys beside it smile too, and white sparkles flash around. The camera pushes in slightly.
+Shot 2 (2.2-5.8s): Close eye-level shot. Two plush monkeys stand blinking and swaying, the brown one raises a hand, then a red circular no-sign slides in from the right and covers the purple bottle. Static camera.
+```
+
+</details>
+
+<details><summary>G13 · shots #28 · 2.2s · multi-reference generation</summary>
+
+| Input | Needed | From | Why |
+|---|---|---|---|
+| text prompt | yes | see the prompt below | describes picture, action and camera; every other input only constrains it |
+| first frame | worth it | source frame `shots/shot_028_first.jpg` (to change product, person or style, redraw it with an image model from the first-frame prompt below); this model takes frame inputs or references, not both: pass it as one more reference image and write “@图片2 as the first frame” in the prompt (Jimeng's omni-reference accepts this; most APIs do not, drop it if refused) | locks composition, shot size and subject position; with text alone every generation frames it differently |
+| last frame | no | — | this unit uses references to keep the product and people; the model takes no last frame alongside them |
+| reference image | yes | `@图片1` character reference images (one frontal face + one half-body per character) so the look stays consistent across shots | the first frame only fixes frame one; reference images keep the product and people consistent after it |
+| reference video | worth it | `@视频1` source clip 60.8–63.0s | follow the action, camera move and cutting rhythm; reference only, the picture is not copied |
+
+- First-frame image prompt: Medium eye-level shot, vertical. In the center, a pale wood-grain two-pan balance with a rope-wrapped post, an orange ball in the left pan, beam low on the left and high on the right. White tabletop, sage-green wall. Soft light, minimal 3D science-explainer render.
+- Generate 4s and trim to 2.2s (very short shots are unstable when generated on their own)
+- Alternative: a 3D project. Have an LLM write a Blender script or a Three.js scene; model the characters / props once and render each shot from its own camera. Best for multiple angles and character consistency, and changing copy or shots is just a code change
+
+```text
+Vertical 9:16; soft frontal light (flat light), soft light (almost no lit / shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Characters follow @图片1. Follow the action, camera movement and cutting rhythm of @视频1.
+Medium eye-level shot. A small orange ball drops from above, the balance beam slowly levels out, then three white sparkles flash above it and the balance comes to rest. Static camera.
+```
+
+English prompt:
+
+```text
+Medium eye-level shot. A small orange ball drops from above, the balance beam slowly levels out, then three white sparkles flash above it and the balance comes to rest. Static camera.
+```
+
+</details>
+
+<details><summary>G14 · shots #29 · 3.5s · multi-reference generation</summary>
+
+| Input | Needed | From | Why |
+|---|---|---|---|
+| text prompt | yes | see the prompt below | describes picture, action and camera; every other input only constrains it |
+| first frame | worth it | source frame `shots/shot_029_first.jpg` (to change product, person or style, redraw it with an image model from the first-frame prompt below); this model takes frame inputs or references, not both: pass it as one more reference image and write “@图片2 as the first frame” in the prompt (Jimeng's omni-reference accepts this; most APIs do not, drop it if refused) | locks composition, shot size and subject position; with text alone every generation frames it differently |
+| last frame | no | — | this unit uses references to keep the product and people; the model takes no last frame alongside them |
+| reference image | yes | `@图片1` character reference images (one frontal face + one half-body per character) so the look stays consistent across shots | the first frame only fixes frame one; reference images keep the product and people consistent after it |
+| reference video | worth it | `@视频1` source clip 63.0–66.5s | follow the action, camera move and cutting rhythm; reference only, the picture is not copied |
+
+- First-frame image prompt: Close eye-level shot, vertical. Three plush monkeys side by side, yellow-green at left, orange-brown in the middle, grey-brown at right, smiling with closed eyes; behind them a brown red-lidded jar and a white bowl; sage-green wall, low-poly mountain shapes, two small pink balls and a short white bar floating in the air. Soft light, Blender fur render.
+- Alternative: a 3D project. Have an LLM write a Blender script or a Three.js scene; model the characters / props once and render each shot from its own camera. Best for multiple angles and character consistency, and changing copy or shots is just a code change
+
+```text
+Vertical 9:16; soft frontal light (flat light), soft light (almost no lit / shadow edge), neutral (about 5000K), background clearly blurred (shallow depth of field / portrait mode). Characters follow @图片1. Follow the action, camera movement and cutting rhythm of @视频1.
+Close eye-level shot. Three plush monkeys smile and sway side to side as the camera slowly pulls back to a medium shot; the pink balls in the background float gently.
+```
+
+English prompt:
+
+```text
+Close eye-level shot. Three plush monkeys smile and sway side to side as the camera slowly pulls back to a medium shot; the pink balls in the background float gently.
+```
+
+</details>
+
+### Edit
+
+- Cut in the order and lengths of the shot list
+- Approach: One cut per narration line, about one cut every 2.3 s; character shots alternate with cross-section explainer shots, and the same egg cross-section model keeps returning to carry the explanation forward
+- Rhythm: 25.2 cuts per minute, 2.29s average shot; no live-action shots; transitions cut×15, jump cut×13
+
+## Cast, scenes and props
+
+| Id | Name | Kind | Look | Role | Voice | Shots |
+|---|---|---|---|---|---|---|
+| A | Yabao | cartoon character | Yellow-green long-haired plush monkey with a round beige face, big glossy black eyes, pink cheeks, a small mouth and an orange-red scarf; chubby body, short legs | Hero: cracks the salted egg and lifts the bowl in celebration at the end | No lines; narration only | #1–#3, #6, #22, #24, #26, #27, #29 |
+| B | Huamao | cartoon character | Orange-brown long-haired plush monkey with two small pointed ears on top, beige face, big glossy black eyes, pink cheeks and a pale blue ring collar | Onlooker: supplies the wide-eyed, curious reactions | No lines; narration only | #1, #5, #6, #22, #26, #27, #29 |
+| C | Grey-brown monkey (unnamed) | cartoon character | Grey-brown plush monkey with slightly shorter fur, beige face, big black eyes, pink cheeks, no collar, a little smaller | Supporting: peeks in beside the explainer props | No lines | #1, #6, #9, #16, #22, #26, #29 |
+| D | Salt balls | cartoon character | Pea-sized smooth white balls with two tiny black eyes | Personified salt that acts out salt entering the egg | None | #8 |
+| E | Protein blobs | cartoon character | White long-haired dome-shaped blobs with a pair of glossy black eyes that bounce and squeeze together | Personified proteins that act out clumping and squeezing out oil | None | #18 |
+
+**Scenes**
+
+| Scene | Where | When | Set / light | Shots |
+|---|---|---|---|---|
+| S1 | Character tabletop: off-white table in front of a sage-green wall layered with p | Daytime, soft indoor-style light | Soft diffuse light, low-saturation green and off-white, dressed with a clay jar, small bowls and a rope ring | #1–#7, #9, #16, #22, #24–#27, #29 |
+| S2 | Explainer tabletop: the same off-white table and plain sage-green wall with a si | Daytime | Minimal, blurred background, prop centered | #8, #10–#15, #17–#21, #23, #28 |
+
+**Props / products / logos**
+
+- White fluffy egg (shots #1, #2, #7, #16, #24): Long-haired white oval fluffy ball standing in for the duck egg
+- Oily yolk bowl (shots #3, #4, #6, #24–#27): Orange yolk in a white porcelain bowl topped with a wrinkled pale oil layer, sometimes with pinkish-white S-shaped wisps
+- Jar labelled 咸 (shots #2, #6, #16, #22, #24, #27, #29): Brown clay jar with a round red lid and a red diamond label reading 咸 (salted)
+- Egg cross-section model (shots #10, #13–#15, #17, #19, #20, #23): Upright oval cross-section: fuzzy off-white shell, translucent white, orange spherical yolk in the center, on a woven rope-ring base
+- Metaphor props (shots #8, #9, #11, #12, #21, #28): Wooden bowl of salt, brown brine cup, two glasses with a wooden-framed round membrane, a fuzzy towel on a metal rod, a wooden two-pan balance
+
+## Camera and lighting
+
+- Visual style: Plush-textured 3D cartoon (Blender fur render); sage-green wall with pale low-poly mountain shapes and an off-white tabletop; soft diffuse light, low-saturation fresh grade, the orange yolk as the vis
+- Framing: shot size medium shot 81%, medium close-up 19%; subject is the in-focus region (no face; shot size is an estimate)
+- Camera: fixed camera (tripod / mount / on the desk) 66%, moving camera (gimbal / handheld pan) 34%; typical move push-in
+- Lighting: Broad soft diffuse light from the front and slightly above, very faint shadows, a slight bright edge on the fur; neutral to warm, bright and low contrast overall (image reading; pixel measurements in the fold below)
+- Grade: airy Japanese-style (bright, low saturation, lifted blacks); low saturation, low contrast, lifted blacks (greyish shadows), overall neutral
+
+<details class="ref"><summary>Per-item measurements and image readings (9)</summary>
+
+| Aspect | Item | Verdict | Sources |
+|---|---|---|---|
+| Framing | shot size | medium shot | measured |
+| Camera | camera support | mixed: fixed camera (tripod / mount / on the desk) 66%, moving camera (gimbal / handheld pan) 34% | measured |
+| Camera | set-ups / locations | Pure 3D virtual camera: medium and close shots of the characters on the tabletop, plus close-ups of the egg cross-section model and medium shots of metaphor props (glasses, towel, balance); almost all static, with a few slow push-ins, trucks and pull-backs | agent review |
+| Camera | likely gear | No camera; modelled and rendered in Blender or similar 3D software (fur particles + soft global illumination); subtitles and labels added in the editor | agent review |
+| Lighting | soft / hard | hard light (sharp shadow edge) | measured |
+| Lighting | colour temperature | neutral (about 5000K) | measured |
+| Lighting | overall lighting | Broad soft diffuse light from the front and slightly above, very faint shadows, a slight bright edge on the fur; neutral to warm, bright and low contrast overall | agent review |
+| Grade | colour grade | airy Japanese-style (bright, low saturation, lifted blacks) | measured |
+| Grade | overall grade | Low-saturation fresh look: sage-green wall, off-white table, the orange yolk as the only saturated accent; lifted blacks | agent review |
+
+</details>
+
+- Note: lighting ratio, soft / hard, colour temperature and shot size are measured on the subject's pixels (the face when there is one, otherwise the in-focus region, which is an estimate); platform transcodes crush the shadows, so hardness and fill read conservative; camera angle, light source, catchlight and rim light follow the image readers. Where measurement and readers disagree, both are listed.
+
+## Packaging layer (subtitles / styled text / stickers / sound-effect hits)
+
+- 39 subtitle lines (bottom, up to 1 rows): white text, black outline, keywords highlighted in yellow, line height 3.6%; entrance: hard in×20, scale pop×1; keywords change colour as they are spoken
+- styled text ×1 (字号大, 黄色字): "流油咸鸭蛋！"
+- title ×7: "咸鸭蛋为什么会流油？", "第1步·盐钻气孔", "第2步·盐进蛋黄 蛋黄膜", "第3步·蛋白挤油", "第4步·静待出油", "成了！" …
+- text label ×3 (1 of them follow an object): "气孔", "蛋黄", "红油"
+- SFX hits on: title in ×1, subtitle in ×1
+- Placed by spoken line ×6 (with new wording they follow the line, not the old second): text label "气孔" → 0.4s after "盐顺着蛋壳的气孔", on "气孔", text label "蛋黄" → 0.5s before "蛋黄里存着的水分", on "蛋黄", text label "红油" → 0.2s into "红油汪在蛋黄上", on "红油" …
+- 6 persistent layers (unchanged across cuts: lay each on once for its span, not per shot): title "咸鸭蛋为什么会流油？" 0.0–66.1s, title "第1步·盐钻气孔" 15.9–21.0s, title "第2步·盐进蛋黄 蛋黄膜" 21.0–33.6s, title "第3步·蛋白挤油" 34.0–45.1s …
+- Exports: `packaging/subtitles.srt`, `packaging/overlays.ass`, `packaging/timeline.json` (SRT is the subtitle timeline; ASS carries colour, outline, position and entrance animation, swap in the original font; timeline.json is the full timeline)
+
+<details class="ref"><summary>text timeline (50 rows)</summary>
+
+| Time | Kind | Text | Style | In / out | SFX |
+|---|---|---|---|---|---|
+| 0.00–66.10s | title | 咸鸭蛋为什么会流油？ | white text, brown outline, keywords highlighted in yellow, line height 5.6% (about 48px) | hard out | — |
+| 0.00–1.50s | subtitle | 清晨的小院里 | white text, black outline, line height 3.9% (about 33px) | hard out | — |
+| 1.50–3.10s | subtitle | 鸭宝磕开一枚腌好的咸鸭蛋 | white text, black outline, keywords highlighted in yellow, line height 3.3% (about 28px) | hard in / hard out | — |
+| 3.50–5.30s | subtitle | 红亮的油涌了出来 | white text, black outline, keywords highlighted in yellow, line height 3.5% (about 30px) | hard out | — |
+| 5.30–7.00s | subtitle | 明明没往里加一滴油 | white text, black outline, keywords highlighted in yellow, line height 3.4% (about 29px) | hard in / hard out | — |
+| 7.00–8.90s | subtitle | 花猫看得眼睛都直了 | white text, black outline, line height 3.6% (about 31px) | hard in / hard out | — |
+| 8.90–9.50s | subtitle | 这油 | white text, black outline, line height 4.7% (about 40px) | hard in / slide out | — |
+| 9.50–11.50s | subtitle | 到底是打哪儿冒出来的？ | white text, black outline, keywords highlighted in yellow, line height 3.3% (about 28px) | hard out | — |
+| 11.50–11.60s | subtitle | 原来 | white text, black outline, line height 4.7% (about 40px) | hard in | — |
+| 12.00–13.10s | subtitle | 这场流油的大戏 | white text, black outline, keywords highlighted in white, line height 3.9% (about 33px) | shrink out | — |
+| 13.50–15.80s | subtitle | 幕后导演是普普通通的盐 | white text, black outline, line height 3.4% (about 29px) | hard out | — |
+| 15.80–18.00s | subtitle | 第一步腌蛋的盐水里 | white text, black outline, keywords highlighted in yellow, line height 3.5% (about 30px) | hard in / hard out | — |
+| 15.90–21.00s | title | 第1步·盐钻气孔 | brown text, orange box, keywords highlighted in white, line height 2.7% (about 23px) | hard in / hard out | — |
+| 18.00–19.50s | subtitle | 盐顺着蛋壳的气孔 | white text, black outline, keywords highlighted in yellow, line height 3.5% (about 30px) | hard in / shrink out | — |
+| 19.50–21.00s | subtitle | 一粒粒往里钻 | white text, black outline, keywords highlighted in yellow, line height 3.5% (about 30px) | hard out | — |
+| 19.90–20.60s | text label | 气孔 | black text, white box, line height 2.8% (about 24px) | hard in / fade out | — |
+| 21.00–33.60s | title | 第2步·盐进蛋黄 ⏎ 蛋黄膜 | brown text, orange box, keywords highlighted in white, line height 2.5% (about 21px) | type-on / shrink out | — |
+| 21.00–23.00s | subtitle | 第二步盐先灌满蛋清 | white text, black outline, keywords highlighted in yellow, line height 3.9% (about 33px) | hard in / hard out | — |
+| 23.00–24.30s | subtitle | 再穿过蛋黄膜 | white text, black outline, line height 4.1% (about 35px) | hard in / hard out | — |
+| 24.50–25.60s | subtitle | 一路潜进蛋黄深处 | white text, black outline, keywords highlighted in yellow, line height 3.5% (about 30px) | shrink out | — |
+| 25.50–25.60s | text label | 蛋黄 | black text, white box, line height 2.8% (about 24px) | hard in / hard out | — |
+| 26.00–27.80s | subtitle | 蛋黄里存着的水分 | white text, black outline, keywords highlighted in yellow, line height 3.4% (about 29px) | hard in / hard out | — |
+| 27.80–29.50s | subtitle | 被盐一把拉了出去 | white text, black outline, keywords highlighted in yellow, line height 3.5% (about 30px) | hard in / hard out | — |
+| 29.50–30.50s | subtitle | 失了水的蛋黄 | white text, black outline, line height 3.9% (about 33px) | hard in / fade out | — |
+| 30.50–31.50s | subtitle | 缩成一团 | white text, black outline, keywords highlighted in grey, line height 4.3% (about 37px) | shrink out | — |
+| 31.50–33.80s | subtitle | 越缩越小越缩越硬 | white text, black outline, keywords highlighted in yellow, line height 3.5% (about 30px) | hard out | — |
+| 33.80–34.50s | subtitle | 第三步 | white text, black outline, line height 4.6% (about 39px) | hard in / fade out | — |
+| 34.00–45.10s | title | 第3步·蛋白挤油 | brown text, orange box, keywords highlighted in white, line height 2.5% (about 21px) | hard in / shrink out | ding |
+| 34.50–36.50s | subtitle | 高盐让蛋黄里的蛋白质 | white text, black outline, keywords highlighted in yellow, line height 4.2% (about 36px) | hard out | — |
+| 36.50–38.00s | subtitle | 纷纷收紧抱团 | white text, black outline, line height 3.8% (about 32px) | hard in / hard out | — |
+| 38.00–40.00s | subtitle | 原本被裹得严严实实的油 | white text, black outline, line height 3.3% (about 28px) | hard out | — |
+| 40.00–41.10s | subtitle | 一下子全散开了 | white text, black outline, line height 3.5% (about 30px) | hard in / shrink out | — |
+| 41.50–42.80s | subtitle | 就像拧毛巾 | white text, black outline, line height 3.9% (about 33px) | hard out | — |
+| 43.00–43.10s | subtitle | 手一收紧 | white text, black outline, line height 4.5% (about 38px) | — | — |
+| 43.50–45.30s | subtitle | 水就被挤了出来 | white text, black outline, keywords highlighted in yellow, line height 3.9% (about 33px) | hard out | — |
+| 45.30–47.30s | subtitle | 第四步剩下的交给时间 | white text, black outline, keywords highlighted in yellow, line height 3.8% (about 32px) | hard in / hard out | — |
+| 45.50–54.60s | title | 第4步·静待出油 | white text, orange box, keywords highlighted in white, line height 2.8% (about 24px) | hard in / shrink out | — |
+| 47.50–49.10s | subtitle | 家庭腌制要30~40天 | white text, black outline, keywords highlighted in yellow, line height 3.3% (about 28px) | pop / shrink out | — |
+| 49.50–51.30s | subtitle | 腌足日子再敲开 | white text, black outline, keywords highlighted in yellow, line height 3.5% (about 30px) | hard out | — |
+| 51.30–52.80s | subtitle | 红油汪在蛋黄上 | white text, black outline, keywords highlighted in yellow, line height 3.4% (about 29px) | hard in / hard out | — |
+| 51.50–55.00s | text label · follows an object | 红油 | orange text, white outline, keywords highlighted in black, line height 2.8% (about 24px) | fade in / hard out | — |
+| 52.80–55.00s | subtitle | 颤颤的亮亮的 | white text, black outline, line height 4.0% (about 34px) | hard in / hard out | — |
+| 55.00–56.60s | subtitle | 这就是流油咸鸭蛋 | white text, black outline, line height 3.5% (about 30px) | hard in / hard out | — |
+| 55.50–56.60s | styled text | 流油咸鸭蛋！ | yellow text, brown outline, line height 8.7% (about 74px) | hard in / slide out | — |
+| 56.00–56.60s | title | 成了！ | white text, yellow box, line height 2.7% (about 23px) | hard in / hard out | — |
+| 57.00–59.40s | subtitle | 不过这油不是谁偷偷加的 | white text, black outline, keywords highlighted in yellow, line height 4.0% (about 34px) | fade out | — |
+| 57.00–66.50s | title | 注意！ | white text, red box, line height 2.9% (about 25px) | — | — |
+| 59.50–60.80s | subtitle | 神秘物质 | white text, black outline, line height 4.1% (about 35px) | hard out | — |
+| 60.80–63.00s | subtitle | 这些油本来就是蛋黄里的脂肪 | white text, black outline, keywords highlighted in yellow, line height 3.4% (about 29px) | hard in / hard out | — |
+| 63.00–66.50s | subtitle | 一滴也没少 | white text, black outline, line height 4.3% (about 37px) | — | ding |
+
+</details>
+
+| Time | Layer | Spoken line |
+|---|---|---|
+| 15.90s | title "第1步·盐钻气孔" | 0.1s into "第一步腌蛋的盐水里" |
+| 19.90s | text label "气孔" | 0.4s after "盐顺着蛋壳的气孔", on "气孔" |
+| 25.50s | text label "蛋黄" | 0.5s before "蛋黄里存着的水分", on "蛋黄" |
+| 51.50s | text label "红油" | 0.2s into "红油汪在蛋黄上", on "红油" |
+| 55.50s | styled text "流油咸鸭蛋！" | 0.5s into "这就是流油咸鸭蛋", on "流油咸鸭蛋" |
+| 56.00s | title "成了！" | 1.0s into "这就是流油咸鸭蛋" |
+
+Remake: burn subtitles and styled text in with `packaging/overlays.ass` (ffmpeg -vf ass=overlays.ass), or rebuild them from timeline.json in CapCut / Remotion; stickers and GIFs need matching assets (meme / GIF libraries), crops are under packaging/.
+
+## Sound
+
+![audio](audio_en.png)
+
+- loudness -17.3 dBFS, peak -0.5 dBFS; sound runs across cuts, laid in post as one bed (background changes 10.2dB at cuts vs 9.6dB within shots)
+- Sources: Video type: voice-over / talking head + music → voice: TTS voice-over; music: stock library music (leaning, to confirm); SFX: added in post from an SFX library / editor (leaning, to confirm)
+
+**Voice**
+
+- 74% of the duration; pitch about 324.3Hz (female-leaning)
+- Source: TTS voice-over (TTS voice-over 64%, human recording 27%, native dialogue from the AI video model 9%)
+  - Voice and background sound run across cuts: the voice-over was laid on separately in post (TTS or a human voice-over)
+- Remake: TTS voice-over: CapCut text-to-speech or another TTS tool, with a similar voice and pace
+
+**Music**
+
+- Tempo: 110.0 BPM (or 55.0/219.9); key D major (confidence 0.865); 99% of the duration (0.0–66.0s); section changes at 4.0s, 8.5s, 13.0s, 17.0s, 26.5s, 42.5s, 46.5s, 51.0s; ending: ends_with_video
+- Cuts vs beat: 36% of cuts land on a beat (chance: about 26%)
+- Source: to confirm (stock library music 52%, AI-generated music 30%, well-known song 17%)
+  - The music is a bed under the picture: in a regular video the bed usually comes from a stock library (prior)
+  - The voice is speech / narration, not singing (sustained-pitch ratio 0.16): a regular "voice-over + music bed" video
+  - Music and video end together: edited to length or custom-made (either source possible, weak evidence)
+  - Nothing about this track beyond the format prior and weak cues like the ending (no source heard, no platform music tag): source to confirm; an AI-generated bed cannot be told from a library bed here
+  - How to confirm: Check the music tag on the original Douyin / Xiaohongshu / TikTok post: a song title → existing track; "original sound - @creator" → uploaded by the creator (for music videos, usually an AI song)
+  - How to confirm: Run it through Shazam / ACRCloud or another song-ID service: a hit means an existing song
+- Remake: The original track leans stock library music: search a library by BPM / mood / key for a similar track, or generate a royalty-free track in a similar style with AI
+
+**Sound effects** (6)
+
+| Sound | Listen | Type | Times used | At | On screen |
+|---|---|---|---|---|---|
+| F1 | [listen](sfx/sfx_01.wav) | other | 1 | 6.7s | — |
+| F2 | [listen](sfx/sfx_02.wav) | ding | 1 | 15.3s | — |
+| F3 | [listen](sfx/sfx_03.wav) | ding | 1 | 34.1s | title "第3步·蛋白挤油" appears |
+| F4 | [listen](sfx/sfx_04.wav) | click | 1 | 35.1s | — |
+| F5 | [listen](sfx/sfx_05.wav) | ding | 1 | 36.9s | — |
+| F6 | [listen](sfx/sfx_06.wav) | ding | 1 | 62.9s | subtitle "一滴也没少" appears |
+
+- Remake: play each sound first (separated out, without voice or music), find one similar effect in the editor's library, and place it at every time listed under “At”
+
+- Separated stems: `stems/original.wav` (original), `stems/vocals.wav` (dry voice), `stems/music.wav` (music + ambience), `stems/effects.wav` (effects track)
+<!--stems-->
+
+## Open questions
+
+- No AI listened to the soundtrack (the review covered the picture only): real voice versus TTS is inferred from the waveform; the effects were found on the separated effects track and their types are estimated from the sound. Play the stems and each effect under “Sound” to check
+- music source to confirm: most likely stock library music (52%); how to check is under “Sound”
+
+## Appendix
+
+### Shot by shot
+
+Each shot has two parts: what is visible on screen, and how the tools infer it was made (with the basis); remake prompts last. Folded by default.
+
+<details class="ref"><summary>#1 00:00.000–00:01.458 · 3D render + code / editor overlays (text labels, title)</summary>
 
 ![shot_001](shots/shot_001.jpg)
 
-- Probabilities: 3D rendering 99%, 2D animation 0%, code / template rendering 0% (fused)
-- Text on objects in the frame (not post captions): 咸
-- Material: rendered by the producer
-- Likely tool: Blender / C4D
-- In-shot motion beats: 2.62 s, 3.67 s, 4.12 s, 7.00 s
-- Rendered texture: flat color blocks 53%, 95% of pixels use only 50 colors, horizontal / vertical straight edges 37%
-- [VLM] Characters and set are all 3D models, with distinct fur material and a cartoon render style
-- [VLM] The oil bursting from the salted egg is a 3D fluid or particle effect
-- [VLM] Geometry is stable, no AI-generated warping or flicker
-- Picture: 3D animation: a yellow plush character cracks open a salted duck egg, red oil pours out, a brown character watches from the side. Fixed camera, several shot sizes intercut, soft light.
-- Framing / light: medium shot; eye level; virtual fixed camera; outdoor overcast / shade soft light; key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.2:1 (0.2 stops); medium softness
-- Text track (captions / bottom): 鸭宝磕开一枚腌好的咸鸭蛋 / 明明没往里加一滴油 / 花猫看得眼睛都直了
-- Text track (text / middle): 咸
-- Text track (title / top): 咸鸭蛋为什么会流油？
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D cartoon style, a yellow fluffy little animal in a minimal green courtyard, a cracked-open salted duck egg in front of it leaking red oil, soft light, centered composition.
-  - Video prompt: 3D animation, a yellow fluffy little animal cracks open a salted duck egg, red oil gushes out of the yolk, a brown fluffy little animal next to it watches in surprise, static camera, soft light.
+**Visible on screen** (check against the frames)
+- Picture: Medium eye-level shot. White tabletop, sage-green wall and low-poly mountain shapes behind. A yellow-green plush monkey (Yabao), an orange-brown one (Huamao) and a grey-brown one walk to the right; a woven basket at left holds two white fluffy balls (the duck eggs). Static camera.
+- Camera / lighting: medium shot; fixed camera (tripod / mount / on the desk); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text track (text/bottom): 清晨的小院里
+- Text track (title/top): 咸鸭蛋为什么会流油？
+- [AI assistant review] The outlines and positions of the three plush characters and the two white fluffy balls in the basket stay stable
+- [AI assistant review] Fur stays stable frame to frame, with no flicker or smearing
+- [AI assistant review] Tails, collars and other details never change; only the characters move as a whole and sway slightly
 
-### #2 00:08.875–00:13.667 · 3D rendering + code / editor overlays (captions, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 83%, AI-generated video 6%, code / template render 4% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 54% flat colour blocks, 95% of pixels use only 56 colours, 37% axis-aligned edges
+  - Per-frame sharpness oscillates periodically (period 2 frames, correlation 0.68) with no duplicate frames: frame interpolation / rate conversion, or just the rhythm of a re-encode (transcodes whose platform tags were stripped show it too); not enough on its own to call AI
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot, vertical 9:16. White tabletop with a sage-green wall and pale low-poly mountain shapes behind. At left, a shallow woven basket holding two long-haired white fluffy balls; three plush monkeys (grey-brown, orange-brown, yellow-green) stand in a line from left to right, side-on, facing right. Soft diffuse light, Blender fur render, low-saturation fresh palette.
+  - Video prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot. Three plush monkeys walk in a line from left to right, bodies swaying gently, while two white fluffy balls stay in a woven basket at lower left. Static camera.
+
+</details>
+
+<details class="ref"><summary>#2 00:01.458–00:03.667 · 3D render + code / editor overlays (subtitles, title)</summary>
 
 ![shot_002](shots/shot_002.jpg)
 
-- Probabilities: 3D rendering 98%, 2D animation 0%, code / template rendering 0% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender / C4D
-- In-shot motion beats: 9.62 s, 10.46 s, 11.46 s
-- Rendered texture: flat color blocks 48%, 95% of pixels use only 65 colors, straight edges 34%
-- 67% of sampled frames have a frontal face with a fixed camera, and the audio track has voice
-- [VLM] Characters have the standard 3D fur-render look, clean edges, stable lighting
-- [VLM] At 00:10 the characters are instantly swapped for fur balls that roll away: typical 3D keyframe / effects work, no AI-generated random warping
-- Picture: three plush cartoon animals around a pot in a bowl in the middle, then the animals turn into white fur balls and roll out of frame to the right. Fixed camera, soft lighting.
-- Framing / light: medium shot; fixed (tripod / stand / on a table); frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.2:1 (0.3 stops); hard light (clear shadow edge)
-- Text track (captions / bottom): 这油 / 到底是打哪儿冒出来的？ / 原来 / 这场流油的大戏
-- Text track (title / top): 咸鸭蛋为什么会流油？
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D cartoon style, three cute animal characters with fluffy fur stand around a white bowl holding a small clay pot. Simple geometric hill shapes in the background, solid-color backdrop. Soft top light, bright colors.
-  - Video prompt: three fluffy cartoon animal characters stand in the frame, then suddenly turn into three white fur balls and roll out to the right together, leaving the bowl and pot in the middle. Static camera.
+**Visible on screen** (check against the frames)
+- Picture: Close eye-level shot. The yellow-green plush monkey Yabao stands at left; in front of it a long-haired white fluffy ball (the egg) floats up and turns above a small wooden bowl. Behind on the right, a brown jar with a red lid and a 咸 label. Static camera.
+- Camera / lighting: medium close-up; fixed camera (tripod / mount / on the desk); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.3 stops); soft light (almost no lit / shadow edge)
+- Text on objects in the scene (not subtitles): 咸
+- Text track (subtitle/bottom): 鸭宝磕开一枚腌好的咸鸭蛋 / 红亮的油涌了出来
+- Text track (title/top): 咸鸭蛋为什么会流油？
+- Motion beats within the shot: 2.33s
+- [AI assistant review] The white fluffy ball (the egg) keeps its fur shape as it floats up
+- [AI assistant review] The red diamond label with the character 咸 on the jar stays sharp and undistorted: a texture, not AI gibberish
+- [AI assistant review] Outlines and materials stay consistent across frames, without the warping typical of AI video
 
-### #3 00:13.667–00:15.833 · 3D rendering + code / editor overlays (text labels, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 79%, AI-generated video 7%, code / template render 4% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 49% flat colour blocks, 95% of pixels use only 70 colours, 33% axis-aligned edges
+  - 100% of sampled frames show a frontal face on a fixed camera, voice on the audio track
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium close-up, subject in the left of the frame. Close eye-level shot, vertical. At left, a yellow-green long-haired plush monkey with a beige face, big glossy black eyes, pink cheeks and an orange-red scarf, facing right. In the middle, a long-haired white fluffy ball hovering above a small coconut-shell bowl. Behind on the right, a brown clay jar with a round red lid and a red diamond label reading 咸. White tabletop, sage-green wall. Soft light, Blender fur render.
+  - Video prompt: medium close-up, subject in the left of the frame. Close eye-level shot. A yellow-green plush monkey on the left watches a white fluffy ball float up from a small bowl and slowly turn; the monkey lifts a hand. Static camera.
+
+</details>
+
+<details class="ref"><summary>#3 00:03.667–00:05.208 · 3D render + code / editor overlays (text labels, title)</summary>
 
 ![shot_003](shots/shot_003.jpg)
 
-- Probabilities: 3D rendering 99%, code / template rendering 0%, 2D animation 0% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender / C4D
-- Rendered texture: flat color blocks 75%, 95% of pixels use only 18 colors, straight edges 41%
-- [VLM] Geometry edges are clean and sharp, no AI-generated warping or flicker
-- [VLM] Materials (wood grain, matte white balls) and lighting (soft shadow under the bowl) show typical 3D-render traits
-- [VLM] The balls pop out on precise, rigid paths, consistent with 3D keyframe animation
-- Picture: minimal 3D scene, a wooden bowl holds white powder and a few white balls with eyes (anthropomorphic salt grains) pop out of the powder one by one. Fixed camera, soft lighting.
-- Framing / light: extreme close-up; slightly high angle; tripod / stand, fixed; high-key (bright overall, almost no shadows); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.0:1 (0.0 stops); soft light (almost no shadow edge)
-- Text track (text / bottom): 幕后导演是普普通通的盐
-- Text track (title / top): 咸鸭蛋为什么会流油？
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D cartoon style, minimal two-tone background, a small light-wood bowl in the center of the frame full of white powder, several white balls with little black eyes peeking out of the powder. Soft top light, matte finish, vertical centered composition.
-  - Video prompt: static camera. In the center is a wooden bowl full of white powder. Several white balls with tiny eyes pop out of the powder one after another and rest on the surface, light and bouncy with an elastic settle.
+**Visible on screen** (check against the frames)
+- Picture: Medium eye-level shot. An orange yolk in a white porcelain bowl; a pale oil layer bubbles up on top and pinkish-white S-shaped wisps rise above it. Parts of the plush characters show at the left and right edges; a small bowl of white salt sits at lower right. Static camera.
+- Camera / lighting: medium shot; moving camera (gimbal / handheld pan); backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.1:1 (0.2 stops); soft light (almost no lit / shadow edge)
+- Text track (text/bottom): 红亮的油涌了出来
+- Text track (title/top): 咸鸭蛋为什么会流油？
+- [AI assistant review] The yolk sphere and the rim of the white bowl are clean and regular
+- [AI assistant review] The pink oil wisps are regular S-curves of even thickness
+- [AI assistant review] Outlines and materials stay consistent across frames, without the warping typical of AI video
 
-### #4 00:15.833–00:19.583 · 3D rendering + code / editor overlays (captions, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 80%, AI-generated video 8%, code / template render 4% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 60% flat colour blocks, 95% of pixels use only 79 colours, 36% axis-aligned edges
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot, vertical. In the center, a smooth orange yolk in a white porcelain bowl; a wooden bowl of white salt at lower right; half of a plush monkey visible at each edge. Sage-green wall, white tabletop. Soft light, 3D cartoon render.
+  - Video prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot. A layer of pale oil swells on top of an orange yolk in a white bowl, a few droplets pop up, then three pinkish-white S-shaped wisps rise above it. Static camera.
+
+</details>
+
+<details class="ref"><summary>#4 00:05.208–00:07.000 · 3D render + code / editor overlays (text labels, title)</summary>
 
 ![shot_004](shots/shot_004.jpg)
 
-- Probabilities: 3D rendering 93%, code / template rendering 6%, 2D animation 0% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender
-- In-shot motion beats: 16.88 s
-- Rendered texture: flat color blocks 52%, 95% of pixels use only 35 colors, straight edges 39%
-- [VLM] Entirely 3D assets: fur particle systems (the plush doll, the fur ball in the pot), a smooth plastic / ceramic flowerpot, a wooden-handled screw prop
-- [VLM] Clean, smooth global diffuse lighting with soft ambient occlusion (AO)
-- [VLM] Objects in the shot move with keyframe dynamics, geometry edges stable with no flicker or warping
-- Picture: a 3D cartoon educational scene, a brown pot holds a white fur ball, next to it a fluffy little doll character, a simple slope and a hanging screw in the background, camera fixed at eye level.
-- Framing / light: medium shot; eye level; tripod / stand, fixed; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.0:1 (0.1 stops); soft light (almost no shadow edge)
-- Text track (captions / bottom): 第一步腌蛋的盐水里 / 盐顺着蛋壳的气孔
-- Text track (title / top): 咸鸭蛋为什么会流油？ / 第1步·盐钻气孔
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D cartoon style, macro photography, a brown cylindrical flowerpot in the center with a white fluffy ball showing inside, a fluffy cartoon monkey peeking in from the right, soft solid-color background, Blender 3D render look, soft light
-  - Video prompt: static eye-level shot, 3D cartoon scene, the fluffy object in the pot stays still, the little monkey plush on the right blinks its big eyes and watches it, tiny screws hover and drift slightly in the background, a smooth, clean 3D-rendered animation throughout
+**Visible on screen** (check against the frames)
+- Picture: Medium eye-level shot. The oily yolk in its white bowl sits in the center against the sage-green wall; the camera slowly pushes in.
+- Camera / lighting: medium shot; fixed camera (tripod / mount / on the desk); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.2 stops); soft light (almost no lit / shadow edge)
+- Text track (text/bottom): 明明没往里加一滴油
+- Text track (title/top): 咸鸭蛋为什么会流油？
+- [AI assistant review] The yolk, oil layer and bowl keep the same shape every frame
+- [AI assistant review] The only motion is a slow, steady push-in; nothing drifts
+- [AI assistant review] Outlines and materials stay consistent across frames, without the warping typical of AI video
 
-### #5 00:19.583–00:21.042 · 3D rendering + code / editor overlays (text labels, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 82%, code / template render 5%, AI-generated video 5% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 59% flat colour blocks, 95% of pixels use only 55 colours, 42% axis-aligned edges
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot, vertical. In the center, an orange yolk in a white porcelain bowl, topped with a wrinkled layer of pale yellow oil. Clean white tabletop and sage-green wall. Soft light, 3D cartoon render.
+  - Video prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot. The camera slowly pushes in toward the oily yolk in the white bowl; the yolk and oil stay still.
+
+</details>
+
+<details class="ref"><summary>#5 00:07.000–00:08.875 · 3D render + code / editor overlays (text labels, title)</summary>
 
 ![shot_005](shots/shot_005.jpg)
 
-- Probabilities: 3D rendering 98%, 2D animation 0%, AI-generated video 0% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender / C4D
-- Rendered texture: flat color blocks 31%, 95% of pixels use only 51 colors, straight edges 30%
-- Per-frame sharpness oscillates periodically (period 2 frames, correlation 0.64): the picture went through frame interpolation / rate conversion; the original frame rate was lower
-- Duplicate frames follow an interpolated pattern (0%, period None): source was 24/25 fps then transcoded, typical of AI video, 3D / animation renders or film footage
-- [VLM] Geometry edges are perfectly smooth, no real-world physical flaws
-- [VLM] Materials (translucent shell, matte yolk, woven base) are uniform, consistent with 3D rendering
-- [VLM] The salt grains move on precise paths, consistent with 3D keyframe animation
-- [VLM] No AI-generated warping or flicker, no live-footage noise
-- Picture: a 3D-rendered duck-egg cross-section model on a base, a few salt grains fly toward a pore in the shell. Fixed camera, soft lighting.
-- Framing / light: extreme close-up; eye level; moving (gimbal / handheld pan); frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.1:1 (0.1 stops); soft light (almost no shadow edge)
-- Text track (text / bottom): 一粒粒往里钻
-- Text track (title / top): 咸鸭蛋为什么会流油？ / 第1步·盐钻气孔
-- Text track (title / top): 气孔
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D render, vertical, a translucent cutaway duck-egg model on a woven base, a yellow yolk inside, fine hairs on the shell, solid-color background, soft studio light, cartoon educational style.
-  - Video prompt: 3D animation, a few tiny salt grains fly in from the upper right toward a pore in the shell of the duck-egg model, static camera.
+**Visible on screen** (check against the frames)
+- Picture: Close eye-level shot. The long-haired orange-brown plush monkey Huamao faces the camera in the center, wearing a blue collar; its big eyes blink, its body sways slightly and white four-point sparkles flash above its head. Static camera.
+- Camera / lighting: medium close-up; moving camera (gimbal / handheld pan); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.1:1 (0.1 stops); soft light (almost no lit / shadow edge)
+- Text track (text/bottom): 花猫看得眼睛都直了
+- Text track (title/top): 咸鸭蛋为什么会流油？
+- [AI assistant review] The long fur moves with the body as a whole, with no flicker
+- [AI assistant review] Eyes and cheek blush stay fixed on the face
+- [AI assistant review] The white four-point sparkles above are regular shapes
 
-### #6 00:21.042–00:24.333 · 3D rendering + code / editor overlays (captions, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 74%, AI-generated video 12%, AI avatar (talking head) 3% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - A face covers 7% of the frame and appears in 100% of sampled frames: a close-up of a person, flat colour blocks mostly come from walls / clothing, rendered-texture cues down-weighted
+  - Photographic texture: noise σ=0.04, 61 colours, 54% flat blocks
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium close-up, subject centred in frame. Close eye-level shot, vertical. An orange-brown long-haired plush monkey faces the camera in the center, two small pointed ears on top, beige face, big glossy black eyes, pink cheeks and a pale blue ring collar. Sage-green wall, white tabletop. Soft light, Blender fur render.
+  - Video prompt: medium close-up, subject centred in frame. Close eye-level shot. A brown plush monkey faces the camera, its eyes widen and blink, its body sways slightly, and white four-point sparkles pop above its head. Static camera.
+
+</details>
+
+<details class="ref"><summary>#6 00:08.875–00:11.458 · 3D render + code / editor overlays (subtitles, title)</summary>
 
 ![shot_006](shots/shot_006.jpg)
 
-- Probabilities: 3D rendering 93%, code / template rendering 6%, 2D animation 0% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender
-- Rendered texture: flat color blocks 67%, 95% of pixels use only 20 colors, straight edges 43%
-- [VLM] The cylindrical glass containers and the round yolk-membrane filter are regular 3D geometry
-- [VLM] The white balls (salt molecules) move on smooth, precise paths, none of the warping or flicker common in AI generation
-- [VLM] Clean uniform ambient diffuse lighting and soft shadows, typical of Blender / C4D educational renders
-- Picture: a 3D educational animation: the camera looks at a transparent glass cylinder model on a white desk at eye level, slightly from above, then pulls back to show the egg white, the yolk-membrane filter and the yolk model; white salt-particle balls pass through the round yolk-membrane filter in the middle; explanatory title and captions at the top and bottom.
-- Framing / light: medium shot; slightly high angle; fixed (tripod / stand / on a table); backlit / background brighter than subject; key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.0:1 (0.0 stops); soft light (almost no shadow edge)
-- Text track (captions / bottom): 第二步盐先灌满蛋清 / 再穿过蛋黄膜
-- Text track (title / top): 咸鸭蛋为什么会流油？ / 第2步·盐进蛋黄
-- Text track (title / top): 蛋黄膜
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D scientific diagram, minimal studio background, light-green solid wall and white desk, a transparent glass cylinder in the middle holding white liquid, on a shallow round light-wood tray, soft diffuse lighting, high-quality 3D render.
-  - Video prompt: 3D educational animation, camera at eye level, fixed, pulling back slightly; on the desk a transparent cylinder of white liquid on the left, a cylinder of translucent yellow liquid on the right, a round semi-permeable membrane model with a wooden rim floating in between; several smooth white balls pass through the membrane ring from left to right at a smooth, even pace.
+**Visible on screen** (check against the frames)
+- Picture: Medium eye-level shot. Yabao, Huamao, the grey-brown monkey and the bowl with the oily yolk stand in a row with the jar on the right; orange question marks float up at upper right while the characters sway. Static camera.
+- Camera / lighting: medium shot; fixed camera (tripod / mount / on the desk); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.3 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/bottom): 这油 / 到底是打哪儿冒出来的？
+- Text track (title/top): 咸鸭蛋为什么会流油？
+- Motion beats within the shot: 9.62s
+- [AI assistant review] The three characters and the jar hold their positions across frames
+- [AI assistant review] The orange question marks are shaded: 3D objects in the scene
+- [AI assistant review] Fur stays stable frame to frame, with no flicker or smearing
 
-### #7 00:24.333–00:26.125 · 3D rendering + code / editor overlays (text labels, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 78%, AI-generated video 8%, code / template render 3% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 47% flat colour blocks, 95% of pixels use only 82 colours, 33% axis-aligned edges
+  - 83% of sampled frames show a frontal face on a fixed camera, voice on the audio track
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the left of the frame. Medium eye-level shot, vertical. From left to right: yellow-green plush monkey, orange-brown plush monkey, the oily yolk in a white bowl, grey-brown plush monkey, with a brown red-lidded jar behind. Sage-green wall and low-poly mountain shapes. Soft light, 3D cartoon render.
+  - Video prompt: medium shot, subject in the left of the frame. Medium eye-level shot. Three plush monkeys stand around the oily yolk, swaying and tilting their heads, while two orange question marks float up at upper right. Static camera.
+
+</details>
+
+<details class="ref"><summary>#7 00:11.458–00:13.667 · 3D render + code / editor overlays (subtitles, title)</summary>
 
 ![shot_007](shots/shot_007.jpg)
 
-- Probabilities: 3D rendering 98%, 2D animation 0%, AI-generated video 0% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender / C4D
-- [VLM] The yolk is a perfect geometric sphere
-- [VLM] The egg white is a typical 3D translucent subsurface-scattering material
-- [VLM] The salt grains at the edge are regular sphere models
-- [VLM] Lighting is clean and noise-free, consistent with 3D rendering
-- Picture: a 3D-rendered close-up of a salted duck egg cross-section, the camera pushes in slowly toward the orange yolk in the center.
-- Framing / light: extreme close-up; eye level; moving (gimbal / handheld pan); frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.0:1 (0.0 stops); soft light (almost no shadow edge)
-- Text track (text / bottom): 一路潜进蛋黄深处
-- Text track (text / middle): 蛋黄
-- Text track (title / top): 咸鸭蛋为什么会流油？ / 第2步·盐进蛋黄
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D cartoon style, close-up of a salted duck egg cut open, translucent egg white wrapping a perfectly round orange yolk, a few round salt grains at the edge, clean solid-color background, soft studio lighting, C4D render, minimalist, high quality.
-  - Video prompt: the camera pushes in slowly and steadily toward the orange yolk in the center, keeping the 3D cartoon look, lighting unchanged.
+**Visible on screen** (check against the frames)
+- Picture: Medium eye-level shot. Three long-haired white fluffy balls (the eggs) sit in a row on the table, a rope ring at left, white four-point sparkles in the background. The camera trucks slowly.
+- Camera / lighting: medium shot; moving camera (gimbal / handheld pan); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/bottom): 原来 / 这场流油的大戏 / 万后导演是普普通通的盐
+- Text track (title/top): 咸鸭蛋为什么会流油？
+- [AI assistant review] The fur edges of the three white balls stay stable; only the whole frame pans
+- [AI assistant review] The rope ring at left and the background mountains do not change
+- [AI assistant review] Outlines and materials stay consistent across frames, without the warping typical of AI video
 
-### #8 00:26.125–00:27.792 · 3D rendering + code / editor overlays (text labels, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 83%, AI-generated video 5%, code / template render 4% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 62% flat colour blocks, 95% of pixels use only 21 colours, 36% axis-aligned edges
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot, vertical. Three long-haired white oval fluffy balls in a row on a white tabletop, a coiled rope ring at left, sage-green wall and low-poly mountain shapes behind, a few white four-point sparkles in the air. Soft light, Blender fur render.
+  - Video prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot. The camera slowly trucks right past three white fluffy balls on the table while white sparkles twinkle in the background.
+
+</details>
+
+<details class="ref"><summary>#8 00:13.667–00:15.833 · 3D render + code / editor overlays (text labels, title)</summary>
 
 ![shot_008](shots/shot_008.jpg)
 
-- Probabilities: 3D rendering 98%, 2D animation 0%, AI-generated video 0% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender / C4D
-- [VLM] The yolk is a perfect geometric sphere
-- [VLM] The egg white is a uniform translucent 3D material
-- [VLM] The blue droplet particles appear with smooth, precise animation, no AI warping or flicker
-- [VLM] Lighting and materials are very clean overall, typical of 3D rendering
-- Picture: a 3D-rendered close-up of a salted duck egg cross-section, the orange spherical yolk centered, blue droplet-shaped particles gradually appearing around it, camera fixed.
-- Framing / light: extreme close-up; eye level; moving (gimbal / handheld pan); frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.0:1 (0.0 stops); soft light (almost no shadow edge)
-- Text track (text / bottom): 蛋黄里存着的水分
-- Text track (title / top): 咸鸭蛋为什么会流油？ / 第2步·盐进蛋黄
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D cartoon style, close-up, a salted duck egg cut open, a perfect orange spherical yolk in the middle wrapped in translucent egg white, on a light plush base, solid-color background, soft lighting, minimal clean materials.
-  - Video prompt: 3D cartoon style, close-up, a salted duck egg cut open, a perfect orange spherical yolk in the middle wrapped in translucent egg white. Over time, blue droplet-shaped particle effects gradually appear in the egg white around the yolk. Camera stays fixed.
+**Visible on screen** (check against the frames)
+- Picture: Medium, slightly high-angle shot. A shallow wooden bowl of white salt on a white table; small white balls with black eyes (personified salt grains) pop out of the pile one by one. Static camera.
+- Camera / lighting: medium shot; fixed camera (tripod / mount / on the desk); backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text track (text/bottom): 幕后导演是普普通通的盐
+- Text track (title/top): 咸鸭蛋为什么会流油？
+- [AI assistant review] The wooden bowl has wood grain and a shadow, the salt pile has volume and shading: not flat code graphics
+- [AI assistant review] The small white balls with eyes pop up one by one on regular paths
+- [AI assistant review] The background is a blurred green wall and tabletop, not a pixel-frozen flat color
 
-### #9 00:27.792–00:29.458 · 3D rendering + code / editor overlays (text labels, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 78%, code / template render 10%, 2D animation 3% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 76% flat colour blocks, 95% of pixels use only 25 colours, 40% axis-aligned edges
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Medium slightly high-angle shot, vertical. In the lower middle, a pale wood-grain round bowl heaped with white salt on a white tabletop; blurred sage-green wall behind. Soft diffuse light, minimal 3D cartoon render.
+  - Video prompt: medium shot, subject in the upper middle of the frame. Medium slightly high-angle shot. Five or six small white balls with tiny black eyes pop out of the salt pile in a wooden bowl one by one and wobble on the surface. Static camera.
+
+</details>
+
+<details class="ref"><summary>#9 00:15.833–00:19.583 · 3D render + code / editor overlays (subtitles, title)</summary>
 
 ![shot_009](shots/shot_009.jpg)
 
-- Probabilities: 3D rendering 94%, code / template rendering 4%, 2D animation 0% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender
-- [VLM] The shell cross-section, egg white and yolk are all geometrically precise 3D objects
-- [VLM] The arrow motion and the dehydration-shrink animation match keyframe interpolation
-- [VLM] Smooth diffuse shading and subsurface-scattering render look
-- Picture: a 3D cross-section of the salted-egg curing process. The egg white is enclosed by a transparent shell with the yolk at the center; translucent blue arrows show water being drawn out; camera fixed and centered.
-- Framing / light: extreme close-up; eye level; tripod / stand, fixed; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.0:1 (0.0 stops); soft light (almost no shadow edge)
-- Text track (text / bottom): 被盐一把拉了出去
-- Text track (title / top): 咸鸭蛋为什么会流油？ / 第2步·盐进蛋黄
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D cutaway of a salted duck egg, a white shell rig on the outside, a plump round yellow yolk inside translucent egg white, soft even studio lighting, minimal tech-educational style.
-  - Video prompt: static close-up, a 3D cross-section showing water being drawn out of the yolk, several translucent light-blue arrows flow outward from the yolk surface, the yolk firms up and contracts slightly, clean CG animation look throughout.
+**Visible on screen** (check against the frames)
+- Picture: Medium eye-level shot. A large brown translucent cup (the brine crock) with a white fluffy egg showing at its rim; the grey-brown plush monkey peeks in from the right; a small wooden-handled hammer hangs in the background. Static camera.
+- Camera / lighting: medium shot; fixed camera (tripod / mount / on the desk); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.1 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/bottom): 第一步腌蛋的盐水里 / 盐顺着蛋壳的气孔 / 一粒粒往里钻
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 第1步·盐钻气孔
+- [AI assistant review] The brown cup wall has specular reflections and clean geometry
+- [AI assistant review] The grey-brown plush monkey at right keeps stable fur
+- [AI assistant review] Outlines and materials stay consistent across frames, without the warping typical of AI video
 
-### #10 00:29.458–00:30.625 · 3D rendering + code / editor overlays (text labels, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 82%, code / template render 6%, AI-generated video 4% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 53% flat colour blocks, 95% of pixels use only 41 colours, 38% axis-aligned edges
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot, vertical. In the center, a large brown translucent cylindrical cup with the top of a long-haired white fluffy ball showing at the rim; at lower right a grey-brown plush monkey leans in, looking left. Sage-green wall, low-poly mountain shapes and a small wooden-handled hammer behind. Soft light, 3D cartoon render.
+  - Video prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot. The white fluffy ball sinks slightly into the brown cup while a grey-brown plush monkey on the right blinks and watches. Static camera.
+
+</details>
+
+<details class="ref"><summary>#10 00:19.583–00:21.042 · 3D render + code / editor overlays (subtitles, title)</summary>
 
 ![shot_010](shots/shot_010.jpg)
 
-- Probabilities: 3D rendering 99%, 2D animation 0%, code / template rendering 0% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender / C4D
-- Rendered texture: flat color blocks 48%, 95% of pixels use only 37 colors, straight edges 36%
-- [VLM] A typical 3D cartoon render style
-- [VLM] The character and the white ball have high-quality simulated 3D fur, clean edges, no AI-generated flicker or warping
-- [VLM] Geometry edges are smooth and lighting is stable and consistent, as in conventional 3D software renders
-- Picture: a 3D animated scene, a fluffy cartoon monkey stands on the left looking at a floating fluffy white ball on the right, a simple geometric wall and a brown jar in the background.
-- Framing / light: close-up; eye level; moving (gimbal / handheld pan); frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.2:1 (0.3 stops); soft light (almost no shadow edge)
-- Text track (text / bottom): 失了水的蛋黄
-- Text track (title / top): 咸鸭蛋为什么会流油？ / 第2步·盐进蛋黄
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D render, a cute fluffy cartoon monkey stands on the left of the frame looking at a floating fluffy white ball on the right, a simple light-green geometric wall and a brown jar in the background, soft studio lighting bringing out the fur texture, Pixar style, vertical composition.
-  - Video prompt: 3D animation, a cute fluffy cartoon monkey stands on the left looking at a floating fluffy white ball on the right, the monkey breathes gently, the white ball bobs slightly, fixed camera, soft light.
+**Visible on screen** (check against the frames)
+- Picture: Close eye-level shot. An upright egg cross-section model on a rope-ring base: an off-white shell with fine fuzz, translucent egg white and an orange yolk inside. A few small salt balls slip in through pores at the top of the shell. Static camera.
+- Camera / lighting: medium shot; moving camera (gimbal / handheld pan); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.1:1 (0.1 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/bottom): 一粒粒往里钻 / 第二步盐先灌满蛋清
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 第1步·盐钻气孔 / 第2步·盐进蛋黄
+- Text track (title/top): 气孔
+- [AI assistant review] Egg cross-section model: off-white shell, translucent white, perfectly spherical yolk, unchanged across frames
+- [AI assistant review] The fuzz on the shell edge and the rope base have material texture
+- [AI assistant review] Tiny salt balls enter through the top of the shell on regular paths
 
-### #11 00:30.625–00:33.750 · 3D rendering + code / editor overlays (captions, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 80%, AI-generated video 7%, code / template render 4% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 35% flat colour blocks, 95% of pixels use only 57 colours, 31% axis-aligned edges
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Close eye-level shot, vertical. In the center, an upright oval egg cross-section model: off-white shell with fine fuzz along the rim, translucent egg white inside and an orange spherical yolk in the middle, resting on a woven rope ring. Sage-green background. Soft light, 3D science-explainer render.
+  - Video prompt: medium shot, subject in the upper middle of the frame, camera push-in. Close eye-level shot. A few small white salt balls drop onto the top of the egg cross-section model from the upper right and slip one by one through tiny pores into the egg white. Static camera.
+
+</details>
+
+<details class="ref"><summary>#11 00:21.042–00:23.042 · 3D render + code / editor overlays (subtitles, title)</summary>
 
 ![shot_011](shots/shot_011.jpg)
 
-- Probabilities: 3D rendering 98%, AI-generated video 0%, 2D animation 0% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender / C4D
-- [VLM] The egg structure, translucent shell, smooth yolk and woven base all show perfect geometry and the typical 3D-render look
-- [VLM] The shrinking of the central yellow sphere is a precise parametric scale, with no physical deformation or AI-generated flicker
-- [VLM] Lighting is clean and stable overall, none of the noise or flaws of a real camera
-- Picture: a 3D-rendered cutaway model of the inside of a duck egg. A yellow sphere (the yolk) floats inside a translucent white shell on a woven base. The animation shows the central yellow sphere gradually shrinking.
-- Framing / light: extreme close-up; eye level; moving (gimbal / handheld pan); frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.0:1 (0.0 stops); soft light (almost no shadow edge)
-- Text track (captions / bottom): 缩成一团 / 越缩越小越缩越硬
-- Text track (title / top): 咸鸭蛋为什么会流油？ / 第2步·盐进蛋黄
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D render, close-up, a cutaway model of the inside of a duck egg. A smooth yellow sphere in the center stands for the yolk, wrapped in a translucent white shell, resting on a ring-shaped base of beige woven material. Light-green solid background, soft studio light, cartoon educational style, clean and bright.
-  - Video prompt: 3D animation, fixed camera. A cutaway duck-egg model in the center of the frame; the yellow sphere (yolk) in the middle shrinks smoothly and proportionally over time while everything else stays still.
+**Visible on screen** (check against the frames)
+- Picture: Medium eye-level shot. A glass cylinder of white liquid (the egg white) on a wooden coaster on a white table; a few small salt grains fall into it from above. Static camera.
+- Camera / lighting: medium shot; fixed camera (tripod / mount / on the desk); backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/bottom): 第二步盐先灌满蛋清 / 再穿过蛋黄膜
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 第2步·盐进蛋黄
+- [AI assistant review] The glass has refraction, thickness and a shadow; the wooden coaster has grain
+- [AI assistant review] The white liquid has volume, not a flat color block
+- [AI assistant review] The salt grains fall into the liquid on regular paths
 
-### #12 00:33.750–00:38.042 · 3D rendering + code / editor overlays (captions, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 78%, code / template render 10%, 2D animation 3% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 70% flat colour blocks, 95% of pixels use only 27 colours, 41% axis-aligned edges
+  - Per-frame sharpness oscillates periodically (period 2 frames, correlation 0.47) with no duplicate frames: frame interpolation / rate conversion, or just the rhythm of a re-encode (transcodes whose platform tags were stripped show it too); not enough on its own to call AI
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot, vertical. In the center, a clear glass cylinder full of milky white liquid on a pale round wooden coaster on a white tabletop; sage-green wall behind. Soft diffuse light, minimal 3D science-explainer render.
+  - Video prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot. A few small white salt grains fall one by one into a glass cylinder of milky liquid. Static camera.
+
+</details>
+
+<details class="ref"><summary>#12 00:23.042–00:24.333 · 3D render + code / editor overlays (text labels, title)</summary>
 
 ![shot_012](shots/shot_012.jpg)
 
-- Probabilities: 3D rendering 99%, code / template rendering 0%, 2D animation 0% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender / C4D
-- Rendered texture: flat color blocks 55%, 95% of pixels use only 28 colors, straight edges 43%
-- [VLM] The fluffy characters' fur is rendered finely and stably, none of the flicker or warping common in AI video
-- [VLM] The physical collisions and deformation as the characters squeeze together are very regular and as expected
-- [VLM] The orange balls pop out on precise paths, consistent with conventional keyframed 3D animation
-- [VLM] Lighting is consistent and materials are clean overall, typical of 3D software renders
-- Picture: a 3D cartoon frame, several white fluffy big-eyed creatures on a wooden board move toward the middle and huddle together, then a few orange balls pop out of them, camera fixed.
-- Framing / light: close-up; eye level; tripod / stand, fixed; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.0:1 (0.0 stops); soft light (almost no shadow edge)
-- Text track (captions / bottom): 第三步 / 高盐让蛋黄里的蛋白质 / 纷纷收紧抱团
-- Text track (title / top): 咸鸭蛋为什么会流油？ / 第3步·蛋白挤油 / 第了步·蛋白挤油
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D cartoon style, several white fluffy ball creatures with big eyes lying on a wooden tabletop, solid-color background, soft light, a macro-photography feel.
-  - Video prompt: several white fluffy ball creatures start out scattered on a wooden tabletop, then move toward the middle and huddle tightly together, and a few small orange balls pop out of them; camera stays fixed.
+**Visible on screen** (check against the frames)
+- Picture: Medium eye-level shot. A glass of white liquid at left (egg white), a glass of orange-yellow liquid at right (yolk), and a wooden-framed round membrane between them (yolk membrane). White salt grains pass from left to right through the membrane. Static camera.
+- Camera / lighting: medium shot; fixed camera (tripod / mount / on the desk); backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text track (text/bottom): 再穿过蛋黄膜
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 第2步·盐进蛋黄
+- Text track (title/top): 蛋黄膜
+- [AI assistant review] Both glasses and the wooden-framed round membrane have materials, transparency and shadows
+- [AI assistant review] The white balls pass through the membrane toward the right glass on regular paths
+- [AI assistant review] Outlines and materials stay consistent across frames, without the warping typical of AI video
 
-### #13 00:38.042–00:41.583 · 3D rendering + code / editor overlays (captions, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 82%, code / template render 7%, AI-generated video 3% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 63% flat colour blocks, 95% of pixels use only 41 colours, 41% axis-aligned edges
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot, vertical. On a white tabletop, a glass of milky liquid at left and a glass half full of orange-yellow liquid at right, both on pale wooden coasters, with a wooden-framed round translucent membrane floating between them. Sage-green background. Soft light, minimal 3D science-explainer render.
+  - Video prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot. Small white salt grains fly out above the left glass, pass through the wooden-framed round membrane in the middle and drop into the orange liquid in the right glass. Static camera.
+
+</details>
+
+<details class="ref"><summary>#13 00:24.333–00:26.125 · 3D render + code / editor overlays (subtitles, text labels, title)</summary>
 
 ![shot_013](shots/shot_013.jpg)
 
-- Probabilities: 3D rendering 89%, AI-generated video 9%, 2D animation 0% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender
-- [VLM] Perfectly regular 3D geometry and a translucent material cross-section
-- [VLM] Realistic, regular fluid / oil-separation physics simulation on the yolk surface
-- [VLM] Clean, noise-free 3D lighting and smooth transitions
-- Picture: a 3D cross-section of the inside of a salted duck egg, transparent egg white wrapping an orange-yellow yolk, golden oil gradually separating out at the top of the yolk, fixed camera, soft studio light.
-- Framing / light: extreme close-up; eye level; tripod / stand, fixed; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.0:1 (0.0 stops); soft light (almost no shadow edge)
-- Text track (captions / bottom): 原本被裹得严严实实的油 / 一下子全散开了
-- Text track (title / top): 咸鸭蛋为什么会流油？ / 第了步·蛋白挤油
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D cutaway render, a cooked salted duck egg model cut open, a round orange-yellow yolk in the center, translucent gel-like egg white and a slice of shell outside, minimal soft studio lighting, centered composition, refined educational illustration style
-  - Video prompt: static close-up of a 3D cutaway salted duck egg; glistening golden oil slowly seeps out of the top of the orange spherical yolk and gathers and flows, egg white and shell stay still, soft studio top light, a steady view of the oil separating out
+**Visible on screen** (check against the frames)
+- Picture: Close-up, eye level. The yolk of the cross-section model sits in the center; the camera slowly pushes in, and white four-point sparkles and a small 蛋黄 (yolk) label appear above it.
+- Camera / lighting: medium shot; moving camera (gimbal / handheld pan); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/bottom): 一路潜进蛋黄深处 / 蛋黄里存着的水分
+- Text track (text/middle): 蛋黄
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 第2步·盐进蛋黄
+- [AI assistant review] The same egg cross-section model as shot 10, identical structure
+- [AI assistant review] The push-in is smooth and the yolk is a perfect sphere
+- [AI assistant review] Outlines and materials stay consistent across frames, without the warping typical of AI video
 
-### #14 00:41.583–00:45.250 · 3D rendering + code / editor overlays (captions, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 79%, AI-generated video 8%, code / template render 3% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 28% flat colour blocks, 95% of pixels use only 62 colours, 31% axis-aligned edges
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Close-up, eye level, vertical. The egg cross-section model fills the frame: off-white shell, translucent white, orange spherical yolk in the center. Soft light, 3D science-explainer render.
+  - Video prompt: medium shot, subject in the upper middle of the frame. Close-up, eye level. The camera slowly pushes in on the orange yolk at the center of the egg model; two white sparkles flash above it. Ends with the yolk filling half the frame.
+
+</details>
+
+<details class="ref"><summary>#14 00:26.125–00:27.792 · 3D render + code / editor overlays (text labels, title)</summary>
 
 ![shot_014](shots/shot_014.jpg)
 
-- Probabilities: 3D rendering 96%, code / template rendering 3%, 2D animation 0% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender
-- Rendered texture: flat color blocks 67%, 95% of pixels use only 20 colors, straight edges 45%
-- [VLM] A 3D fur-material block and metal rods, geometry stable and precise
-- [VLM] The mechanical squeeze deformation and falling drops are standard 3D dynamics / keyframe simulation
-- [VLM] Minimal solid-color 3D set with smooth diffuse lighting
-- Picture: a 3D educational animation. Against a minimal light-gray background, a fuzzy light-blue square towel is squeezed tight by the metal rod running through it, transparent drops fall on both sides, simulating wringing water out of a towel.
-- Framing / light: medium shot; eye level; fixed (tripod / stand / on a table); backlit / background brighter than subject; key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.0:1 (0.0 stops); soft light (almost no shadow edge)
-- Text track (captions / bottom): 就像拧毛巾 / 手一收紧 / 水就被挤了出来
-- Text track (title / top): 咸鸭蛋为什么会流油？ / 第了步·蛋白挤油
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D minimal educational render style, smooth gray background and light tabletop, a light gray-blue square towel with fine fuzz hangs in the center of the frame, threaded on a thin horizontal metal rod, soft even lighting, clean 3D model
-  - Video prompt: fixed eye-level camera, 3D animation demo: a square towel with fine fuzz in the center is pushed inward by metal rods from left and right and compressed into a thin T shape; as it is squeezed, several crystal-clear water drops form in the air on both sides of the towel and fall; the background stays minimal and still
+**Visible on screen** (check against the frames)
+- Picture: Close-up, eye level. The cross-section yolk in the center; the picture is almost still while the camera creeps in.
+- Camera / lighting: medium shot; moving camera (gimbal / handheld pan); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.1 stops); soft light (almost no lit / shadow edge)
+- Text track (text/bottom): 蛋黄里存着的水分
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 第2步·盐进蛋黄
+- [AI assistant review] The yolk and shell keep the same shape across frames
+- [AI assistant review] The small round beads on the shell edge stay put
+- [AI assistant review] Outlines and materials stay consistent across frames, without the warping typical of AI video
 
-### #15 00:45.250–00:47.333 · 3D rendering + code / editor overlays (text labels, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 79%, AI-generated video 8%, code / template render 3% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 27% flat colour blocks, 95% of pixels use only 61 colours, 31% axis-aligned edges
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Close-up, eye level, vertical. The egg cross-section model with an orange spherical yolk in the center, surrounded by translucent white and an off-white shell. Soft light, 3D science-explainer render.
+  - Video prompt: medium shot, subject in the upper middle of the frame, camera push-in. Close-up, eye level. A faint wet highlight shimmers on the yolk surface while the camera creeps in very slowly.
+
+</details>
+
+<details class="ref"><summary>#15 00:27.792–00:29.458 · 3D render + code / editor overlays (text labels, title)</summary>
 
 ![shot_015](shots/shot_015.jpg)
 
-- Probabilities: 3D rendering 98%, 2D animation 0%, code / template rendering 0% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender / C4D
-- Rendered texture: flat color blocks 44%, 95% of pixels use only 65 colors, straight edges 33%
-- [VLM] The subject is three fluffy cartoon figures with clear 3D modeling and fur rendering
-- [VLM] The background is a set of simple geometric shapes, lighting stable, no AI warping
-- [VLM] Fine particles fall from the top at a constant speed, consistent with a 3D particle system
-- Picture: three fluffy 3D cartoon animals stand side by side in a simple geometric set, a jar in the background, fine particles falling from the top of the frame. Fixed camera.
-- Framing / light: full shot; eye level; fixed (tripod / stand / on a table); frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.0:1 (0.0 stops); soft light (almost no shadow edge)
-- Text track (text / bottom): 第四步剩下的交给时间
-- Text track (title / top): 咸鸭蛋为什么会流油？ / 第4步·静待出油
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D cartoon style, three cute fluffy little animals stand side by side, green in the middle, brown and gray on the sides, simple green geometric hills and a brown jar in the background, soft light, vertical composition
-  - Video prompt: 3D cartoon style, three cute fluffy little animals stand side by side, green in the middle, brown and gray on the sides, simple green geometric hills and a brown jar in the background. Fine yellow particles keep falling from the top of the frame. Static camera
+**Visible on screen** (check against the frames)
+- Picture: Close-up, eye level. The cross-section model with the yolk in the center; pale blue droplets appear at the right edge of the shell and move outward. Static camera.
+- Camera / lighting: medium shot; moving camera (gimbal / handheld pan); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text track (text/bottom): 被盐一把拉了出去
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 第2步·盐进蛋黄
+- [AI assistant review] Same cross-section model, stable yolk shape
+- [AI assistant review] Pale blue droplet shapes with regular edges appear at the right edge of the shell
+- [AI assistant review] Outlines and materials stay consistent across frames, without the warping typical of AI video
 
-### #16 00:47.333–00:49.583 · 3D rendering + code / editor overlays (text labels, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 78%, AI-generated video 9%, code / template render 3% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 26% flat colour blocks, 95% of pixels use only 63 colours, 31% axis-aligned edges
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Close-up, eye level, vertical. The egg cross-section model with an orange spherical yolk in the center, surrounded by translucent egg white. Soft light, 3D science-explainer render.
+  - Video prompt: medium shot, subject in the upper middle of the frame, camera push-in. Close-up, eye level. A few pale blue droplets seep out of the yolk, drift through the egg white to the right edge of the shell and vanish. Static camera.
+
+</details>
+
+<details class="ref"><summary>#16 00:29.458–00:30.625 · 3D render + code / editor overlays (subtitles, title)</summary>
 
 ![shot_016](shots/shot_016.jpg)
 
-- Probabilities: 3D rendering 98%, AI-generated video 0%, 2D animation 0% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender / C4D
-- [VLM] The egg, yolk, oil and container are all 3D models with perfect geometry and uniform materials
-- [VLM] The oil overflow is a typical 3D fluid or deformation animation with precise motion
-- [VLM] Lighting is consistent, without the complex reflections and refractions of the real world
-- [VLM] Twinkling star effects at the top of the frame are post compositing or a 3D particle effect
-- Picture: a close-up of a salted duck egg model cut open, oil gradually spilling over the top of the yolk with twinkling star effects, solid-color background.
-- Framing / light: medium shot; moving (gimbal / handheld pan); frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.0:1 (0.0 stops); soft light (almost no shadow edge)
-- Text track (text / bottom): 家庭腌制要30~40天
-- Text track (title / top): 咸鸭蛋为什么会流油？ / 第4步·静待出油
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D cartoon style, close-up, a salted duck egg model cut open sits in a white container, the yolk orange-yellow with a little oil on top, light-green solid background, soft lighting.
-  - Video prompt: 3D cartoon style, close-up, a salted duck egg model cut open sits in a white container, the yolk orange-yellow. Over time more oil spills out over the top of the yolk, with twinkling star effects on the oil surface; camera stays fixed.
+**Visible on screen** (check against the frames)
+- Picture: Close eye-level shot. The grey-brown plush monkey looks up at left while a white fluffy ball (the yolk, personified) rises and grows beside it, the jar behind. The camera slowly pushes in.
+- Camera / lighting: medium close-up; moving camera (gimbal / handheld pan); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.3 stops); hard light (sharp shadow edge)
+- Text track (subtitle/bottom): 失了水的蛋黄 / 缩成一团
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 第2步·盐进蛋黄
+- [AI assistant review] The grey-brown monkey and the white fluffy ball keep stable fur
+- [AI assistant review] The jar's red lid and reflections stay consistent
+- [AI assistant review] Outlines and materials stay consistent across frames, without the warping typical of AI video
 
-### #17 00:49.583–00:54.958 · 3D rendering + code / editor overlays (captions, text labels, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 83%, AI-generated video 5%, code / template render 4% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 50% flat colour blocks, 95% of pixels use only 43 colours, 36% axis-aligned edges
+  - Per-frame sharpness oscillates periodically (period 4 frames, correlation 0.85) with no duplicate frames: frame interpolation / rate conversion, or just the rhythm of a re-encode (transcodes whose platform tags were stripped show it too); not enough on its own to call AI
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium close-up, subject in the lower left of the frame. Close eye-level shot, vertical. At left, a grey-brown plush monkey with a beige face, big black eyes and pink cheeks, side-on facing right; at right, a long-haired white oval fluffy ball hovering above the table; behind on the right, a brown red-lidded clay jar. Sage-green wall, low-poly mountain shapes. Soft light, Blender fur render.
+  - Video prompt: medium close-up, subject in the lower left of the frame. Close eye-level shot. A white fluffy ball rises from the table and slowly turns while the grey-brown plush monkey on the left looks up and blinks. The camera slowly pushes in.
+
+</details>
+
+<details class="ref"><summary>#17 00:30.625–00:33.750 · 3D render + code / editor overlays (subtitles, title)</summary>
 
 ![shot_017](shots/shot_017.jpg)
 
-- Probabilities: 3D rendering 99%, 2D animation 0%, code / template rendering 0% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender / C4D
-- In-shot motion beats: 50.38 s, 51.29 s
-- Rendered texture: flat color blocks 52%, 95% of pixels use only 51 colors, straight edges 39%
-- [VLM] Geometry edges of characters and objects are extremely clean and regular
-- [VLM] Fur materials (character and white ball) and smooth materials (the pot) show the typical 3D-render look
-- [VLM] The red oil flows down along a precise curved path, no physical deformation or AI flicker
-- [VLM] Lighting stays absolutely consistent throughout the animation
-- Picture: a 3D animated scene: the green plush character on the left watches the change on the right. The white fur ball on the right turns into a small brown pot, the pot opens, and pink liquid (red oil) flows down in an S curve onto the yolk. Fixed camera.
-- Framing / light: close-up; eye level; fixed (tripod / stand / on a table); backlit / background brighter than subject; key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.2:1 (0.3 stops); soft light (almost no shadow edge)
-- Text track (captions / bottom): 腌足日子再敲开 / 红油汪在蛋黄上 / 颤颤的亮亮的
-- Text track (text / middle): 红油
-- Text track (title / top): 咸鸭蛋为什么会流油？ / 第4步·静待出油
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D cartoon style, vertical. A fluffy green monkey character on the left, a small brown pot on a white base on the right, the pot open at the top showing a yellow yolk. Simple light-green geometric hill shapes in the background. Soft, even light overall.
-  - Video prompt: 3D animation. The green fluffy character on the left stays still. On the right, what was a white fur ball instantly turns into a small brown pot. The pot opens at the top and a stream of pink liquid winds down from above in an S curve, landing on the yellow yolk inside the pot. Fixed camera.
+**Visible on screen** (check against the frames)
+- Picture: Close-up, eye level. In the cross-section model the yolk shrinks evenly and a ring of empty space opens around it. Static camera.
+- Camera / lighting: medium shot; moving camera (gimbal / handheld pan); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/bottom): 缩成一团 / 越缩越小越缩越硬
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 第2步·盐进蛋黄
+- [AI assistant review] Same cross-section model; the yolk shrinks by a uniform scale
+- [AI assistant review] The shell and background do not change at all
+- [AI assistant review] Outlines and materials stay consistent across frames, without the warping typical of AI video
 
-### #18 00:54.958–00:57.208 · 3D rendering + code / editor overlays (text labels, captions, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 78%, AI-generated video 9%, code / template render 3% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 25% flat colour blocks, 95% of pixels use only 59 colours, 28% axis-aligned edges
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Close-up, eye level, vertical. The egg cross-section model with an orange spherical yolk in the center, surrounded by translucent white and an off-white shell. Soft light, 3D science-explainer render.
+  - Video prompt: medium shot, subject in the upper middle of the frame, camera push-in. Close-up, eye level. The orange yolk shrinks evenly by about ten percent, leaving a pale ring of space around it, and comes to rest. Static camera.
+
+</details>
+
+<details class="ref"><summary>#18 00:33.750–00:38.042 · 3D render + code / editor overlays (subtitles, title)</summary>
 
 ![shot_018](shots/shot_018.jpg)
 
-- Probabilities: 3D rendering 98%, 2D animation 0%, code / template rendering 0% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender / C4D
-- Rendered texture: flat color blocks 41%, 95% of pixels use only 89 colors, straight edges 39%
-- 83% of sampled frames have a frontal face with a fixed camera, and the audio track has voice
-- [VLM] Character fur is rendered cleanly and stably, no flicker
-- [VLM] Geometry edges are sharp, lighting physically consistent
-- [VLM] Motion is precise, none of the warping or floating common in AI
-- Picture: three 3D plush monkey characters, the middle one lifts the bowl and salted duck egg on its head upward, minimal geometric mountains in the background, fixed camera.
-- Framing / light: close-up; eye level; fixed (tripod / stand / on a table); frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.1:1 (0.1 stops); soft light (almost no shadow edge)
-- Text track (text / bottom): 这就是流油咸鸭蛋
-- Text track (captions / middle): 流油咸鸭蛋！ / 流油咸鸭蛋！+
-- Text track (title / top): 咸鸭蛋为什么会流油？ / 成了！
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D cartoon style, three fluffy monkey characters, the middle one balancing a white bowl on its head with a salted duck egg in it, simple geometric mountains in the background, soft lighting, centered composition.
-  - Video prompt: 3D animation, three fluffy monkeys; the middle one raises both hands to lift the bowl and salted duck egg on its head, looking happy, the two monkeys beside it sway slightly, camera fixed.
+**Visible on screen** (check against the frames)
+- Picture: Medium eye-level shot. A wooden plank across the white table; several white furry blobs with black eyes (the proteins) bounce down onto it and squeeze together, then a few small orange balls (oil droplets) pop out from between them. Static camera.
+- Camera / lighting: medium shot; fixed camera (tripod / mount / on the desk); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/bottom): 第三步 / 高盐让蛋黄里的蛋白质 / 纷纷收紧抱团 / 原本被裹得严严实实的油
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 第3步·蛋白挤油
+- [AI assistant review] The white blob characters have long fur and volumetric shadows; the plank has wood grain
+- [AI assistant review] Around 36.5s all blobs vanish and bounce in again, like two renders joined end to end, not a deformation
+- [AI assistant review] The orange balls pop out on regular paths
 
-### #19 00:57.208–01:00.750 · 3D rendering + code / editor overlays (captions, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 83%, code / template render 5%, AI-generated video 4% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 56% flat colour blocks, 95% of pixels use only 36 colours, 42% axis-aligned edges
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot, vertical. A long pale wood-grain plank lying across the lower half of the frame on a white tabletop, plain sage-green wall behind. Soft light, 3D cartoon render.
+  - Video prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot. Several white furry blobs with shiny black eyes bounce down onto a wooden plank one after another and squeeze together in a row, then a few small orange balls pop up from between them. Static camera.
+
+</details>
+
+<details class="ref"><summary>#19 00:38.042–00:40.000 · 3D render + code / editor overlays (text labels, title)</summary>
 
 ![shot_019](shots/shot_019.jpg)
 
-- Probabilities: 3D rendering 89%, AI-generated video 9%, talking avatar 1% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender
-- In-shot motion beats: 58.33 s, 59.54 s
-- 100% of sampled frames have a frontal face with a fixed camera, and the audio track has voice
-- [VLM] The characters have a clear 3D fur particle system (fluffy geometric detail is precise, no AI flicker)
-- [VLM] The jar, bowl and red prohibition sign behind them are 3D-modeled materials with rendered lighting, geometry stable
-- [VLM] Model deformation during the animation strictly follows keyframes and the rigged skeleton
-- Picture: a 3D cartoon scene, two fluffy cartoon monkeys stand at a table with a salted duck egg cut open and oozing oil and a pickling jar beside them, a red prohibition sign appears on the right, camera fixed at eye level.
-- Framing / light: close-up; eye level; tripod / stand, fixed; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.3:1 (0.3 stops); soft light (almost no shadow edge)
-- Text track (captions / bottom): 不过这油不是谁偷偷加的 / 神秘物质
-- Text track (text / middle): 咸
-- Text track (title / top): 咸鸭蛋为什么会流油？ / 注意！
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D-rendered fluffy cartoon monkey plushies, dense realistic fur all over, big smiling eyes, one yellow and one brown, a salted duck egg cut open and leaking oil and a small brown jar on the table, minimal clean background, soft studio lighting, vertical composition.
-  - Video prompt: fixed camera, two fluffy cartoon monkeys stand at a table, the brown monkey blinks and raises a hand slightly and waves, a red prohibition sign slides in from the right, the characters' fur is fine and flicker-free, the whole frame steady and lifelike.
+**Visible on screen** (check against the frames)
+- Picture: Close-up, eye level. In the cross-section model, a few translucent orange oil beads rise from the top of the yolk. Static camera.
+- Camera / lighting: medium shot; moving camera (gimbal / handheld pan); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text track (text/bottom): 原本被裹得严严实实的油
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 第3步·蛋白挤油
+- [AI assistant review] Same cross-section model
+- [AI assistant review] The orange oil beads rising above the yolk are regular spheres that appear one at a time
+- [AI assistant review] Outlines and materials stay consistent across frames, without the warping typical of AI video
 
-### #20 01:00.750–01:03.000 · 3D rendering + code / editor overlays (text labels, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 78%, AI-generated video 9%, code / template render 3% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 26% flat colour blocks, 95% of pixels use only 63 colours, 30% axis-aligned edges
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Close-up, eye level, vertical. The egg cross-section model with an orange spherical yolk in the center, surrounded by translucent egg white. Soft light, 3D science-explainer render.
+  - Video prompt: medium shot, subject in the upper middle of the frame, camera push-in. Close-up, eye level. Four or five translucent orange oil beads rise one by one from the top of the yolk and hover above it. Static camera.
+
+</details>
+
+<details class="ref"><summary>#20 00:40.000–00:41.583 · 3D render + code / editor overlays (subtitles, title)</summary>
 
 ![shot_020](shots/shot_020.jpg)
 
-- Probabilities: 3D rendering 96%, code / template rendering 3%, 2D animation 0% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender
-- Rendered texture: flat color blocks 61%, 95% of pixels use only 31 colors, straight edges 41%
-- [VLM] A perfectly clean 3D wooden balance scale and yolk sphere models, no live-footage noise or lens flaws
-- [VLM] The wood-grain texture maps regularly; the scale tilt and falling sphere are smooth physics animation with no AI flicker or warping
-- [VLM] A 2D composited glowing star-burst effect above
-- Picture: a 3D cartoon-style scene. A wooden balance scale sits in the center with a yolk ball on the left pan; a small yolk ball drops from above and the left side sinks, and twinkling stars appear above the scale. Fixed view, soft top light.
-- Framing / light: medium shot; eye level; tripod / stand, fixed; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.0:1 (0.0 stops); soft light (almost no shadow edge)
-- Text track (text / bottom): 这些油本来就是蛋黄里的脂肪
-- Text track (title / top): 咸鸭蛋为什么会流油？ / 注意！
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D cartoon render, minimal gray-green gradient background and white tabletop. A wooden two-pan balance scale in the exact center, a smooth round orange-yellow yolk ball on the left pan, the scale tilted slightly to the left. Soft diffuse light, clean minimal style.
-  - Video prompt: fixed eye-level camera, a 3D-rendered wooden balance scale. A small yolk ball drops straight down from above and merges into the large yolk ball on the left pan, the beam tilts down to the left, then a few sparkling four-point stars pop up above it, and the scale comes to rest tilted.
+**Visible on screen** (check against the frames)
+- Picture: Close-up, eye level. In the cross-section model, the oil beads above the yolk spread out and settle back on top as a layer of oil. Static camera.
+- Camera / lighting: medium shot; moving camera (gimbal / handheld pan); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/bottom): 一下子全散开了 / 就像拧毛巾
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 第3步·蛋白挤油
+- [AI assistant review] Same cross-section model
+- [AI assistant review] The oil beads fall back onto the yolk and become a layer with a smooth transition
+- [AI assistant review] Outlines and materials stay consistent across frames, without the warping typical of AI video
 
-### #21 01:03.000–01:06.542 · 3D rendering + code / editor overlays (captions, title)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 79%, AI-generated video 8%, code / template render 3% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 26% flat colour blocks, 95% of pixels use only 60 colours, 32% axis-aligned edges
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Close-up, eye level, vertical. The egg cross-section model with an orange spherical yolk in the center and a few orange oil beads floating above it. Soft light, 3D science-explainer render.
+  - Video prompt: medium shot, subject in the upper middle of the frame, camera push-in. Close-up, eye level. The oil beads above the yolk spread out and fall back onto its top, forming a wrinkled pale oil layer. Static camera.
+
+</details>
+
+<details class="ref"><summary>#21 00:41.583–00:45.250 · 3D render + code / editor overlays (subtitles, title)</summary>
 
 ![shot_021](shots/shot_021.jpg)
 
-- Probabilities: 3D rendering 98%, 2D animation 0%, AI-generated video 0% (fused)
-- Material: rendered by the producer
-- Likely tool: Blender / C4D
-- Rendered texture: flat color blocks 47%, 95% of pixels use only 74 colors, straight edges 35%
-- [VLM] Character fur is rendered finely with sharp edges, none of the flicker or smearing common in AI video
-- [VLM] Background geometry (mountains, spheres) has smooth edges and stable, consistent lighting
-- [VLM] Character motion (blinking, small movements) is precisely controlled, with no deformation at all
-- Picture: three fluffy cartoon animal characters stand side by side, minimal geometric mountains and floating spheres in the background, the characters blink and sway slightly.
-- Framing / light: medium shot; moving (gimbal / handheld pan); frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.0:1 (0.0 stops); soft light (almost no shadow edge)
-- Text track (captions / bottom): 一滴没多 / 一滴也没少
-- Text track (title / top): 咸鸭蛋为什么会流油？ / 注意！
-- Remake: 3D rendering: first/last-frame AI generation gives a close approximation; for exact multi-angle work go 3D modeling + Blender rendering
-  - First-frame image prompt: 3D cartoon style, three cute fluffy animal characters (green, brown, gray) stand side by side, minimal geometric mountains and two floating pink spheres in the background, soft top light, high-quality 3D render, rich fur detail.
-  - Video prompt: camera fixed, three fluffy cartoon animal characters stand side by side, blinking and swaying slightly, the geometric spheres in the background stay floating and still, lighting steady.
+**Visible on screen** (check against the frames)
+- Picture: Medium eye-level shot. A pale blue fuzzy square towel hangs on a metal rod; the rod pulls outward and wrings the towel into a T shape while clear drops fall on both sides. Static camera.
+- Camera / lighting: medium shot; fixed camera (tripod / mount / on the desk); backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/bottom): 就像拧毛巾 / 手一收紧 / 水就被挤了出来
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 第3步·蛋白挤油
+- [AI assistant review] The towel has a fuzzy material, the metal rod has highlights, the drops refract
+- [AI assistant review] The towel is squeezed into a T shape with a regular deformation
+- [AI assistant review] The background is a table and wall with depth, not a flat color block
 
-## Notes
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 81%, code / template render 8%, 2D animation 2% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 68% flat colour blocks, 95% of pixels use only 24 colours, 45% axis-aligned edges
 
-- Deterministic forensics are reliable for "is it moving, is it a whole-image push, is the texture rendered, was there a 24→30 frame-rate conversion"; telling live footage, AI and 3D apart relies on the VLM and human review.
-- Platform transcoding usually strips metadata; missing metadata does not mean there was none.
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot, vertical. In the center, above a white tabletop, a thin horizontal metal rod with a pale grey-blue fuzzy square towel hanging from it; sage-green wall behind. Soft diffuse light, minimal 3D science-explainer render.
+  - Video prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot. The towel is lifted by the metal rod and wrung tight in the middle into a narrow T shape while clear water drops fall on both sides. Static camera.
+
+</details>
+
+<details class="ref"><summary>#22 00:45.250–00:47.333 · 3D render + code / editor overlays (text labels, title)</summary>
+
+![shot_022](shots/shot_022.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Medium eye-level shot. Huamao, Yabao and the grey-brown monkey stand side by side swaying, the jar behind on the right, while small brown flakes keep falling from above (time passing). Static camera.
+- Camera / lighting: medium shot; fixed camera (tripod / mount / on the desk); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text on objects in the scene (not subtitles): 盛
+- Text track (text/bottom): 第四步剩下的交给时间
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 第4步·静待出油
+- [AI assistant review] The three characters and the jar keep stable shapes
+- [AI assistant review] The 咸 label on the jar is a texture
+- [AI assistant review] The small brown flakes fall on regular paths
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 79%, AI-generated video 8%, code / template render 4% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 47% flat colour blocks, 95% of pixels use only 76 colours, 33% axis-aligned edges
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot, vertical. Three plush monkeys side by side facing the camera: orange-brown at left, yellow-green in the middle, grey-brown at right; behind on the right a brown red-lidded jar with a red diamond 咸 label; a rope ring at left. Sage-green wall and low-poly mountain shapes. Soft light, Blender fur render.
+  - Video prompt: medium shot, subject in the upper middle of the frame. Medium eye-level shot. Three plush monkeys stand side by side swaying gently while small brown flakes keep drifting down from above. Static camera.
+
+</details>
+
+<details class="ref"><summary>#23 00:47.333–00:49.583 · 3D render + code / editor overlays (subtitles, title)</summary>
+
+![shot_023](shots/shot_023.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Close-up, eye level. In the cross-section model the oil layer on the yolk gradually thickens and white four-point sparkles flash around it. The camera slowly pushes in.
+- Camera / lighting: medium shot; moving camera (gimbal / handheld pan); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/bottom): 家庭腌制要30~40天 / 腌足日子再敲开
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 第4步·静待出油
+- [AI assistant review] Same cross-section model
+- [AI assistant review] The oil layer on top of the yolk thickens gradually and white four-point sparkles flash
+- [AI assistant review] Outlines and materials stay consistent across frames, without the warping typical of AI video
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 77%, AI-generated video 9%, code / template render 3% (fused_agent)
+- Material: rendered by the creator
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Close-up, eye level, vertical. The egg cross-section model with an orange spherical yolk in the center, topped with a layer of pale yellow oil. Soft light, 3D science-explainer render.
+  - Video prompt: medium shot, subject in the upper middle of the frame, camera push-in. Close-up, eye level. The pale oil layer on top of the yolk slowly thickens and spreads while white sparkles flash around it. The camera slowly pushes in.
+
+</details>
+
+<details class="ref"><summary>#24 00:49.583–00:51.292 · 3D render + code / editor overlays (text labels, title)</summary>
+
+![shot_024](shots/shot_024.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Close eye-level shot. Yabao stands at left; the white fluffy ball (the egg) in front of it turns into an oily yolk in a white bowl, the jar behind on the right. Static camera.
+- Camera / lighting: medium close-up; fixed camera (tripod / mount / on the desk); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.3 stops); soft light (almost no lit / shadow edge)
+- Text track (text/bottom): 腌足日子再敲开
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 第4步·静待出油
+- Motion beats within the shot: 50.38s
+- [AI assistant review] Same set and characters as shot 2, framed tighter
+- [AI assistant review] The white fluffy ball switches cleanly to the yolk in the bowl
+- [AI assistant review] Fur stays stable frame to frame, with no flicker or smearing
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 80%, AI-generated video 7%, code / template render 4% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 51% flat colour blocks, 95% of pixels use only 69 colours, 36% axis-aligned edges
+  - 100% of sampled frames show a frontal face on a fixed camera, voice on the audio track
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium close-up, subject in the left of the frame. Close eye-level shot, vertical. At left, a yellow-green long-haired plush monkey facing right; in front of it a long-haired white fluffy ball hovering above a small coconut-shell bowl; behind on the right, a brown red-lidded clay jar. Sage-green wall, white tabletop. Soft light, Blender fur render.
+  - Video prompt: medium close-up, subject in the left of the frame. Close eye-level shot. The white fluffy ball quivers and turns into an orange yolk topped with pale oil in a white bowl, while the monkey on the left raises a hand and watches. Static camera.
+
+</details>
+
+<details class="ref"><summary>#25 00:51.292–00:54.958 · 3D render + code / editor overlays (subtitles, text labels, title)</summary>
+
+![shot_025](shots/shot_025.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Medium eye-level shot. The oily yolk in its white bowl in the center; pinkish-white S-shaped wisps rise above it and a small 红油 (red oil) label appears. Static camera.
+- Camera / lighting: medium close-up; fixed camera (tripod / mount / on the desk); backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.3 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/bottom): 红油汪在蛋黄上 / 颤颤的亮亮的
+- Text track (text/middle): 红油
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 第4步·静待出油
+- [AI assistant review] The yolk, oil layer and bowl keep stable shapes
+- [AI assistant review] The pinkish-white S-shaped wisps and the 红油 (red oil) label appear in a regular way
+- [AI assistant review] Outlines and materials stay consistent across frames, without the warping typical of AI video
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 81%, AI-generated video 5%, code / template render 5% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 56% flat colour blocks, 95% of pixels use only 56 colours, 38% axis-aligned edges
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium close-up, subject in the upper middle of the frame. Medium eye-level shot, vertical. In the center, an orange yolk in a white porcelain bowl topped with a wrinkled pale yellow oil layer. Sage-green wall and low-poly mountain shapes. Soft light, 3D cartoon render.
+  - Video prompt: medium close-up, subject in the upper middle of the frame. Medium eye-level shot. Three pinkish-white S-shaped wisps rise above the oily yolk and drift slowly while the oil layer quivers. Static camera.
+
+</details>
+
+<details class="ref"><summary>#26 00:54.958–00:57.208 · 3D render + code / editor overlays (subtitles, title, styled text)</summary>
+
+![shot_026](shots/shot_026.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Close eye-level shot. Yabao, in the center, lifts the white bowl with the oily yolk over its head with both hands, eyes closed in a smile; Huamao and the grey-brown monkey smile on either side; white four-point sparkles flash around. Static camera.
+- Camera / lighting: medium close-up; fixed camera (tripod / mount / on the desk); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.1:1 (0.1 stops); soft light (almost no lit / shadow edge)
+- Text on objects in the scene (not subtitles): 咸
+- Text track (subtitle/bottom): 这就是流油咸鸭蛋 / 不过这油不是谁偷偷加的
+- Text track (subtitle/middle): 流油咸鸭蛋！ / 流油咸鸭蛋！+
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 成了！ / 注营！
+- [AI assistant review] The three characters keep stable fur
+- [AI assistant review] The bowl and yolk on Yabao's head rise with its arms, with no clipping or warping
+- [AI assistant review] The four-point sparkles are regular shapes
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 77%, AI-generated video 8%, code / template render 4% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 41% flat colour blocks, 95% of pixels use only 113 colours, 38% axis-aligned edges
+  - 100% of sampled frames show a frontal face on a fixed camera, voice on the audio track
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium close-up, subject centred in frame. Close eye-level shot, vertical. In the center, a yellow-green plush monkey holding up a white bowl with both hands, an orange yolk topped with oil in the bowl; an orange-brown plush monkey at left and a grey-brown one at right, half in frame. Sage-green wall. Soft light, Blender fur render.
+  - Video prompt: medium close-up, subject centred in frame. Close eye-level shot. The monkey in the middle lifts the white bowl over its head and smiles with closed eyes, the two monkeys beside it smile too, and white sparkles flash around. The camera pushes in slightly.
+
+</details>
+
+<details class="ref"><summary>#27 00:57.208–01:00.750 · 3D render + code / editor overlays (subtitles, title)</summary>
+
+![shot_027](shots/shot_027.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Close eye-level shot. Yabao and Huamao stand beside the bowl with the oily yolk, the jar with the 咸 label behind them and a small purple bottle at right; finally a red no-sign slides in from the right. Static camera.
+- Camera / lighting: medium shot; fixed camera (tripod / mount / on the desk); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.3 stops); soft light (almost no lit / shadow edge)
+- Text on objects in the scene (not subtitles): 咸, 威
+- Text track (subtitle/bottom): 不过这油不是谁偷偷加的 / 神秘物质
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 注意！
+- Motion beats within the shot: 58.33s, 59.54s
+- [AI assistant review] Characters, jar and oil bowl stay stable across frames
+- [AI assistant review] The 咸 label is a texture on the jar
+- [AI assistant review] The red no-sign on the right is a 3D sign with thickness that slides in from the right
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 77%, AI-generated video 10%, AI avatar (talking head) 3% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - 100% of sampled frames show a frontal face on a fixed camera, voice on the audio track
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the left of the frame. Close eye-level shot, vertical. A yellow-green plush monkey at left and an orange-brown plush monkey in the middle, beside a white bowl with an oily orange yolk; behind them a brown red-lidded jar with a red diamond 咸 label; a small purple bottle at right. Sage-green wall. Soft light, Blender fur render.
+  - Video prompt: medium shot, subject in the left of the frame. Close eye-level shot. Two plush monkeys stand blinking and swaying, the brown one raises a hand, then a red circular no-sign slides in from the right and covers the purple bottle. Static camera.
+
+</details>
+
+<details class="ref"><summary>#28 01:00.750–01:03.000 · 3D render + code / editor overlays (text labels, title)</summary>
+
+![shot_028](shots/shot_028.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Medium eye-level shot. A wooden balance with an orange yolk ball in the left pan, beam low on the left; a small orange ball drops from above, the beam levels out and white four-point sparkles flash above. Static camera.
+- Camera / lighting: medium shot; fixed camera (tripod / mount / on the desk); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text track (text/bottom): 这些油本来就是蛋黄里的脂肪
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 注意！
+- [AI assistant review] The wooden balance has wood grain, the post has rope texture, the pans cast shadows
+- [AI assistant review] The small orange ball falls and the beam levels out with precise motion
+- [AI assistant review] The background is a table and wall with depth
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 82%, code / template render 7%, AI-generated video 3% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 64% flat colour blocks, 95% of pixels use only 43 colours, 41% axis-aligned edges
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the lower middle of the frame. Medium eye-level shot, vertical. In the center, a pale wood-grain two-pan balance with a rope-wrapped post, an orange ball in the left pan, beam low on the left and high on the right. White tabletop, sage-green wall. Soft light, minimal 3D science-explainer render.
+  - Video prompt: medium shot, subject in the lower middle of the frame. Medium eye-level shot. A small orange ball drops from above, the balance beam slowly levels out, then three white sparkles flash above it and the balance comes to rest. Static camera.
+
+</details>
+
+<details class="ref"><summary>#29 01:03.000–01:06.542 · 3D render + code / editor overlays (subtitles, title)</summary>
+
+![shot_029](shots/shot_029.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Close to medium shot. Yabao, Huamao and the grey-brown monkey stand side by side smiling with closed eyes and swaying; pink balls and a short white bar float in the background. The camera slowly pulls back.
+- Camera / lighting: medium shot; fixed camera (tripod / mount / on the desk); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/bottom): 一滴没多 / 一滴也没少
+- Text track (title/top): 咸鸭蛋为什么会流油？ / 注意！
+- [AI assistant review] The three characters and the jar stay stable across frames
+- [AI assistant review] The pink balls and the white bar floating in the background are regular geometry
+- [AI assistant review] Fur stays stable frame to frame, with no flicker or smearing
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: 3D render 79%, AI-generated video 8%, code / template render 4% (fused_agent)
+- Material: rendered by the creator
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Rendered texture: 49% flat colour blocks, 95% of pixels use only 84 colours, 35% axis-aligned edges
+
+- Remake: 3D render: AI first/last-frame generation gives an approximation; for precise multiple angles, model in 3D and render in Blender
+  - First-frame image prompt: medium shot, subject in the upper middle of the frame. Close eye-level shot, vertical. Three plush monkeys side by side, yellow-green at left, orange-brown in the middle, grey-brown at right, smiling with closed eyes; behind them a brown red-lidded jar and a white bowl; sage-green wall, low-poly mountain shapes, two small pink balls and a short white bar floating in the air. Soft light, Blender fur render.
+  - Video prompt: subject in the upper middle of the frame. Close eye-level shot. Three plush monkeys smile and sway side to side as the camera slowly pulls back to a medium shot; the pink balls in the background float gently.
+
+</details>
+
+### Metadata clues
+
+- Encoder: `Lavf61.7.100`
+
+### Notes
+
+- Deterministic forensics is reliable on motion, whole-frame pan/zoom, rendered texture and 24→30 fps conversion; telling live action from AI from 3D needs image reading (a VLM or an AI assistant's review), and a look at the frames yourself.
+- Platform transcoding usually strips metadata; missing metadata proves nothing.
+- The full data is in `breakdown.json`; the package for models starts at `REEL.md`.

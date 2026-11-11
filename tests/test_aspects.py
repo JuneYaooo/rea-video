@@ -162,3 +162,23 @@ def test_person_exception_stays_out_of_ai_live_axis():
     rec = {"deterministic": {"probs": {"ai_video": 0.64, "live_action": 0.2, "avatar": 0.05, "cg_3d": 0.11},
                              "facts": {"big_face": True, "lowlight": True, "face_area": 0.07}}}
     assert _vlm_gate(rec, {"avatar": 1.0}, {"native30": False}) is None
+
+
+def test_agent_review_alone_may_leave_the_tools_top_two():
+    # eval daihuo: a camera filming a real phone screen reads as 3D / code render after a transcode
+    det = {"cg_3d": 0.44, "code_render": 0.24, "ai_video": 0.14, "live_action": 0.1, "screen_capture": 0.08}
+    rec = {"deterministic": {"probs": det, "facts": {"transcode_degraded": True}}}
+    seen = {"live_action": 0.93, "screen_capture": 0.07}
+    assert _vlm_gate(rec, seen, {"native30": False}) is None          # the VLM alone: ignored
+    rec["review"] = {"label_probs": seen}
+    assert _vlm_gate(rec, seen, {"native30": False}) == seen          # an agent review alone: heard
+    rec["vlm"] = {"label_probs": seen}
+    assert _vlm_gate(rec, seen, {"native30": False}) == seen          # both readers: _majority decides, gate passes
+    # ... but not when fusing would land on a label nobody picked
+    det2 = {"code_render": 0.36, "ai_video": 0.22, "cg_3d": 0.12, "still_motion": 0.02, "live_action": 0.1, "screen_capture": 0.18}
+    rec2 = {"deterministic": {"probs": det2, "facts": {}}, "review": {"label_probs": {"still_motion": 0.7}}}
+    weak = {"still_motion": 0.7, "screen_capture": 0.1, "code_render": 0.05, "ai_video": 0.05, "live_action": 0.05, "static_hold": 0.05}
+    from rea_video.classify import decide, fuse
+
+    assert decide(fuse(det2, weak, "dynamic"))[0] == "screen_capture"  # neither the tools' nor the agent's pick
+    assert _vlm_gate(rec2, weak, {"native30": False}) is None

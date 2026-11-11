@@ -46,6 +46,8 @@ description（主体、动作、场景、运镜；代码渲染画面写清图形
 kind 取 {"|".join(ASSET_KINDS)}，is_real_material 为 true/false）。
 某个镜头其实是多刀合并的（暗底图形卡和暗底口播交替时，切点分数低容易被合成一个长镜头）就加 split_suggestion：
 {{"cuts": [切点秒数], "labels": [各段类别，比 cuts 多一个], "note": "看到的交替结构"}}，报告会在该镜头标注拆分建议；不是合并段就不要填。
+画面里拍到了带字的东西（手机屏幕、包装、招牌）时填 overlay_text：这一镜后期加上去的字幕、花字、标注原文列表（画面本身的字不要写），报告会把其余 OCR 文字当成画面内容；没有这种情况就不填。
+同一段成片在片中出现不止一次（开头先放一段成片当预告、结尾完整放；或中途回放），在较短的那一处填 same_clip_as：另一处的镜头号（整数），复刻时只生成一次；不是就不要填。
 实拍或定格镜头被 AI 二次加工过时填 ai_edits：[{{"kind": "{"|".join(EDIT_KINDS)}", "evidence": "看到的破绽"}}]（换脸、对口型、风格化、换装、换背景、加删物体、美颜）；没有就留空。
 AI 生成 / 3D / 实拍镜头再填 replication：image_prompt（复刻首帧的<PROMPT_LANG>图像提示词：景别、机位高度和俯仰角、主体在画面里的位置和朝向、主体、光线、风格，具体可执行）、
 video_prompt（复刻该镜头的<PROMPT_LANG>视频提示词：先写景别、机位角度、主体在画面里的位置，再写动作过程和结束状态、运镜；只写想要的内容，不写否定句）、video_prompt_en（英文版）。
@@ -63,6 +65,9 @@ video_prompt（复刻该镜头的<PROMPT_LANG>视频提示词：先写景别、�
 {ROLE_GUIDE}
 报告会把它连成「叙事线」：复刻时保留这条线，把案例和素材换成自己的。
 
+答案顶层的 story 写整片的看点（报告开头的「核心看点」就用它，写给想学这条视频的人）：summary 一句话说这条视频是什么、靠什么吸引人；
+hook 开头几秒怎么抓住人（写清第几秒、画面和字幕做了什么）；highlights 2–4 条这条视频能火 / 能卖货的关键做法，每条写手法 + 在哪一秒 + 为什么有效，
+例如"0–6 秒先放 AI 成片预告：观众先看到结果，才有动力看完教程"，不要写空话（"节奏紧凑""画面精美"）。
 答案顶层的 cast 写整片的角色、场景和道具（看 storyboard.jpg 和各镜截图）：characters 每个主要角色一条（id 编号、name 称呼、kind person|animal|cartoon|avatar|product|other、
 look 外观写到能据此再画出同一个角色、role 作用、voice 音色、shots 出场镜头号）；同一个角色在不同镜头要认成同一个。scenes 每个地点一条（id、where、when、look、shots）；
 props 道具 / 商品 / Logo（name、note、shots）；style 一句整体视觉风格与调色。
@@ -187,10 +192,11 @@ def build_tasks(breakdown: dict, out_dir: str) -> tuple[dict, dict]:
         tasks["packaging"] = pk_tasks
     answers = {"by": "", "shots": [{"id": s["id"], "time": f"{s['start']:.2f}-{s['end']:.2f}",
                                      "label_probs": {}, "image_source": "unknown",
-                                     "evidence": [], "description": "", "narrative": {"role": "", "point": ""}, "embedded_assets": [], "ai_edits": [],
+                                     "evidence": [], "description": "", "narrative": {"role": "", "point": ""}, "embedded_assets": [], "ai_edits": [], "same_clip_as": None,
                                      "replication": {"image_prompt": "", "video_prompt": "", "video_prompt_en": ""},
                                      **({"aspects": aspects.review_template()} if shoot[s["id"]] else {})} for s in shots],
                "aspects": aspects.review_template(video=True),
+               "story": {"summary": "", "hook": "", "highlights": [""]},
                "cast": {"style": "", "characters": [{"id": "A", "name": "", "kind": "", "look": "", "role": "", "voice": "", "shots": []}],
                         "scenes": [{"id": "S1", "where": "", "when": "", "look": "", "shots": []}], "props": [{"name": "", "note": "", "shots": []}]}}
     if pk_answers:
@@ -247,6 +253,10 @@ def _clean(ans: dict) -> tuple[dict | None, str | None]:
             "evidence": [str(x) for x in (ans.get("evidence") or [])][:8], "description": str(ans.get("description", "")),
             "embedded_assets": assets, "replication": rep, "aspects": aspects.clean_answers(ans.get("aspects")),
             "split_suggestion": split, "narrative": narrative.clean(ans.get("narrative")),
+            "same_clip_as": int(ans["same_clip_as"]) if str(ans.get("same_clip_as", "")).strip().isdigit() else None,
+            # the words added in post (subtitles, styled text, labels), like the VLM's overlay_text: OCR text in the
+            # shot that matches none of them is part of the picture (a filmed phone screen, a gift box)
+            "overlay_text": [str(x) for x in ans["overlay_text"] if str(x).strip()] if isinstance(ans.get("overlay_text"), list) else None,
             "ai_edits": [{"kind": e["kind"], "evidence": str(e.get("evidence", ""))} for e in (ans.get("ai_edits") or [])
                          if isinstance(e, dict) and e.get("kind") in EDIT_KINDS]}, None
 
@@ -285,6 +295,12 @@ def apply_answers(breakdown: dict, answers: dict, by: str | None = None) -> dict
         if clean_pk["stickers"] or clean_pk["text"] or clean_pk["missed"]:
             breakdown["packaging"]["review"] = clean_pk
             pk_applied = {k: len(clean_pk[k]) for k in ("stickers", "text", "missed") if clean_pk[k]}
+    st = answers.get("story") or {}
+    story = {"summary": str(st.get("summary") or "").strip()[:200], "hook": str(st.get("hook") or "").strip()[:200],
+             "highlights": [str(x).strip()[:200] for x in (st.get("highlights") or []) if str(x).strip()][:5]}
+    if any(story.values()):
+        story["by"] = by
+        breakdown["review_story"] = story
     whole = aspects.clean_answers(answers.get("aspects"), video=True)
     if whole:
         breakdown["review_aspects"] = whole

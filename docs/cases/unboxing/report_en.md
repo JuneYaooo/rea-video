@@ -1,1111 +1,2104 @@
-# Video breakdown report: ami_unboxing.mp4
+# How this video was made: unboxing.mp4
 
-> English translation of [report.md](report.md), the Markdown report rea-video generated for this video. Section order and content follow the tool output. Text recognized on screen (the "text track" lines, text printed on objects in the frame, and the overlay text in the packaging tables) is kept in the original Chinese, since that is what appears in the frame.
+**In one line**: A top-down unboxing vlog with no voice-over: one pair of hands opens 7 creamy home items on a carpet, paced by the live unwrapping sound and one short subtitle at a time
+**How it was made**: Mixed production: live action 99% + still image + pan/zoom 1%
 
-**Verdict**: mixed production: live footage 97% + AI-generated video 3%; overlays: styled text, text labels, graphic plates, static stickers, captions (composited in code / an editor); real material used: live-action footage (69.7 s); references to prepare for the remake: product reference images (2 shots); audio: voice + BGM at 92.3 BPM (library music) + 22 sound effects; editing and packaging: 36 captions, 4 styled-text items, 65 text labels, 3 stickers / animated images, 12 sound effects timed to text / sticker appearances
+- 1:11 · vertical 9:16 · 69 shots, 1.0s each on average
+- Confidence 79%, based on: tool measurements + AI assistant reviewed 69 shots
+- ⚠️ 2 points are uncertain, see “Open questions”
 
-- Duration 71.533 s · 1080×1920 · 30.0 fps · 9:16
-- 29 shots, 2.47 s average; transitions: cut×28, start×1
-- Confidence (duration-weighted): 82%; method: deterministic forensics fused with a vision model (VLM)
-- VLM active (gemini-3.1-pro-preview, gemini-3.1-pro-preview-pc, gcp-gemini-3-pro-preview @ daydream88.fun); the agent (claude) visually reviewed 29 of 29 shots, merged into the verdict
+<!--mix-->
 
 ![storyboard](storyboard_en.jpg)
 
-## Production method share
+## What makes it work
 
-| Underlying picture | Duration | Share |
-|---|---|---|
-| Live footage | 69.66 s | 97% |
-| AI-generated video | 1.87 s | 3% |
+- **The hook**: 0–3.1 s flashes 5 product shots of under 0.7 s each (two plates, phone case, Miffy, slippers) as the title 沉浸式居家购物开箱 types out; a flat lay of everything at 3.1 s shows what is coming
+- From 3.9 s each item starts in its packaging: tape slit, bubble wrap pulled, cloth untied (the plate only shows at 7.3 s); the tearing sound and slow reveal keep viewers waiting for the product
+- Each item gets one very short line (12 s 好久没买手机壳了, 17 s 装上新皮肤, 20.6 s 支架可以调整), set small in the upper middle so it never covers the product, standing in for a voice-over
+- The priciest item, the headphones, gets 22 s (22.9–44.9 s), one feature per shot: detachable mic (32.5 s), sliding headband (34.5 s), app and 50 dB noise cancelling (36.8–43 s)
+- 68.9 s returns to the flat lay of all items (大合照) and 69.9 s says 拜拜噜 下次见, echoing the flat lay at 3.1 s
 
-## Remake plan
+## At a glance: picture, packaging, sound
 
-**2 AI shots → 2 generation units, 2 Seedance 2.5 calls; 27 live-action shots → 1 set, 2 camera setups**
+Any short video splits into three layers: the picture, what is laid on top of it (subtitles, styled text, stickers), and the sound. Remake it one layer at a time.
 
-- The default engine, Seedance 2.0 (including Mini / Fast), cannot produce several shots in one call; with it you would generate the 2 shots one by one. This plan assumes Seedance 2.5 (≤30 s per call, multi-shot in one call): 2 calls in total
-- Grouping rules: AI shots in the same set joined by hard cuts are merged into one generation (S01); ≤30 s per call; consecutive hard cuts inside a unit should stay ≤8 s, at most 10 s (S06); split at dissolves / fades and set changes (S03)
-- Audio: the model can generate action sound effects and ambience along with the picture; voice-over is better done as separate TTS and mixed in, so you can change the script and timing
-
-### Generation units
-
-| Unit | Shots | Time | Duration | Method | Continuity |
-|---|---|---|---|---|---|
-| G1 | #11 | 22.9–23.6 s | 0.7 s | single shot | First frame: generate an image with the composition of the original shot 11 first frame (shots/shot_011_first.jpg) |
-| G2 | #13 | 30.0–31.2 s | 1.2 s | single shot | First frame: generate an image with the composition of the original shot 13 first frame (shots/shot_013_first.jpg) |
-
-**G1 · AI-generated video · shot #11 · 0.7 s**
-
-- Reference material: `@video1` the original 22.9–23.6 s segment, as a reference for motion, camera and cut rhythm (reference only, do not copy the picture)
-- First-frame image prompt: top-down view, a pair of hands in white long sleeves holding a white headphone box, the right hand holding a small yellow sponge. Brown carpet in the background, with light-blue slippers, a white shipping box, plush toys and a phone case scattered around. Soft indoor light, everyday realistic style.
-- Generate 4 s and trim to 0.7 s (shots this short are unstable when generated on their own)
-
-```text
-Vertical 9:16; backlit / background brighter than the subject, soft light (almost no shadow edge), warm (about 3000–4000K), background slightly soft. Follow @video1 for motion, camera and cut rhythm.
-Keep the background completely still; both hands hold the headphone box, the right hand rubs a yellow sponge back and forth along the edge of the box, natural continuous movement.
-```
-
-<details><summary>English prompt (as generated by the tool)</summary>
-
-```text
-Keep the background completely static. Hands holding a white headphone box, the right hand holding a yellow sponge and rubbing it back and forth along the edge of the box. Natural and continuous movement.
-```
-
-</details>
-
-**G2 · AI-generated video · shot #13 · 1.2 s**
-
-- Reference material: `@video1` the original 30.0–31.2 s segment, as a reference for motion, camera and cut rhythm (reference only, do not copy the picture)
-- First-frame image prompt: first-person view, both hands holding a pair of white over-ear headphones, with L and R marked inside the earcups. Light-brown carpet, a small lamp with a blue base and the white headphone box in the background. Warm tones, soft bright light, close-up, cozy atmosphere, high image quality.
-- Generate 4 s and trim to 1.2 s (shots this short are unstable when generated on their own)
-
-```text
-Vertical 9:16; backlit / background brighter than the subject, soft light (almost no shadow edge), warm (about 3000–4000K), background slightly soft. Follow @video1 for motion, camera and cut rhythm.
-Both hands hold the white over-ear headphones; the left and right thumbs gently press the foam of each earcup, the foam dents slightly to show how soft it is, then they release. Background objects stay completely still, fixed close-up.
-```
-
-<details><summary>English prompt (as generated by the tool)</summary>
-
-```text
-First-person view, hands holding a pair of white over-ear headphones. The thumbs of both hands gently press the sponge part of the earcups, causing them to dent slightly to show softness, then release. The background objects remain completely static. Fixed close-up shot.
-```
-
-</details>
-
-### Shooting sessions
-
-Shoot all shots of one set before moving to the next; within a set shoot the wider sizes first, then the close-ups, so you do not have to relight. Leave about 1 s of handle before and after each take.
-
-**S1**: shots #1, #2, #3, #4, #5, #6, #7, #8, #9, #10, #12, #14, #15, #16, #17, #18, #19, #20, #21, #22, #23, #24, #25, #26, #27, #28, #29 (69.66 s in the final cut); top-down POV unboxing, both hands tear open yellow polka-dot wrapping paper to show a cream oval ceramic plate with gray polka dots, with carpet, cardboard boxes, slippers and plush toys in the background.
-- Lighting: frontal soft light (flat), key frontal (from the camera direction, both sides of the subject equally bright), about 1.3:1 (0.3 stops), warm (about 3000–4000K)
-- Setup close-up · moving (gimbal / handheld pan) · static / pull / push / pan / track: shots #1, #6, #7, #19, #20, #28, #29, 6.6 s in the cut, shoot about 20.6 s
-- Setup close-up · fixed (tripod / stand / on a table) · static: shots #2, #3, #4, #5, #8, #9, #10, #12, #14, #15, #16, #17, #18, #21, #22, #23, #24, #25, #26, #27, 63.06 s in the cut, shoot about 103.1 s
-
-
-## Framing, lighting and editing
-
-- Framing: close-up / tight shot (hands and product) 100%; angle top-down (straight down onto the carpet) to high angle; subject is the sharpest region of the frame (no face, shot size is an estimate)
-- Camera: fixed (tripod / stand / on a table) 90%, moving (gimbal / handheld pan) 10%; common moves pan / track
-- Lighting: frontal soft light (flat). Key light frontal (from the camera direction, both sides of the subject equally bright), at subject height; contrast ratio about 1.2:1 (0.3 stops); soft light (wide shadow transition); warm color temperature (about 3000–4000K); background slightly soft
-- Grade: Japanese pastel (bright, low saturation, lifted blacks); normal saturation, normal contrast, lifted blacks (grayish shadows), neutral overall
-- Editing: 23.5 cuts per minute, 2.58 s average live-action shot; 6 setups / scenes; 2 same-setup jump cuts, 1 punch-in cut; inserts (screenshots / screen recordings / cards / stock) 3%; 79% of cuts land on pauses in speech (cut on the breath)
-- Form: tabletop / product shooting (face as subject 0%, objects / hands as subject 100%, handheld 9%); visual review: top-down tabletop unboxing (immersive, no voice-over, ASMR sync sound)
-
-**Shooting plan for the remake**
-
-1. Form: tabletop / product shooting
-2. Framing: mostly close-up / tight shot (hands and product), top-down (straight down onto the carpet) to high angle
-3. Camera: fixed (tripod / stand / on a table) 90%, moving (gimbal / handheld pan) 10%; common moves pan / track
-4. Lighting: frontal soft light (flat): a large source from the camera direction, almost no shadows on the subject: face a window, use a ring light, or put a large softbox behind the camera
-5. Editing: 23.5 cuts per minute, 2.58 s average live-action shot; 6 setups / scenes; 2 same-setup jump cuts, 1 punch-in cut; inserts (screenshots / screen recordings / cards / stock) 3%; 79% of cuts land on pauses in speech (cut on the breath)
-
-Gear:
-- One large soft light directly above the table / behind the camera (or two, symmetric at 45° left and right)
-- A white tabletop or white card as bounce makes the shadows even fainter
-- Note: background slightly soft
-
-| Dimension | Item | Conclusion | Source |
+| Layer | In this video | How to make it | Detail |
 |---|---|---|---|
-| Framing | Shot size | Close-up / tight shot (hands and product) | Measured: close-up / tight shot (hands and product); VLM: close-up; visual review: close-up / tight shot (hands and product) |
-| Framing | Angle | Top-down (straight down onto the carpet) to high angle | VLM: high angle; visual review: top-down (straight down onto the carpet) to high angle |
-| Framing | Composition | Products laid flat on a beige carpet, hands enter from the bottom of the frame, vertical | VLM: centered composition, vertical; visual review: products laid flat on a beige carpet, hands enter from the bottom of the frame, vertical |
-| Camera | Support | Overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else | Measured: fixed (tripod / stand / on a table); VLM: overhead desk mount; visual review: overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else |
-| Camera | Lens | Phone rear main camera | VLM: phone rear main camera; visual review: phone rear main camera |
-| Camera | Speed | Normal | VLM: normal; visual review: normal |
-| Camera | Setups / scene | One set, one setup: the phone fixed on an overhead mount above the head, the person kneeling in front of the carpet unpacking; a few shots (#6, #28, #29, the group shots) handheld with slight movement | VLM: 1 set, 1 fixed setup. Shot entirely from directly above the table (flat lay).; visual review: one set, one setup: the phone fixed on an overhead mount above the head, the person kneeling in front of the carpet unpacking; a few shots (#6, #28, #29, the group shots) handheld with slight movement |
-| Camera | Likely gear | One phone + an overhead mount, no fill light | VLM: a smartphone on a desktop overhead mount. High sharpness, good color rendering, no visible distortion, consistent with a modern flagship phone's main camera.; visual review: one phone + an overhead mount, no fill light |
-| Lighting | Scene | Indoor, daytime, bedroom carpet | VLM: indoor, bedroom / carpeted floor; visual review: indoor, daytime, bedroom carpet |
-| Lighting | Key | Soft light from above and slightly in front (window or ceiling light), the products cast almost no shadow | VLM: diffused soft light from above; visual review: soft light from above and slightly in front (window or ceiling light), the products cast almost no shadow |
-| Lighting | Softness | Soft light (wide shadow transition) | Measured: soft light (wide shadow transition); VLM: soft; visual review: soft |
-| Lighting | Fill | The carpet and the white products themselves bounce light into the shadows | VLM: ample ambient bounce fill; visual review: the carpet and the white products themselves bounce light into the shadows |
-| Lighting | Rim | None | VLM: none; visual review: none |
-| Lighting | Visible sources | None | VLM: none; visual review: none |
-| Lighting | Color temperature | Warm (about 3000–4000K) | Measured: warm (about 3000–4000K); VLM: warm; visual review: warm |
-| Lighting | Setup | Flat top-down light (high key, low contrast) | VLM: an indoor overhead soft light gives even diffuse illumination to the objects on the floor; visual review: flat top-down light (high key, low contrast) |
-| Lighting | Overall | Daytime indoor soft light from above and in front, products cast almost no shadow; high key overall | VLM: even, soft lighting overall with no visible shadows. Probably a ring light or a large softbox as the key, from directly above or diagonally above, warm color temperature, for a cozy home feel.; visual review: daytime indoor soft light from above and in front, products cast almost no shadow; high key overall |
-| Grade | Style | Japanese pastel (bright, low saturation, lifted blacks) | Measured: Japanese pastel (bright, low saturation, lifted blacks); VLM: Japanese pastel with a warm tint, low contrast, soft natural colors; visual review: Japanese pastel: bright, low saturation, lifted blacks, the white products slightly overexposed |
-| Grade | Overall | Japanese pastel: brightened, low saturation, lifted blacks; the white products slightly overexposed | VLM: bright, low-contrast picture, colors leaning macaron / cream. Probably a "cream", "Japanese" or "cute" style filter from CapCut (JianYing) or similar, boosting the softness and girlish feel of the objects.; visual review: Japanese pastel: brightened, low saturation, lifted blacks; the white products slightly overexposed |
-| Editing | Technique | Immersive unboxing: no voice-over, only sync unpacking sound + an upbeat BGM; segmented by product, each one unwrapped first and then handled on camera, about 2.5 s per shot, a group shot of all the products at the start and at the end; captions are small text written next to the product (product name, impressions), not line-by-line subtitles | VLM: brisk editing with many jump cuts that skip the tedious parts of unwrapping and keep only the most visually and ASMR-striking moments (tearing a plastic bag, opening a lid). Actions connect smoothly, no elaborate transition effects, keeping the immersion.; visual review: immersive unboxing: no voice-over, only sync unpacking sound + an upbeat BGM; segmented by product, each one unwrapped first and then handled on camera, about 2.5 s per shot, a group shot of all the products at the start and at the end; captions are small text written next to the product (product name, impressions), not line-by-line subtitles |
-| Form | Video form | Top-down tabletop unboxing (immersive, no voice-over, ASMR sync sound) | Measured: tabletop / product shooting; VLM: top-down tabletop / unboxing; visual review: top-down tabletop unboxing (immersive, no voice-over, ASMR sync sound) |
+| **Picture** (base) | live action 68 shots, still image + pan/zoom 1 shot | filmed in 3 scenes; a single image held or moved | “Remake it yourself” |
+| **Packaging** (on top) | graphic, text, subtitle, static sticker | add in the editor: subtitles, styled text and stickers by the timeline | “Packaging layer” |
+| **Sound** | voice（human recording）, music (92 BPM, to confirm) | voice: record it yourself; music: find a track with the same tempo and mood | “Sound” |
 
-- Note: contrast ratio, softness, color temperature and shot size are measured on the subject's pixels (the face when there is one, otherwise the sharpest region, which is an estimate); platform transcoding crushes shadows, so softness and fill read conservative; angle, light source type, catchlight and rim come from visual review. Where measurement and visual review disagree, both are listed.
+## Content and structure
 
-## Metadata clues
+- The narrative line below comes from reading each shot; the lines were not transcribed separately, subtitle text is under “Packaging layer”
 
-- Encoder: `Lavf58.76.100`
-- platform: Douyin/TikTok
+**Narrative line**
 
-## Audio breakdown
+Keep this line in a remake: same order, same job at each step, with the point refilled from your own cases, numbers and material, so it is more than a change of subject.
 
-![audio](audio_en.png)
-
-- Overall loudness -28.3 dBFS, peak -0.0 dBFS
-- **Voice**: present, 33% of duration, fundamental about 157.5 Hz (gender unclear)
-- **Background music**: 90% of duration (0.5–71.0 s), about 92.3 BPM (or 46.1 / 184.6), key F major (confidence 0.844), section changes at 7.5 s, 39.5 s, 43.5 s, 50.0 s, 55.0 s
-- **Cuts vs beat**: 18% of cuts land on a beat (random baseline about 20%)
-
-**Audio source: AI-generated or existing material**
-
-- **Conclusion**: video type: live footage (sync sound + music added in post) → voice: human recording; music: library music; sound effects: added in post from a sound library / the editor (leaning, to be confirmed)
-- **Separated stems**: `stems/original.wav` (original), `stems/vocals.wav` (dry voice; transient effects land here too), `stems/music.wav` (music + ambience)
-- Video form: product showcase; AI picture 3%, live footage 97%
-- **Background music**: library music (existing_library 67%, ai_generated 21%, popular_song 12%)
-  - The music is a bed under the picture: for an ordinary video the bed is most likely from a library (prior)
-  - VLM listening judgment: library music
-  - The music ends together with the video: cut to length or custom-made (either source possible, weak evidence)
-  - How to confirm: on the Douyin / Xiaohongshu page check the music tag: a song title → existing track; "original sound by @author" → uploaded by the author (for music videos this is usually an AI song)
-  - How to confirm: run Soda Music / QQ Music song recognition or ACRCloud: a hit means an existing song
-  - How to confirm: listen: AI songs often have slurred diction, thin metallic highs and lyrics that track the picture closely; library beds are mostly instrumental, standard structure, cut off or faded at the end
-- **Voice**: human recording (human_recording 73%, tts 20%, ai_video_native 7%)
-  - 97% of the picture is live footage: the voice is most likely sync sound or a human voice-over
-- **Sound effects**: added in post from a sound library / the editor (library_editor 48%, live_sync 44%, ai_native 8%)
-  - 9 of 22 effects land on a cut / text pop / transition: added from a sound library in the edit
-  - The picture is mostly live footage: ambience is most likely sync sound
-- Per-segment native-audio check: background change 8.1 dB at cuts, 6.2 dB within shots (ratio 1.31) → the sound runs continuously across cuts, laid down as one bed in post
-
-**Sound effects** (22; source: vlm = heard by the model, deterministic = signal-detected candidate, low confidence)
-
-| Time | Type | Description | Matching picture | Source |
-|---|---|---|---|---|
-| 0.00 s | pop | crisp popping sound | text label 「hot dog」 appears | vlm |
-| 0.63 s | pop | crisp popping sound | cut | vlm |
-| 1.23 s | pop | crisp popping sound | cut | vlm |
-| 1.83 s | pop | crisp popping sound | text label 「hotdog」 appears | vlm |
-| 2.37 s | pop | crisp popping sound | cut | vlm |
-| 3.10 s | pop | crisp popping sound | caption 「真嘟是萌萌的」 appears | vlm |
-| 3.87 s | pop | crisp popping sound | text label 「请确认商品好后签收！」 appears | vlm |
-| 4.00 s | other | ASMR white noise of tearing open a plastic mailer | text label 「请确认商品好后签收！」 appears | vlm |
-| 12.00 s | other | ASMR white noise of opening a cardboard box | action | vlm |
-| 14.51 s | pop |  | text label 「食」 appears | deterministic |
-| 14.83 s | pop |  |  | deterministic |
-| 14.93 s | whoosh |  |  | deterministic |
-| 15.58 s | pop |  |  | deterministic |
-| 15.78 s | ding |  |  | deterministic |
-| 23.00 s | other | ASMR white noise of opening a cardboard box | text label 「COYD.STUD」 appears | vlm |
-| 23.67 s | whoosh |  | text label 「hotdog」 appears | deterministic |
-| 23.88 s | whoosh |  |  | deterministic |
-| 34.53 s | whoosh |  | caption 「可以调节」 appears | deterministic |
-| 40.00 s | other | music playing from a phone (simulated ambience) | emoji appears | vlm |
-| 45.00 s | other | ASMR white noise of squeezing plush slippers | text label 「hotdog」 appears | vlm |
-| 50.00 s | other | ASMR white noise of opening a cardboard box | caption 「应该是我的米菲小挂件」 appears | vlm |
-| 59.00 s | other | ASMR white noise of opening a cardboard box | action | vlm |
-
-**Audio remake plan**
-
-- voice (A01-narration): voice, uncertain → capsule-cinema DoubaoTTSTool / UniversalTTSTool (or a MiniMax cloned voice); use duration-controlled TTS (A02) when you must fit the original timing
-- music (A03-music): relaxed, cute, soothing; cheerful, laid-back; 92.3 BPM; F major → the original leans library: search a library by BPM / mood / key, or generate a royalty-free track in a similar style with AI
-- sfx (A04-sfx): 22 effects → place them at the timestamps: capsule-cinema SoundEffectsTool / a sound library, or synthesize them procedurally like the plush recipe (pitch matched to the BGM key)
-- ambience (A04-sfx): none → ambience stock or a video-to-audio model
-- Mix: BGM at a moderate level; the ambient sounds of the unboxing actions (tearing plastic bags, opening boxes) are deliberately boosted for an immersive ASMR feel.
-
-## Editing and packaging layer (captions / styled text / stickers / sound-effect hits)
-
-- 36 captions (middle / top, up to 2 lines): gray text, keywords highlighted in gray, text height 2.1%; entrance: cut in×20, scale pop×5, slide in×2, typewriter×1, fade in×1; color changes on keywords
-- 4 styled-text items (large, slanted, red, thick outline): 「完好后签收！」, 「QUICKHELP」, 「QUICKHELP」, 「音质升级！」
-- 65 text labels (3 of them track an object): 「hot dog」, 「沉浸式居家购物开箱」, 「hotdog」, 「请确认商品好后签收！」, 「感谢您的惠顾」, 「请确认商品完好」 etc.
-- 3 stickers / animated images (emoji); seen by the VLM, no screenshot, needs checking
-- Sound-effect hits: 8 on text-label appearance, 3 on cuts, 3 on caption appearance, 1 on sticker appearance
-- Exports: `packaging/subtitles.srt`, `packaging/overlays.ass`, `packaging/timeline.json` (SRT is the caption timeline; ASS carries color, outline, position and entrance animation, the font must be swapped for the original's; timeline.json is the full timeline)
-
-| Time | Type | Text | Style | In / out | SFX |
-|---|---|---|---|---|---|
-| 0.00–0.60 s | text label | hot dog | gray text, height 3.4% (about 66px) | cut out | pop |
-| 1.00–1.60 s | caption · tracks object | heedon | gray text, gray outline, height 1.6% (about 31px) | cut out | — |
-| 1.50–1.60 s | caption | heeding | gray text, gray outline, height 1.6% (about 30px) | — | — |
-| 1.50–2.60 s | text label · tracks object | 沉浸式居家购物开箱 | gray text, white box, keywords highlighted in brown, height 4.8% (about 93px) | typewriter / fade out (bounce / color change mid-way) | — |
-| 2.00–2.60 s | text label | hotdog | gray text, gray outline, height 3.4% (about 65px) | cut out | pop |
-| 3.00–3.60 s | caption | 真嘟是萌萌的 | orange text, keywords highlighted in brown, height 2.1% (about 40px) | slide in / cut out | pop |
-| 4.00–4.10 s | text label | 请确认商品好后签收！ | red text, red outline, keywords highlighted in white, height 15.3% (about 294px) | cut in / cut out | pop, other |
-| 4.00–4.10 s | text label | 感谢您的惠顾 | red text, keywords highlighted in white, height 9.9% (about 190px) | cut in / cut out | — |
-| 4.00–4.10 s | caption | 买了 | yellow text, bold, height 1.4% (about 27px) | cut in / cut out | — |
-| 4.00–4.10 s | text label | 请确认商品完好 | red text, height 2.2% (about 42px) | cut in / cut out | — |
-| 4.00–4.10 s | text label | 请确认商品完子 ⏎ 感谢您的惠 | red text, red outline, height 2.4% (about 46px) | cut in / cut out | — |
-| 4.00–4.10 s | styled text | 完好后签收！ | red text, red outline, orange box, height 8.6% (about 165px) | cut in / cut out | — |
-| 4.00–6.10 s | text label | hot dog | gray text, gray outline, keywords highlighted in gray, height 2.6% (about 50px) | cut in / cut out | — |
-| 4.50–6.10 s | caption | hotdog | gray text, gray outline, keywords highlighted in gray, height 1.8% (about 35px) | cut in / cut out | — |
-| 4.50–4.70 s | caption | 买了一款波点的盘子 | yellow text, height 2.6% (about 50px) | cut in / slide out | — |
-| 6.00–7.10 s | caption | 期待住了 | white text, height 2.1% (about 41px) | typewriter / slide out | — |
-| 6.00–6.20 s | text label | YiJU | brown text, height 7.9% (about 151px) | cut in / cut out | — |
-| 7.30–10.20 s | caption | 拿来放早餐应该是很完美了 | yellow text, height 2.0% (about 39px) | cut in / cut out | — |
-| 7.50–8.60 s | text label | hoedng | gray text, gray outline, keywords highlighted in gray, height 1.9% (about 36px) | pop | — |
-| 8.00–16.60 s | text label | hotdog | gray text, gray outline, height 1.8% (about 35px) | (bounce / color change mid-way) | — |
-| 9.00–23.10 s | text label | hotdog | gray text, keywords highlighted in gray, height 2.5% (about 48px) | pop / cut out (bounce / color change mid-way) | — |
-| 11.50–12.60 s | caption | 手机壳 | gray text, keywords highlighted in black, height 2.5% (about 47px) | slide in / slide out (bounce / color change mid-way) | — |
-| 11.50–11.60 s | styled text | QUICKHELP | black text, height 4.8% (about 93px) | cut in / cut out | — |
-| 12.50–13.10 s | styled text | QUICKHELP | black text, height 6.2% (about 119px) | cut in | — |
-| 12.50–12.60 s | text label | C | white text, black outline, height 2.7% (about 51px) | cut in / cut out | — |
-| 12.50–13.10 s | text label | STRONG | white text, black outline, height 4.5% (about 87px) | cut in / slide out | — |
-| 12.50–13.10 s | text label | PROTECTION | gray text, height 5.4% (about 104px) | cut in / fade out | — |
-| 12.90–13.30 s | text label | 机壳了馆 | white text, height 5.2% (about 99px) | cut in / cut out | — |
-| 13.00–13.20 s | caption | QUICKHELP | gray text, height 2.8% (about 54px) | cut in / cut out | — |
-| 13.00–13.10 s | text label | D | black text, height 1.8% (about 35px) | cut in / cut out | — |
-| 13.00–13.10 s | text label | D | black text, height 2.6% (about 50px) | cut in / cut out | — |
-| 13.00–13.10 s | text label | D | black text, height 2.7% (about 52px) | cut in / cut out | — |
-| 13.00–13.10 s | text label | QUICKH | white text, black outline, height 1.6% (about 30px) | cut in / cut out | — |
-| 13.00–13.10 s | text label | Q | gray text, height 2.3% (about 45px) | cut in / cut out | — |
-| 13.90–14.10 s | text label | 小玉小玉 | gray text, height 2.3% (about 45px) | cut in / cut out | — |
-| 14.50–14.60 s | text label | 食 | white text, height 0.7% (about 13px) | cut in / cut out | pop |
-| 17.00–22.90 s | text label | hot dog | gray text, gray outline, height 1.9% (about 37px) | cut in / cut out | — |
-| 17.00–18.50 s | text label | 装上新皮肤 | brown text, height 2.3% (about 44px) | cut in / cut out | — |
-| 20.50–21.80 s | text label | 支架可以调整 | brown text, height 2.0% (about 39px) | pop / cut out | — |
-| 22.90–25.10 s | text label | COYD.STUD | white text, height 5.9% (about 114px) | cut in | other |
-| 22.90–25.70 s | text label | D.STUDIO | gray text, height 7.8% (about 150px) | cut in / cut out | — |
-| 22.90–24.10 s | caption | 买了新的头戴式耳机 | gray text, height 2.2% (about 42px) | cut in / cut out | — |
-| 23.50–29.60 s | text label | hotdog | gray text, height 2.0% (about 38px) | pop / cut out | whoosh |
-| 24.90–25.70 s | text label | cmY | black text, white outline, height 4.1% (about 78px) | cut in / cut out | — |
-| 25.40–25.70 s | text label | cmYI | gray text, height 3.4% (about 65px) | cut out | — |
-| 25.50–27.10 s | caption | 起拆开看看吧 | yellow text, height 2.1% (about 41px) | cut out | — |
-| 27.90–28.10 s | text label | 邮色 | gray text, height 1.3% (about 26px) | cut in / cut out | — |
-| 28.00–30.00 s | caption | 还是喜欢这种淡淡的颜色 | gray text, height 2.2% (about 42px) | pop / cut out | — |
-| 28.00–30.00 s | text label | cmYI | black text, height 3.2% (about 62px) | cut out | — |
-| 30.00–31.20 s | caption | 软软的挺舒服 | gray text, keywords highlighted in yellow, height 2.3% (about 44px) | cut in / cut out | — |
-| 30.00–31.20 s | text label | CmY | white text, keywords highlighted in gray, height 3.1% (about 60px) | cut out | — |
-| 31.00–34.10 s | text label | hot dog | gray text, keywords highlighted in gray, height 2.6% (about 50px) | pop / shrink out | — |
-| 31.00–32.10 s | caption | hotdog | gray text, gray outline, height 2.3% (about 44px) | pop | — |
-| 31.20–33.10 s | text label | CBYI | gray text, gray outline, height 2.8% (about 54px) | cut in | — |
-| 32.50–33.40 s | caption | heedog | gray text, gray outline, height 1.5% (about 29px) | cut in / cut out | — |
-| 32.50–34.50 s | caption | 和队友打游戏也可以用 | yellow text, height 1.9% (about 37px) | cut in | — |
-| 33.40–34.50 s | text label | cmYI | white text, keywords highlighted in black, height 3.1% (about 60px) | cut in / cut out | — |
-| 33.50–34.10 s | text label | hotdog | gray text, height 2.3% (about 45px) | cut out | — |
-| 34.50–35.70 s | caption | 可以调节 | brown text, height 2.2% (about 42px) | cut out | whoosh |
-| 36.80–39.60 s | caption | app里有贴心的介绍 | gray text, height 2.3% (about 44px) | cut in | — |
-| 37.00–37.10 s | caption | 第一关降噪升级！ | gray text, keywords highlighted in yellow, height 2.6% (about 50px) | cut in / cut out | — |
-| 37.00–37.60 s | text label · tracks object | 音质升级！ | white text, white outline, white box, height 2.5% (about 49px) | cut in / cut out | — |
-| 37.00–37.10 s | text label | 便利升级！ | gray text, white outline, height 2.3% (about 44px) | cut in / cut out | — |
-| 37.20–39.60 s | text label · tracks object | 23:16 | white text, gray outline, keywords highlighted in gray, height 1.6% (about 30px) | fade in / fade out (bounce / color change mid-way) | — |
-| 37.50–37.60 s | text label | 第三关便利升级！ | white text, white box, height 2.9% (about 55px) | cut in / cut out | — |
-| 37.50–37.60 s | text label | 降升级！ | blue text, white outline, height 2.3% (about 44px) | cut in / cut out | — |
-| 37.50–39.90 s | text label | 连接听一下 | white text, height 2.3% (about 44px) | cut out | — |
-| 37.80–38.10 s | styled text | 音质升级！ | white text, white outline, height 2.1% (about 41px) | cut in / cut out | — |
-| 38.50–38.60 s | text label | 全露升级！ | gray text, white outline, height 2.4% (about 46px) | cut in / cut out | — |
-| 38.50–38.70 s | text label | 8大升级细节等你来探索 | yellow text, height 5.2% (about 100px) | cut in / cut out | — |
-| 39.00–39.60 s | text label | 设备 | white text, height 1.1% (about 20px) | cut in | — |
-| 39.00–39.60 s | caption | 耳机投控 | white text, height 1.6% (about 31px) | cut in / cut out | — |
-| 39.00–39.70 s | text label | 设备名称 | white text, height 2.2% (about 42px) | cut in / cut out | — |
-| 39.90–43.00 s | text label | 音质很不错还有50分贝降噪 | gray text, height 2.0% (about 39px) | cut in / cut out | — |
-| 39.90–40.60 s | caption | 放纵L ⏎ 宽自招人团队 | white text, keywords highlighted in gray, height 2.1% (about 40px) | cut in | — |
-| 40.50–40.60 s | caption | 佳网块 | white text, height 2.3% (about 44px) | cut in / cut out | — |
-| 40.90–42.60 s | caption | 放纵L | white text, keywords highlighted in gray, height 2.2% (about 42px) | — | — |
-| 42.00–42.10 s | text label | 联合出品 | white text, height 1.6% (about 31px) | cut in / cut out | — |
-| 43.00–43.90 s | caption | 喜欢喜欢 | gray text, gradient, height 2.3% (about 43px) | cut in / slide out | — |
-| 43.00–43.10 s | text label | King Pro 头威 | white text, height 9.5% (about 183px) | cut in / cut out | — |
-| 43.50–43.60 s | text label | Pro 头剪 | white text, height 6.6% (about 126px) | cut in / cut out | — |
-| 44.00–44.90 s | text label | O | white text, white outline, bold, height 21.9% (about 421px) | cut in / cut out | — |
-| 44.90–64.00 s | text label | hotdog | gray text, height 3.5% (about 67px) | cut in / shrink out | other |
-| 44.90–46.10 s | caption | 买了新的棉拖鞋 | white text, height 2.0% (about 39px) | cut in / cut out | — |
-| 47.30–48.50 s | text label | 好可爱呀 | brown text, height 2.3% (about 44px) | pop | — |
-| 48.50–49.90 s | text label | 软乎乎的 | gray text, height 1.9% (about 36px) | — | — |
-| 49.90–51.00 s | caption | 应该是我的米菲小挂件 | brown text, keywords highlighted in brown, height 1.9% (about 37px) | cut in | other |
-| 51.00–52.30 s | caption | 啊啊啊激动 | gray text, height 2.1% (about 41px) | cut in / cut out | — |
-| 55.00–56.50 s | caption | 萌翻啦！ | brown text, height 2.1% (about 41px) | cut out | — |
-| 55.50–55.60 s | text label | UBE | gray text, height 1.5% (about 28px) | cut in / cut out | — |
-| 55.50–56.10 s | text label | Mercisby | gray text, height 1.1% (about 22px) | cut in | — |
-| 56.00–56.10 s | text label | ar | gray text, height 0.8% (about 15px) | cut in / cut out | — |
-| 56.00–56.10 s | text label | UBE | gray text, keywords highlighted in gray, height 1.6% (about 31px) | cut in / cut out | — |
-| 57.00–58.70 s | caption | 好可爱！ | gray text, height 2.3% (about 45px) | pop / cut out | — |
-| 58.50–59.30 s | text label | PAPA PLATE | blue text, white outline, keywords highlighted in white, height 15.6% (about 299px) | — | — |
-| 59.50–59.60 s | text label | PLA | blue text, blue outline, height 6.8% (about 131px) | cut in / cut out | — |
-| 59.50–59.60 s | text label | APA | blue text, blue outline, height 8.4% (about 161px) | cut in / cut out | — |
-| 60.00–60.90 s | caption | 是一个小盘子 | brown text, height 1.8% (about 34px) | pop / shrink out | — |
-| 61.00–63.00 s | caption | 立体小企鹅 | brown text, height 2.3% (about 44px) | cut in / cut out | — |
-| 64.00–64.60 s | text label | hetdog | gray text, gray outline, height 3.1% (about 60px) | pop / cut out | — |
-| 64.00–66.10 s | caption | 哈哈哈一定要分享这个自己做的化妆包 | brown text, keywords highlighted in blue, height 2.4% (about 46px) | pop / cut out | — |
-| 65.00–68.60 s | text label | hotdog | gray text, height 3.1% (about 60px) | cut out | — |
-| 65.00–65.60 s | caption | hellar | white text, height 2.3% (about 44px) | cut in / fade out | — |
-| 66.50–68.90 s | caption | 蓝色小熊 | gray text, height 2.4% (about 46px) | cut out | — |
-| 69.50–71.10 s | caption | 拜拜噜下次见 | brown text, height 2.1% (about 41px) | fade in / fade out (bounce / color change mid-way) | — |
-
-**Stickers / animated images / picture-in-picture**
-
-| Time | Type | Position | Motion | Confidence | Screenshot |
-|---|---|---|---|---|---|
-| 30.00–32.00 s | emoji | behind the text | static | seen by VLM | — |
-| 40.00–42.00 s | emoji | behind the text | static | seen by VLM | — |
-| 43.00–44.00 s | emoji | behind the text | static | seen by VLM | — |
-
-**Text effects seen by the VLM**
-
-- 0.0 s title 「沉浸式居家购物开箱」 white sans-serif, no outline, centered, pop
-- 7.0 s styled text 「拿来放早餐应该挺完美了」 thin white type, no outline, small, none
-- 16.0 s styled text 「装上新皮肤」 thin white type, no outline, small, none
-- 20.0 s styled text 「支架可以调整」 thin white type, no outline, small, none
-- 25.0 s styled text 「拆开看看吧」 thin white type, no outline, small, none
-- 28.0 s styled text 「还是喜欢这种淡淡的颜色」 thin white type, no outline, small, none
-- 30.0 s styled text 「软软的挺舒服」 thin white type, no outline, small, none
-- 33.0 s styled text 「和队友打游戏也可以用」 thin white type, no outline, small, none
-- 35.0 s styled text 「可以调节」 thin white type, no outline, small, none
-- 37.0 s styled text 「app里有点心的东西」 thin white type, no outline, small, none
-- 40.0 s styled text 「音质很不错 还有50分贝降噪」 thin white type, no outline, small, none
-- 43.0 s styled text 「喜欢喜欢」 thin white type, no outline, small, none
-- 47.0 s styled text 「好可爱呀~」 thin white type, no outline, small, none
-- 48.0 s styled text 「毛乎乎的」 thin white type, no outline, small, none
-- 50.0 s styled text 「应该是我的米菲小挂件」 thin white type, no outline, small, none
-- 54.0 s styled text 「剪刀剪！」 thin white type, no outline, small, none
-- 57.0 s styled text 「好可爱！」 thin white type, no outline, small, none
-- 61.0 s styled text 「立体小企鹅」 thin white type, no outline, small, none
-- 65.0 s styled text 「哈哈 一定要分享这个自己的化妆包」 thin white type, no outline, small, none
-- 67.0 s styled text 「大容量」 thin white type, no outline, small, none
-
-Remake: burn the captions and styled text in directly from `packaging/overlays.ass` (ffmpeg -vf ass=overlays.ass), or rebuild them in CapCut (JianYing) / Remotion from timeline.json; for stickers and animated images find matching assets (emoji / GIF libraries), screenshots are under packaging/.
-
-## Structure and copy (VLM)
-
-- Summary: an immersive unboxing of several good-looking, macaron-colored cute home items.
-- Form: product showcase; hook: the first 3 seconds show several cute products in quick jump cuts, with crisp sound effects and the explicit title "沉浸式居家购物开箱" ("immersive home-shopping unboxing"), quickly pulling in viewers who like cute styles and unboxing videos.
-- Narration: none; music: relaxed, cute, soothing; captions:
-- Overall judgment (VLM): live footage. The video shows real hand movements interacting with physical objects, unpacking parcels, showing product details and so on, with realistic physical feedback: a typical real-person unboxing video.
-  - 0.0–3.1 s · introduces the topic, a quick look at everything about to be unboxed · "Immersive home-shopping unboxing"
-  - 3.1–11.7 s · unboxes item one: a yellow polka-dot plate · "Should be perfect for breakfast"
-  - 11.7–22.9 s · unboxes item two: a phone case with a stand · "New skin on; the stand is adjustable"
-  - 22.9–44.9 s · unboxes item three: beige over-ear headphones, plus the companion app · "Let's open it up; still love this light color; soft and comfy; works for gaming with teammates too; adjustable; the app has a thoughtful intro; sound is great, with 50 dB noise cancelling; love it, love it"
-  - 44.9–49.8 s · unboxes item four: blue plush slippers · "So cute; so fluffy"
-  - 49.8–58.7 s · unboxes item five: a Miffy plush charm · "Must be my little Miffy charm; snip snip! so cute!"
-  - 58.7–64.0 s · unboxes item six: a striped plate with a 3D little penguin · "3D little penguin"
-  - 64.0–68.8 s · shows item seven: a checked bear makeup bag · "Haha, had to share this makeup bag I made myself; roomy"
-  - 68.8–71.0 s · ending, a group shot of everything · "Bye bye, see you next time"
-
-## Real material in the frame
-
-27 shots, 69.66 s (97%), contain real material (screen recordings, screenshots, photos, embedded video). A remake needs the original files; they cannot be replaced by generated output:
-
-- Shot #1 (00:00.000): live-action footage, whole frame
-- Shot #2 (00:00.633): live-action footage, whole frame
-- Shot #3 (00:01.233): live-action footage, whole frame
-- Shot #4 (00:01.833): live-action footage, whole frame
-- Shot #5 (00:02.367): live-action footage, whole frame
-- Shot #6 (00:03.100): live-action footage, whole frame
-- Shot #7 (00:03.867): live-action footage, whole frame
-- Shot #8 (00:04.533): live-action footage, whole frame
-- Shot #9 (00:11.700): live-action footage, whole frame
-- Shot #10 (00:17.033): live-action footage, whole frame
-- Shot #12 (00:23.567): live-action footage, whole frame
-- Shot #14 (00:31.200): live-action footage, whole frame
-- Shot #15 (00:34.500): live-action footage, whole frame
-- Shot #16 (00:36.167): live-action footage, whole frame
-- Shot #17 (00:36.800): live-action footage, whole frame
-- Shot #18 (00:39.933): live-action footage, whole frame
-- Shot #19 (00:43.033): live-action footage, whole frame
-- Shot #20 (00:44.000): live-action footage, whole frame
-- Shot #21 (00:44.900): live-action footage, whole frame
-- Shot #22 (00:46.333): live-action footage, whole frame
-- Shot #23 (00:49.867): live-action footage, whole frame
-- Shot #24 (00:51.600): live-action footage, whole frame
-- Shot #25 (00:58.733): live-action footage, whole frame
-- Shot #26 (01:01.033): live-action footage, whole frame
-- Shot #27 (01:04.067): live-action footage, whole frame
-- Shot #28 (01:08.867): live-action footage, whole frame
-- Shot #29 (01:09.900): live-action footage, whole frame
-
-## Reference material to prepare for the remake
-
-The picture in these shots is generated or shot; below is what appears in them and should be prepared as reference images / props for the remake (not embedded real pixels):
-
-- Shot #15 (00:34.500): product reference image, the printed front of the headphone box shown at the top right
-- Shot #17 (00:36.800): product reference image, the off-white over-ear Bluetooth headphones and the opened box placed in the background
+| Time | Shots | Job | What it says |
+|---|---|---|---|
+| 0.0–3.1s | #1–#5 | grab attention | Under a second per item: flash the finished products first so viewers know what this episode opens → Second flash: a new colour and shape keeps it fresh → Third flash while the title types itself out → Fourth flash: a cute plush sets the style expectation → Fifth flash: a squeeze to show the texture closes the preview |
+| 3.1–3.9s | #6 | set the scene | A flat lay of everything up front shows how many items this episode covers |
+| 3.9–7.3s | #7–#11 | add information | Start from slitting the courier tape to enter the first item → One line names the first item → Layer after layer of wrapping stretches out the wait before the reveal → Pause on the packaging details → Undo the last layer of wrapping |
+| 7.3–8.2s | #12 | deliver the conclusion | Wrapping off: the product appears in full for the first time |
+| 8.2–10.2s | #13 | add information | One line says what it is for |
+| 10.2–11.7s | #14 | show evidence | Several angles to show the material |
+| 11.7–12.5s | #15 | set the scene | Next item: one line gives the reason for buying it |
+| 12.5–15.6s | #16–#19 | add information | Show the packaging box → Open the box for the reveal → The feel of peeling the film → Keep removing the extras |
+| 15.6–17.0s | #20 | deliver the conclusion | Show the whole print |
+| 17.0–20.6s | #21, #22 | show evidence | Put it on the phone to see how it looks → The finished look once fitted |
+| 20.6–21.9s | #23 | add information | Point out one feature |
+| 21.9–22.9s | #24 | show evidence | Prove the stand really holds the phone up |
+| 22.9–23.6s | #25 | set the scene | Introduce the biggest item of the video |
+| 23.6–28.1s | #26–#31 | add information | The feel of stripping the shrink wrap → Show the front of the package → Pause for a close look at the box → Invite the viewer to open it together → The product comes out bit by bit → (… 6 points, each shot in the shot list) |
+| 28.1–30.0s | #32 | deliver the conclusion | Say why the colour is liked |
+| 30.0–33.4s | #33–#35 | add information | A squeeze shows it is comfortable to wear → Show the headband's flex → Name a use case |
+| 33.4–34.5s | #36 | show evidence | Show the full set with the mic |
+| 34.5–35.1s | #37 | add information | Point out another feature |
+| 35.1–36.8s | #38, #39 | show evidence | Look at the design from several angles → Repeat the adjustment demo |
+| 36.8–39.9s | #40 | add information | Use the phone app to add manual-style information |
+| 39.9–43.0s | #41 | show evidence | Close with a listening test and name the sound quality and noise cancelling |
+| 43.0–44.0s | #42 | deliver the conclusion | Switch to a low angle for a conclusion shot |
+| 44.0–44.9s | #43 | set the mood | An empty shot to let the viewer pause |
+| 44.9–45.5s | #44 | set the scene | Introduce the next item |
+| 45.5–47.7s | #45–#47 | add information | Take the product out → Remove the extras → Show the lining |
+| 47.7–48.6s | #48 | deliver the conclusion | Show the full pair |
+| 48.6–49.9s | #49 | show evidence | Touch proves it is soft |
+| 49.9–50.5s | #50 | set the scene | Introduce the next item by guessing what is inside |
+| 50.5–51.0s | #51 | add information | Open the box |
+| 51.0–51.6s | #52 | deliver the conclusion | Write the emotion out at the reveal |
+| 51.6–55.2s | #53–#55 | add information | Take it out → Show the tag and the keychain → Take the product out |
+| 55.2–56.5s | #56 | deliver the conclusion | A front close-up with an exclamation |
+| 56.5–57.2s | #57 | add information | Remove the packaging |
+| 57.2–58.7s | #58 | deliver the conclusion | Hold still for a cute close-up |
+| 58.7–59.4s | #59 | set the scene | Introduce the next item |
+| 59.4–61.0s | #60, #61 | add information | Open the bag → Say what it is |
+| 61.0–62.1s | #62 | deliver the conclusion | Point out the cutest detail |
+| 62.1–64.1s | #63 | show evidence | Stay longer on the detail |
+| 64.1–64.7s | #64 | set the scene | The last item is something self-made, with a sharing tone |
+| 64.7–67.5s | #65, #66 | add information | Show the capacity and the print → A closing action |
+| 67.5–69.9s | #67, #68 | deliver the conclusion | Point out the print detail → Back to the flat lay of everything, echoing the opening |
+| 69.9–71.5s | #69 | call to action | Say goodbye and promise the next episode |
 
 ## Shot list
 
-| # | Time | Duration | Underlying picture | Confidence | Material | Overlays | Camera | Remake route |
-|---|---|---|---|---|---|---|---|---|
-| 1 | 00:00.000 | 0.63 s | Live footage | 88% | User's real material: live-action footage | Graphic plate | Smooth move | R07-product-hero → capsule_cinema |
-| 2 | 00:00.633 | 0.60 s | Live footage | 53% | User's real material: live-action footage | Captions, graphic plate | Static (subject moving) | R07-product-hero → capsule_cinema |
-| 3 | 00:01.233 | 0.60 s | Live footage | 87% | User's real material: live-action footage | Captions, graphic plate | Static | R07-product-hero → capsule_cinema |
-| 4 | 00:01.833 | 0.53 s | Live footage | 88% | User's real material: live-action footage | Captions, graphic plate | Static (subject moving) | R07-product-hero → capsule_cinema |
-| 5 | 00:02.367 | 0.73 s | Live footage | 88% | User's real material: live-action footage | Text, graphic plate | Static | R07-product-hero → capsule_cinema |
-| 6 | 00:03.100 | 0.77 s | Live footage | 93% | User's real material: live-action footage | Text | Smooth move | R07-product-hero → capsule_cinema |
-| 7 | 00:03.867 | 0.67 s | Live footage | 88% | User's real material: live-action footage | Captions, graphic plate | Smooth move | R07-product-hero → capsule_cinema |
-| 8 | 00:04.533 | 7.17 s | Live footage | 86% | User's real material: live-action footage | Captions | Static | R07-product-hero → capsule_cinema |
-| 9 | 00:11.700 | 5.33 s | Live footage | 85% | User's real material: live-action footage | Text, styled text | Static (subject moving) | R07-product-hero → capsule_cinema |
-| 10 | 00:17.033 | 5.87 s | Live footage | 53% | User's real material: live-action footage | Captions | Static (subject moving) | R07-product-hero → capsule_cinema |
-| 11 | 00:22.900 | 0.67 s | AI-generated video | 53% | AI-generated | Text, graphic plate | Static (subject moving) | R07-product-hero → capsule_cinema |
-| 12 | 00:23.567 | 6.43 s | Live footage | 86% | User's real material: live-action footage | Captions | Static (subject moving) | R07-product-hero → capsule_cinema |
-| 13 | 00:30.000 | 1.20 s | AI-generated video | 52% | AI-generated | Text, static sticker | Static | R07-product-hero → capsule_cinema |
-| 14 | 00:31.200 | 3.30 s | Live footage | 52% | User's real material: live-action footage | Text, static sticker | Static | R07-product-hero → capsule_cinema |
-| 15 | 00:34.500 | 1.67 s | Live footage | 87% | User's real material: live-action footage; remake reference: product reference image | Captions, graphic plate | Static (subject moving) | R07-product-hero → capsule_cinema |
-| 16 | 00:36.167 | 0.63 s | Live footage | 86% | User's real material: live-action footage | Graphic plate | Static (subject moving) | R07-product-hero → capsule_cinema |
-| 17 | 00:36.800 | 3.13 s | Live footage | 87% | User's real material: live-action footage; remake reference: product reference image | Captions, text, graphic plate, styled text | Static | R07-product-hero → capsule_cinema |
-| 18 | 00:39.933 | 3.10 s | Live footage | 84% | User's real material: live-action footage | Text, static sticker | Static | R07-product-hero → capsule_cinema |
-| 19 | 00:43.033 | 0.97 s | Live footage | 89% | User's real material: live-action footage | Captions, static sticker | Smooth move | R07-product-hero → capsule_cinema |
-| 20 | 00:44.000 | 0.90 s | Live footage | 89% | User's real material: live-action footage | — | Smooth move | R07-product-hero → capsule_cinema |
-| 21 | 00:44.900 | 1.43 s | Live footage | 88% | User's real material: live-action footage | Text, graphic plate | Static | R07-product-hero → capsule_cinema |
-| 22 | 00:46.333 | 3.53 s | Live footage | 88% | User's real material: live-action footage | Captions, graphic plate | Static | R07-product-hero → capsule_cinema |
-| 23 | 00:49.867 | 1.73 s | Live footage | 88% | User's real material: live-action footage | Captions, graphic plate | Static (subject moving) | R07-product-hero → capsule_cinema |
-| 24 | 00:51.600 | 7.13 s | Live footage | 86% | User's real material: live-action footage | Captions | Static (subject moving) | R07-product-hero → capsule_cinema |
-| 25 | 00:58.733 | 2.30 s | Live footage | 88% | User's real material: live-action footage | Captions | Static (subject moving) | R07-product-hero → capsule_cinema |
-| 26 | 01:01.033 | 3.03 s | Live footage | 87% | User's real material: live-action footage | Text, graphic plate | Static | R07-product-hero → capsule_cinema |
-| 27 | 01:04.067 | 4.80 s | Live footage | 89% | User's real material: live-action footage | Captions | Static (subject moving) | R07-product-hero → capsule_cinema |
-| 28 | 01:08.867 | 1.03 s | Live footage | 93% | User's real material: live-action footage | — | Smooth move | R07-product-hero → capsule_cinema |
-| 29 | 01:09.900 | 1.63 s | Live footage | 93% | User's real material: live-action footage | Captions | Smooth move | R07-product-hero → capsule_cinema |
+Picture, Camera and Overlays are what is visible on screen; Made with and Material are the tools' inference, with the basis in the shot-by-shot appendix.
 
-## Shot details
+| # | Frames | Time | Length | What it says | Picture | Camera | Overlays | Made with (inferred) | Material (inferred) | Remake |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | ![#1](shots/shot_001_first.jpg) | 0:00.0 | 0.6s | grab attention: Under a second per item: flash t… | The right hand pulls a pale-yellow oval … | smooth move | graphic | live action 79% | live footage | reshoot · S1 |
+| 2 | ![#2](shots/shot_002_first.jpg) | 0:00.6 | 0.6s | grab attention: Second flash: a new colour and s… | Both hands slide a round plate with pale… | static (subject moves) | text, graphic | live action 79% | live footage | reshoot · S1 |
+| 3 | ![#3](shots/shot_003_first.jpg) | 0:01.2 | 0.6s | grab attention: Third flash while the title type… | The left hand holds a cream phone case p… | static | text, graphic | live action 79% | live footage | reshoot · S1 |
+| 4 | ![#4](shots/shot_004_first.jpg) | 0:01.8 | 0.5s | grab attention: Fourth flash: a cute plush sets … | The left hand holds a Miffy keychain in … | static (subject moves) | text, graphic | live action 79% | live footage | reshoot · S1 |
+| 5 | ![#5](shots/shot_005_first.jpg) | 0:02.4 | 0.7s | grab attention: Fifth flash: a squeeze to show t… | Both hands squeeze a fluffy light-blue p… | static | text, graphic | live action 79% | live footage | reshoot · S1 |
+| 6 | ![#6](shots/shot_006_first.jpg) | 0:03.1 | 0.8s | set the scene: A flat lay of everything up front… | No hands in frame, all items laid out fl… | smooth move | text | live action 82% | live footage | reshoot · S1 |
+| 7 | ![#7](shots/shot_007_first.jpg) | 0:03.9 | 0.7s | add information: Start from slitting the courier… | The left hand holds a bubble-wrapped par… | static (subject moves) | text, graphic | live action 80% | live footage | reshoot · S1 |
+| 8 | ![#8](shots/shot_008_first.jpg) | 0:04.5 | 0.6s | add information: One line names the first item | Both hands pull the bubble wrap apart, r… | static (subject moves) | graphic | live action 80% | live footage | reshoot · S1 |
+| 9 | ![#9](shots/shot_009_first.jpg) | 0:05.2 | 0.8s | add information: Layer after layer of wrapping s… | Keep pulling off the bubble wrap and lif… | static (subject moves) | graphic | live action 80% | live footage | reshoot · S1 |
+| 10 | ![#10](shots/shot_010_first.jpg) | 0:06.0 | 0.6s | add information: Pause on the packaging details | Both hands hold the cloth-wrapped plate … | static | — | live action 80% | live footage | reshoot · S1 |
+| 11 | ![#11](shots/shot_011_first.jpg) | 0:06.6 | 0.7s | add information: Undo the last layer of wrapping | The right hand unties the knot on top of… | static (subject moves) | graphic | live action 80% | live footage | reshoot · S1 |
+| 12 | ![#12](shots/shot_012_first.jpg) | 0:07.3 | 0.9s | deliver the conclusion: Wrapping off: the produc… | Pull the pale-yellow blue-dotted oval pl… | static | subtitle, graphic | live action 79% | live footage | reshoot · S1 |
+| 13 | ![#13](shots/shot_013_first.jpg) | 0:08.2 | 2.0s | add information: One line says what it is for | Both hands hold the rim and tilt the pla… | static | text, graphic | live action 79% | live footage | reshoot · S1 |
+| 14 | ![#14](shots/shot_014_first.jpg) | 0:10.2 | 1.5s | show evidence: Several angles to show the materi… | Move the plate to the left and turn it t… | static | graphic | live action 78% | live footage | reshoot · S1 |
+| 15 | ![#15](shots/shot_015_first.jpg) | 0:11.7 | 0.8s | set the scene: Next item: one line gives the rea… | Pull a small white printed box out of a … | static (subject moves) | text, graphic | live action 79% | live footage | reshoot · S1 |
+| 16 | ![#16](shots/shot_016_first.jpg) | 0:12.5 | 0.8s | add information: Show the packaging box | Take the white box printed with STRONG P… | static (subject moves) | graphic | live action 79% | live footage | reshoot · S1 |
+| 17 | ![#17](shots/shot_017_first.jpg) | 0:13.3 | 0.9s | add information: Open the box for the reveal | Open the lid of the white box to reveal … | static (subject moves) | graphic | live action 78% | live footage | reshoot · S1 |
+| 18 | ![#18](shots/shot_018_first.jpg) | 0:14.1 | 0.8s | add information: The feel of peeling the film | Peel the clear film off the phone case; … | static | graphic | live action 79% | live footage | reshoot · S1 |
+| 19 | ![#19](shots/shot_019_first.jpg) | 0:15.0 | 0.7s | add information: Keep removing the extras | Tear the paper insert out of the inside … | static (subject moves) | graphic | live action 79% | live footage | reshoot · S1 |
+| 20 | ![#20](shots/shot_020_first.jpg) | 0:15.6 | 1.4s | deliver the conclusion: Show the whole print | Both hands hold up the case to show the … | static | text, graphic | live action 79% | live footage | reshoot · S1 |
+| 21 | ![#21](shots/shot_021_first.jpg) | 0:17.0 | 1.5s | show evidence: Put it on the phone to see how it… | Fit the case onto a phone and press the … | static | text, graphic | live action 80% | live footage | reshoot · S1 |
+| 22 | ![#22](shots/shot_022_first.jpg) | 0:18.5 | 2.0s | show evidence: The finished look once fitted | Hold up the phone in its new case and ti… | static (subject moves) | text, graphic | live action 80% | live footage | reshoot · S1 |
+| 23 | ![#23](shots/shot_023_first.jpg) | 0:20.6 | 1.3s | add information: Point out one feature | The right hand flips open the magnetic r… | static (subject moves) | text, graphic | live action 80% | live footage | reshoot · S1 |
+| 24 | ![#24](shots/shot_024_first.jpg) | 0:21.9 | 1.0s | show evidence: Prove the stand really holds the … | Stand the phone on its ring stand with i… | static | — | live action 80% | live footage | reshoot · S1 |
+| 25 | ![#25](shots/shot_025_first.jpg) | 0:22.9 | 0.7s | set the scene: Introduce the biggest item of the… | The left hand holds the white headphone … | static (subject moves) | text, graphic | live action 78% | live footage | reshoot · S1 |
+| 26 | ![#26](shots/shot_026_first.jpg) | 0:23.6 | 0.8s | add information: The feel of stripping the shrin… | Both hands lift the outer box printed wi… | static (subject moves) | text, graphic | live action 78% | live footage | reshoot · S1 |
+| 27 | ![#27](shots/shot_027_first.jpg) | 0:24.3 | 0.6s | add information: Show the front of the package | Set the box straight in the center to sh… | static (subject moves) | graphic | live action 78% | live footage | reshoot · S1 |
+| 28 | ![#28](shots/shot_028_first.jpg) | 0:24.9 | 0.8s | add information: Pause for a close look at the b… | Both hands hold the box still, showing t… | static | text | live action 78% | live footage | reshoot · S1 |
+| 29 | ![#29](shots/shot_029_first.jpg) | 0:25.7 | 0.7s | add information: Invite the viewer to open it to… | Open the inner box and lift the white ti… | static (subject moves) | text, graphic | live action 78% | live footage | reshoot · S1 |
+| 30 | ![#30](shots/shot_030_first.jpg) | 0:26.4 | 0.8s | add information: The product comes out bit by bi… | Lift the cream headphones out of the tis… | static (subject moves) | text, graphic | live action 78% | live footage | reshoot · S1 |
+| 31 | ![#31](shots/shot_031_first.jpg) | 0:27.1 | 1.0s | add information: Fully out of the wrapping | Shake the tissue off; the headband swing… | static (subject moves) | text, graphic | live action 78% | live footage | reshoot · S1 |
+| 32 | ![#32](shots/shot_032_first.jpg) | 0:28.1 | 1.9s | deliver the conclusion: Say why the colour is li… | Each hand holds one ear cup, showing the… | static | text, graphic | live action 79% | live footage | reshoot · S1 |
+| 33 | ![#33](shots/shot_033_first.jpg) | 0:30.0 | 1.2s | add information: A squeeze shows it is comfortab… | Both hands squeeze the inner cushions of… | static | text | live action 77% | live footage | reshoot · S2 |
+| 34 | ![#34](shots/shot_034_first.jpg) | 0:31.2 | 1.3s | add information: Show the headband's flex | Both hands stretch the headband sideways… | static | graphic | live action 79% | live footage | reshoot · S1 |
+| 35 | ![#35](shots/shot_035_first.jpg) | 0:32.5 | 0.9s | add information: Name a use case | One hand holds the headphones while the … | smooth move | text, graphic | live action 79% | live footage | reshoot · S1 |
+| 36 | ![#36](shots/shot_036_first.jpg) | 0:33.4 | 1.1s | show evidence: Show the full set with the mic | Both hands lift the headphones with the … | static | text, graphic | live action 78% | live footage | reshoot · S1 |
+| 37 | ![#37](shots/shot_037_first.jpg) | 0:34.5 | 0.6s | add information: Point out another feature | Both hands extend the headband slider, s… | static (subject moves) | subtitle, graphic | live action 78% | live footage | reshoot · S2 |
+| 38 | ![#38](shots/shot_038_first.jpg) | 0:35.1 | 1.1s | show evidence: Look at the design from several a… | Hold the headphones up facing the camera… | static (subject moves) | graphic | live action 78% | live footage | reshoot · S2 |
+| 39 | ![#39](shots/shot_039_first.jpg) | 0:36.2 | 0.6s | show evidence: Repeat the adjustment demo | Pull the headband slider once more (clos… | static (subject moves) | graphic | live action 78% | live footage | reshoot · S2 |
+| 40 | ![#40](shots/shot_040_first.jpg) | 0:36.8 | 3.1s | add information: Use the phone app to add manual… | The left hand holds a phone next to the … | static | subtitle, text, graphic | live action 80% | live footage | reshoot · S1 |
+| 41 | ![#41](shots/shot_041_first.jpg) | 0:39.9 | 3.1s | show evidence: Close with a listening test and n… | The left hand holds the headphones, the … | static | subtitle, text, static sticker | live action 76% | live footage | reshoot · S1 |
+| 42 | ![#42](shots/shot_042_first.jpg) | 0:43.0 | 1.0s | deliver the conclusion: Switch to a low angle fo… | The headphones lie flat with the mic rea… | smooth move | text, static sticker | live action 67% | live footage | reshoot · S3 |
+| 43 | ![#43](shots/shot_043_first.jpg) | 0:44.0 | 0.9s | set the mood: An empty shot to let the viewer pa… | The headphones lie flat with both pearly… | smooth move | — | live action 68% | live footage | reshoot · S3 |
+| 44 | ![#44](shots/shot_044_first.jpg) | 0:44.9 | 0.6s | set the scene: Introduce the next item | Tear open a clear plastic bag to reveal … | static | text, graphic | live action 79% | live footage | reshoot · S1 |
+| 45 | ![#45](shots/shot_045_first.jpg) | 0:45.5 | 0.9s | add information: Take the product out | Take the plush slippers out of the bag a… | static | subtitle, graphic | live action 80% | live footage | reshoot · S1 |
+| 46 | ![#46](shots/shot_046_first.jpg) | 0:46.3 | 0.7s | add information: Remove the extras | Reach into a slipper and pull out the cl… | static | graphic | live action 79% | live footage | reshoot · S1 |
+| 47 | ![#47](shots/shot_047_first.jpg) | 0:47.0 | 0.7s | add information: Show the lining | Pull the insert out of the other slipper… | static | text, graphic | live action 79% | live footage | reshoot · S1 |
+| 48 | ![#48](shots/shot_048_first.jpg) | 0:47.7 | 1.0s | deliver the conclusion: Show the full pair | Both hands set the pair of slippers side… | static | subtitle, graphic | live action 79% | live footage | reshoot · S1 |
+| 49 | ![#49](shots/shot_049_first.jpg) | 0:48.6 | 1.2s | show evidence: Touch proves it is soft | Both hands squeeze the long fur on the s… | static | subtitle, graphic | live action 79% | live footage | reshoot · S1 |
+| 50 | ![#50](shots/shot_050_first.jpg) | 0:49.9 | 0.6s | set the scene: Introduce the next item by guessi… | Hold a kraft box and slit it along the c… | static (subject moves) | text, graphic | live action 79% | live footage | reshoot · S1 |
+| 51 | ![#51](shots/shot_051_first.jpg) | 0:50.5 | 0.5s | add information: Open the box | Fold back both flaps to reveal a clear b… | static (subject moves) | text, graphic | live action 79% | live footage | reshoot · S1 |
+| 52 | ![#52](shots/shot_052_first.jpg) | 0:51.0 | 0.6s | deliver the conclusion: Write the emotion out at… | Open the box to see Miffy inside the bag… | static (subject moves) | subtitle, graphic | live action 79% | live footage | reshoot · S1 |
+| 53 | ![#53](shots/shot_053_first.jpg) | 0:51.6 | 1.0s | add information: Take it out | Lift the clear bag with Miffy out of the… | static (subject moves) | text, graphic | live action 79% | live footage | reshoot · S1 |
+| 54 | ![#54](shots/shot_054_first.jpg) | 0:52.6 | 1.7s | add information: Show the tag and the keychain | Hold up the bag to show the Miffy keycha… | static (subject moves) | graphic | live action 79% | live footage | reshoot · S1 |
+| 55 | ![#55](shots/shot_055_first.jpg) | 0:54.3 | 0.9s | add information: Take the product out | Pull the Miffy keychain out of the bag, … | static (subject moves) | text, graphic | live action 78% | live footage | reshoot · S1 |
+| 56 | ![#56](shots/shot_056_first.jpg) | 0:55.2 | 1.2s | deliver the conclusion: A front close-up with an… | Both hands hold Miffy up through the cle… | static | text, graphic | live action 79% | live footage | reshoot · S1 |
+| 57 | ![#57](shots/shot_057_first.jpg) | 0:56.5 | 0.7s | add information: Remove the packaging | Pull the bag away and hold Miffy in the … | static (subject moves) | text, graphic | live action 79% | live footage | reshoot · S1 |
+| 58 | ![#58](shots/shot_058_first.jpg) | 0:57.2 | 1.6s | deliver the conclusion: Hold still for a cute cl… | Miffy rests in the palm, facing the came… | static | text | live action 78% | live footage | reshoot · S1 |
+| 59 | ![#59](shots/shot_059_first.jpg) | 0:58.7 | 0.7s | set the scene: Introduce the next item | Both hands pick up a blue-and-white stri… | static (subject moves) | graphic | live action 79% | live footage | reshoot · S1 |
+| 60 | ![#60](shots/shot_060_first.jpg) | 0:59.4 | 0.7s | add information: Open the bag | Open the mouth of the bag to show the pl… | static (subject moves) | subtitle, graphic | live action 79% | live footage | reshoot · S1 |
+| 61 | ![#61](shots/shot_061_first.jpg) | 1:00.1 | 0.9s | add information: Say what it is | Slide the pale-blue striped round plate … | static (subject moves) | subtitle, graphic | live action 79% | live footage | reshoot · S1 |
+| 62 | ![#62](shots/shot_062_first.jpg) | 1:01.0 | 1.1s | deliver the conclusion: Point out the cutest det… | Both hands hold the striped plate with t… | static | text, graphic | live action 79% | live footage | reshoot · S1 |
+| 63 | ![#63](shots/shot_063_first.jpg) | 1:02.1 | 1.9s | show evidence: Stay longer on the detail | Slowly tilt the plate side to side to sh… | static | subtitle, graphic | live action 80% | live footage | reshoot · S1 |
+| 64 | ![#64](shots/shot_064_first.jpg) | 1:04.1 | 0.6s | set the scene: The last item is something self-m… | Unzip a gingham pouch (main top-down ang… | static (subject moves) | text, graphic | live action 79% | live footage | reshoot · S1 |
+| 65 | ![#65](shots/shot_065_first.jpg) | 1:04.7 | 2.1s | add information: Show the capacity and the print | Open the pouch to show the inside, then … | static (subject moves) | subtitle, graphic | live action 80% | live footage | reshoot · S1 |
+| 66 | ![#66](shots/shot_066_first.jpg) | 1:06.7 | 0.7s | add information: A closing action | Zip the pouch closed (main top-down angl… | static (subject moves) | text, graphic | live action 79% | live footage | reshoot · S1 |
+| 67 | ![#67](shots/shot_067_first.jpg) | 1:07.5 | 1.4s | deliver the conclusion: Point out the print deta… | Lift the pouch and turn it side to side … | static (subject moves) | text, graphic | live action 80% | live footage | reshoot · S1 |
+| 68 | ![#68](shots/shot_068_first.jpg) | 1:08.9 | 1.0s | deliver the conclusion: Back to the flat lay of … | No hands in frame, the camera slowly pan… | smooth move | subtitle | still image + pan/zoom 81% | photo | local ffmpeg move |
+| 69 | ![#69](shots/shot_069_first.jpg) | 1:09.9 | 1.6s | call to action: Say goodbye and promise the next… | The camera keeps drifting across the fla… | smooth move | text | live action 85% | live footage | reshoot · S1 |
 
-### #1 00:00.000–00:00.633 · Live footage + code / editor overlays (graphic plate); introduces real material (live-action footage)
+## Remake it yourself: do it in this order
+
+Copy the method and the rhythm, not the pictures.
+
+1. **Plan the content**: write your script on the narrative line under “Content and structure”
+2. **Collect material**: see “What to prepare” below
+3. **Shoot**: 3 scenes, 7 camera setups, see “Shoot” below
+4. **Stills / moves**: see “Local rebuild” below
+5. **Edit**: see “Edit” below
+6. **Packaging**: the subtitle file `packaging/subtitles.srt` imports straight into an editor; styles and timeline under “Packaging layer”
+7. **Sound**: see “Sound”; every effect can be played first
+8. **Compare**: watch yours next to the original: shot lengths, subtitle positions, where the music comes in and drops
+
+### What to prepare
+
+- Real files shown in the picture (screenshots, photos, recordings; get the originals):
+  - **photo** (whole frame): shots #68, 1.0s in all
+  - **photo** (part of the frame), The creator's own flat-lay photo of all items (whole frame): shots #68, 1.0s in all
+
+### Shoot
+
+Shoot every shot of one scene before moving to the next; within a scene, shoot the wider sizes first and the close-ups last so the lighting is set only once. Leave about 1s of handle at both ends of every take.
+
+**S1**: shots #1–#32, #34–#36, #40, #41, #44–#67, #69 (65.13s on screen); Brown woven carpet on a bedroom floor (shot from directly above), Carpet fills the frame; light-blue slippers, plush slippers and parcels along the top; unboxed items gradually join the background
+- Lighting: Single soft ceiling light, flat lighting, phone directly overhead, pale props as natural bounce
+- Setup full shot · moving camera (gimbal / handheld pan) · pan / track/pull-out: shots #6, #69, 2.4s on screen, shoot about 6.4s
+- Setup medium shot · fixed camera (tripod / mount / on the desk) · static: shots #2, #4, #5, #7, #16, #18, #20, #22, #23, #25, #28–#30, #32, #36, #50–#56, #58–#66, 31.77s on screen, shoot about 93.8s
+- Setup medium close-up · moving camera (gimbal / handheld pan) · static: shots #1, #35, 1.5s on screen, shoot about 5.5s
+- Setup medium close-up · fixed camera (tripod / mount / on the desk) · static: shots #3, #8–#15, #17, #19, #21, #24, #26, #27, #31, #34, #40, #41, #44–#46, #48, #49, #57, #67, 28.8s on screen, shoot about 80.8s
+- Setup close-up · fixed camera (tripod / mount / on the desk) · static: shots #47, 0.67s on screen, shoot about 2.7s
+
+**S2**: shots #33, #37–#39 (3.5s on screen); By the lamp on the same carpet, A mushroom lamp with a blue base and the headphone box at the top of the frame
+- Lighting: Single soft ceiling light, flat lighting, phone directly overhead, pale props as natural bounce
+- Setup medium close-up · fixed camera (tripod / mount / on the desk) · static: shots #33, #37–#39, 3.5s on screen, shoot about 11.5s
+
+**S3**: shots #42, #43 (1.87s on screen); Same carpet (low-angle close shot), Headphones lying flat on the carpet, the box at an angle in the top-left corner
+- Lighting: Single soft ceiling light, flat lighting, phone directly overhead, pale props as natural bounce
+- Setup medium close-up · moving camera (gimbal / handheld pan) · pan / track/push-in: shots #42, #43, 1.87s on screen, shoot about 5.9s
+
+### Local rebuild
+
+- #68 still image + pan/zoom 1.0s: one image + the measured zoom / pan parameters, rendered straight from ffmpeg
+
+### Edit
+
+- Cut in the order and lengths of the shot list
+- Approach: About 57 cuts per minute; 0–3.1 s flashes each item for under 0.7 s as a preview; the unboxing is cut one action per shot (open parcel → unwrap → reveal → show details), mostly jump cuts on the same angle; one short subtitle per item; ends back on the flat lay
+- Rhythm: 57.0 cuts per minute, 1.04s average live-action shot; 3 camera set-up(s) / location(s); 11 jump cut(s) and 9 punch-in(s) within the same set-up; inserts (screenshots / screen recordings / cards / stock) take 1%; 80% of cuts land in pauses of the speech (cutting on breaths); transitions cut×21, jump cut×47
+
+## Cast, scenes and props
+
+| Id | Name | Kind | Look | Role | Voice | Shots |
+|---|---|---|---|---|---|---|
+| A | Unboxing creator (hands only) | person | Only a pair of hands and the sleeves of a loose white sweatshirt; slim fingers, short plain nails, face never shown | Unboxes and shows every product | Does not speak; subtitles stand in for a voice-over | #1–#5, #7–#41, #44–#67 |
+
+**Scenes**
+
+| Scene | Where | When | Set / light | Shots |
+|---|---|---|---|---|
+| S1 | Brown woven carpet on a bedroom floor (shot from directly above) | Indoors at night | Carpet fills the frame; light-blue slippers, plush slippers and parcels along the top; unboxed items gradually join the background | #1–#32, #34–#36, #40, #41, #44–#69 |
+| S2 | By the lamp on the same carpet | Indoors at night | A mushroom lamp with a blue base and the headphone box at the top of the frame | #33, #37–#39 |
+| S3 | Same carpet (low-angle close shot) | Indoors at night | Headphones lying flat on the carpet, the box at an angle in the top-left corner | #42, #43 |
+
+**Props / products / logos**
+
+- Pale-yellow oval plate with blue polka dots (YUU) (shots #1, #7–#14): Wrapped in a yellow blue-dotted cloth, then bubble wrap
+- Phone case with a cartoon-girl print (shots #3, #15–#24): Cream, magnetic ring stand on the back; white printed box reading STRONG PROTECTION
+- Cream over-ear headphones (shots #25–#43): Pearly ear cups, detachable mic, sliding headband; box printed King Pro; comes with a phone app
+- Light-blue plush slippers (shots #5, #44–#49): Long fur, pink piggy and cupcake details on top, pink lining
+- Miffy keychain (shots #4, #50–#58): Blue sailor outfit, metal ring; packed in a kraft box and a clear bag
+- Blue-and-white striped penguin plate (PAPA PLATE) (shots #2, #59–#63): A small black penguin stands on the rim; packed in a blue-and-white striped bag
+- Gingham bear pouch (shots #64–#67): Pale blue/yellow gingham, bear print, Hello Kitty fabric label; made by the creator
+- Light-blue hot dog slippers (shots #1–#32, #34–#36, #40, #41, #44–#69): Background prop with hot dog printed on top, at the top of almost every shot
+
+## Camera and lighting
+
+- Visual style: Top-down flat lay under warm indoor light at night; macaron palette of cream, pale blue and pale yellow; soft, low-saturation, cute Japanese home style
+- Framing: shot size medium close-up 51%, medium shot 45%, full shot 3%; camera angle top-down; subject is the in-focus region (no face; shot size is an estimate)
+- Camera: fixed camera (tripod / mount / on the desk) 92%, moving camera (gimbal / handheld pan) 8%; typical move pan / track
+- Lighting: One soft indoor ceiling light at night, overhead and slightly in front; white sleeves and pale products bounce the light; no fill or rim light; warm yellow overall (image reading; pixel measurements in the fold below)
+- Grade: airy Japanese-style (bright, low saturation, lifted blacks); normal saturation, normal contrast, lifted blacks (greyish shadows), overall neutral
+- Format: tabletop / object shoot (face as subject 3%, objects / hands as subject 97%, handheld 8%); image readers: Top-down ASMR unboxing vlog with no voice-over (haul / favourite finds)
+
+<details class="ref"><summary>Per-item measurements and image readings (22)</summary>
+
+| Aspect | Item | Verdict | Sources |
+|---|---|---|---|
+| Framing | shot size | medium close-up | measured; agent review |
+| Framing | camera angle | top-down (directly overhead) | agent review |
+| Framing | composition | Product centred slightly low; the top third is left for already-unboxed items as background; vertical | agent review |
+| Camera | camera support | Overhead phone stand | measured: fixed camera (tripod / mount / on the desk); agent review |
+| Camera | lens | Phone rear main camera | agent review |
+| Camera | speed | Normal (hand movements and packaging move at normal speed) | agent review |
+| Camera | set-ups / locations | 4 setups: (1) main angle, phone on a stand directly above the carpet, most unboxing shots; (2) a closer top-down shot by the lamp (shots 33, 37–39); (3) a low handheld close shot of the headphones (shots 42–43); (4) a wide flat lay of all items, handheld slow pan (shots 6, 68, 69) | agent review |
+| Camera | likely gear | Phone rear main camera + floor/desk overhead stand (an arm holding the phone above the carpet); the flat lay and the headphone close shots are handheld | agent review |
+| Lighting | location | Indoors; night (phone clock shows 23:16); on a bedroom carpet | agent review |
+| Lighting | key light | Room ceiling light from overhead, slightly in front, broad and diffuse; hands and products cast almost no visible shadows | agent review |
+| Lighting | soft / hard | soft light (wide lit-to-shadow ramp) | measured; agent review: Soft (shadow edges under arms and plates are very blurred) |
+| Lighting | fill | No dedicated fill; white sleeves, white boxes and pale products bounce light into the shadows, which stay light | agent review |
+| Lighting | rim / backlight | No rim light | agent review |
+| Lighting | catchlight | Not applicable (no face) | agent review |
+| Lighting | practicals | None (the mushroom lamp at the top of shots 33, 37–39 does not look switched on) | agent review |
+| Lighting | colour temperature | warm (about 3000–4000K) | measured; agent review: Warm (indoor light around 3500K; carpet and cream products lean warm yellow) |
+| Lighting | lighting set-up | Single soft ceiling light, flat lighting, phone directly overhead, pale props as natural bounce | agent review |
+| Lighting | overall lighting | One soft indoor ceiling light at night, overhead and slightly in front; white sleeves and pale products bounce the light; no fill or rim light; warm yellow overall | agent review |
+| Grade | colour grade | airy Japanese-style (bright, low saturation, lifted blacks) | measured; agent review: Creamy, low-saturation warm look (Japanese clean style): lifted blacks, greyish warm shadows, bright and soft overall with no strong contrast |
+| Grade | overall grade | Creamy, low-saturation warm look with lifted blacks, close to a Japanese clean style | agent review |
+| Editing | editing style | About 57 cuts per minute; 0–3.1 s flashes each item for under 0.7 s as a preview; the unboxing is cut one action per shot (open parcel → unwrap → reveal → show details), mostly jump cuts on the same angle; one short subtitle per item; ends back on the flat lay | agent review |
+| Format | video format | Top-down ASMR unboxing vlog with no voice-over (haul / favourite finds) | measured: tabletop / object shoot; agent review |
+
+</details>
+
+- Note: lighting ratio, soft / hard, colour temperature and shot size are measured on the subject's pixels (the face when there is one, otherwise the in-focus region, which is an estimate); platform transcodes crush the shadows, so hardness and fill read conservative; camera angle, light source, catchlight and rim light follow the image readers. Where measurement and readers disagree, both are listed.
+
+## Packaging layer (subtitles / styled text / stickers / sound-effect hits)
+
+- 28 subtitle lines (middle, up to 1 rows): brown text, keywords highlighted in white, line height 2.2%; entrance: hard in×13, scale pop×5, slide in×3; keywords change colour as they are spoken
+- title ×2: "沉浸式居家购物", "沉浸式居家购物开箱"
+- Stickers / GIFs: Smiley emoji ×1, Red heart emoji ×1
+- Placed by spoken line ×2 (with new wording they follow the line, not the old second): Smiley emoji → 0.3s after "app里有贴心的介绍", Red heart emoji → 0.0s into "喜欢喜欢"
+- Exports: `packaging/subtitles.srt`, `packaging/overlays.ass`, `packaging/timeline.json` (SRT is the subtitle timeline; ASS carries colour, outline, position and entrance animation, swap in the original font; timeline.json is the full timeline)
+
+<details class="ref"><summary>text timeline (30 rows)</summary>
+
+| Time | Kind | Text | Style | In / out | SFX |
+|---|---|---|---|---|---|
+| 1.00–1.80s | title · follows an object | 沉浸式居家购物 | white text, white box, keywords highlighted in brown, line height 4.9% (about 63px) | type-on | — |
+| 1.80–3.10s | title | 沉浸式居家购物开箱 | white text, white box, keywords highlighted in grey, line height 4.7% (about 60px) | hard out | — |
+| 3.00–3.60s | subtitle | 真嘟是萌萌的 | brown text, keywords highlighted in orange, line height 2.3% (about 29px) | slide in / hard out | — |
+| 4.50–4.80s | subtitle | 款波点的体子 | white text, line height 2.3% (about 30px) | hard in / hard out | — |
+| 7.30–10.20s | subtitle | 拿来放早餐应该是很完美了 | yellow text, line height 2.0% (about 26px) | hard in / hard out | — |
+| 12.00–12.10s | subtitle | 好久没买手机壳 | grey text, keywords highlighted in grey, line height 1.8% (about 23px) | hard in / hard out | — |
+| 17.00–18.50s | subtitle | 装上新皮肤 | brown text, line height 2.3% (about 29px) | hard in / hard out | — |
+| 20.50–21.80s | subtitle | 支架可以调整 | brown text, line height 2.0% (about 26px) | pop / hard out | — |
+| 22.90–24.10s | subtitle | 买了新的头戴式耳机 | grey text, line height 2.5% (about 32px) | hard in / hard out | — |
+| 25.50–27.10s | subtitle | 起拆开看看吧 | yellow text, line height 2.1% (about 27px) | hard out | — |
+| 28.00–30.00s | subtitle | 还是喜欢这种淡淡的颜色 | orange text, line height 2.2% (about 28px) | pop / hard out | — |
+| 30.00–31.20s | subtitle | 软软的挺舒服 | brown text, line height 1.9% (about 24px) | hard in / hard out | — |
+| 32.50–34.50s | subtitle | 和队友打游戏也可以用 | yellow text, line height 2.1% (about 27px) | hard in | — |
+| 34.50–35.80s | subtitle | 可以调节 | brown text, keywords highlighted in white, line height 2.2% (about 28px) | fade out | — |
+| 36.80–39.60s | subtitle | app里有贴心的介绍 | grey text, line height 2.3% (about 30px) | hard in | — |
+| 37.50–39.90s | subtitle | 连接听一下 | grey text, line height 2.3% (about 29px) | hard out | — |
+| 39.90–43.00s | subtitle | 音质很不错还有50分贝降噪 | grey text, line height 2.2% (about 28px) | hard in / hard out | — |
+| 43.00–44.00s | subtitle | 喜欢喜欢 | red text, gradient, bold, line height 2.3% (about 30px) | hard in / fade out | — |
+| 44.90–46.30s | subtitle | 买了新的棉拖鞋 | white text, line height 2.0% (about 26px) | hard in / slide out | — |
+| 47.40–48.50s | subtitle | 好可爱呀 | brown text, line height 2.3% (about 29px) | pop | — |
+| 48.50–49.90s | subtitle | 平乎的 | grey text, line height 1.9% (about 24px) | hard out | — |
+| 49.90–51.00s | subtitle | 应该是我的米菲小挂件 | orange text, keywords highlighted in brown, line height 1.9% (about 25px) | hard in / hard out | — |
+| 51.00–52.20s | subtitle | 啊啊啊激动 | grey text, keywords highlighted in white, line height 2.3% (about 30px) | hard out | — |
+| 55.00–56.50s | subtitle | 萌翻啦！ | brown text, line height 2.3% (about 30px) | hard out | — |
+| 57.00–58.70s | subtitle | 好可爱！ | brown text, line height 2.3% (about 30px) | pop / hard out | — |
+| 60.00–60.90s | subtitle | 个小盘子 | brown text, line height 1.9% (about 24px) | slide in / shrink out | — |
+| 61.00–63.00s | subtitle | 立体小企鹅 | brown text, line height 2.3% (about 29px) | hard in / hard out | — |
+| 64.00–66.10s | subtitle | 哈哈哈一定要分享这个自己做的化妆包 | brown text, keywords highlighted in blue, line height 2.3% (about 29px) | pop / hard out | — |
+| 66.50–68.90s | subtitle | 蓝色小熊 | grey text, line height 2.4% (about 31px) | hard out | — |
+| 70.00–71.10s | subtitle | 拜拜噜下次见 | white text, keywords highlighted in brown, line height 1.8% (about 23px) | slide in / fade out | — |
+
+</details>
+
+**Stickers / GIFs / picture-in-picture**
+
+| Time | Kind | Position | Motion | Confidence | Crop |
+|---|---|---|---|---|---|
+| 39.90–43.00s | Smiley emoji | Upper middle, right end of the subtitle | static | confirmed | — |
+| 43.00–44.00s | Red heart emoji | Middle, right end of the subtitle | static | confirmed | — |
+
+| Time | Layer | Spoken line |
+|---|---|---|
+| 39.90s | Smiley emoji | 0.3s after "app里有贴心的介绍" |
+| 43.00s | Red heart emoji | 0.0s into "喜欢喜欢" |
+
+Remake: burn subtitles and styled text in with `packaging/overlays.ass` (ffmpeg -vf ass=overlays.ass), or rebuild them from timeline.json in CapCut / Remotion; stickers and GIFs need matching assets (meme / GIF libraries), crops are under packaging/.
+
+## Sound
+
+![audio](audio_en.png)
+
+- loudness -28.2 dBFS, peak -0.1 dBFS; sound runs across cuts, laid in post as one bed (background changes 8.0dB at cuts vs 6.3dB within shots)
+- Sources: Video type: live footage (location sound + music added in post) → voice: human recording; music: stock library music (leaning, to confirm); SFX: location sound
+
+**Voice**
+
+- 29% of the duration; pitch about 128.2Hz (male-leaning)
+- Source: human recording (human recording 73%, TTS voice-over 20%, native dialogue from the AI video model 7%)
+  - 99% of the picture is live footage: the voice is most likely location sound or a human voice-over
+- Remake: record it yourself: phone or lavalier mic close to the mouth, in a quiet room; rewrite the lines from the script table
+
+**Music**
+
+- Tempo: 92.3 BPM (or 46.1/184.6); key F major (confidence 0.845); 90% of the duration (0.5–71.0s); section changes at 7.5s, 39.5s, 43.5s, 50.0s, 55.0s; ending: ends_with_video
+- Cuts vs beat: 15% of cuts land on a beat (chance: about 19%)
+- Source: to confirm (stock library music 52%, AI-generated music 30%, well-known song 17%)
+  - The music is a bed under the picture: in a regular video the bed usually comes from a stock library (prior)
+  - The voice is speech / narration, not singing (sustained-pitch ratio 0.00): a regular "voice-over + music bed" video
+  - Music and video end together: edited to length or custom-made (either source possible, weak evidence)
+  - Nothing about this track beyond the format prior and weak cues like the ending (no source heard, no platform music tag): source to confirm; an AI-generated bed cannot be told from a library bed here
+  - How to confirm: Check the music tag on the original Douyin / Xiaohongshu / TikTok post: a song title → existing track; "original sound - @creator" → uploaded by the creator (for music videos, usually an AI song)
+  - How to confirm: Run it through Shazam / ACRCloud or another song-ID service: a hit means an existing song
+- Remake: The original track leans stock library music: search a library by BPM / mood / key for a similar track, or generate a royalty-free track in a similar style with AI
+
+**Sound effects** (0)
+
+- No effects added in the edit were found
+
+- Separated stems: `stems/original.wav` (original), `stems/vocals.wav` (dry voice), `stems/music.wav` (music + ambience), `stems/effects.wav` (effects track)
+<!--stems-->
+
+## Open questions
+
+- No AI listened to the soundtrack (the review covered the picture only): real voice versus TTS is inferred from the waveform; the effects were found on the separated effects track and their types are estimated from the sound. Play the stems and each effect under “Sound” to check
+- music source to confirm: most likely stock library music (52%); how to check is under “Sound”
+
+## Appendix
+
+### Shot by shot
+
+Each shot has two parts: what is visible on screen, and how the tools infer it was made (with the basis); remake prompts last. Folded by default.
+
+<details class="ref"><summary>#1 00:00.000–00:00.633 · live action + code / editor overlays (static graphics); brings in real material (live footage)</summary>
 
 ![shot_001](shots/shot_001.jpg)
 
-- Probabilities: live footage 86%, AI-generated video 6%, stop motion 2% (fused)
-- Text on objects in the frame (not post captions): 沉
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=0.43, 128 colors, flat blocks 4%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- [VLM] A real unboxing setting, the carpet texture natural and sharp
-- [VLM] The tape lettering on the box is sharp with realistic perspective distortion
-- [VLM] The physical action and creasing of tearing the polka-dot wrapping paper are extremely natural
-- [VLM] Skin texture, joints and nails on both hands are natural with no warping
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- Picture: top-down POV unboxing, both hands tear open yellow polka-dot wrapping paper to show a cream oval ceramic plate with gray polka dots, with carpet, cardboard boxes, slippers and plush toys in the background.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.3:1 (0.3 stops); soft light (almost no shadow edge)
-- Text track (text / middle): 玲听客户
-- Text track (text / middle): 沉
-- Text track (title / top): 玲听客户专 / 玲听客户专酒
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down POV unboxing view, both hands holding a cream oval ceramic plate with large gray polka dots on the rim, half-torn yellow polka-dot wrapping paper still around the plate. Brown carpet, a shipping box, light-blue slippers and plush toys in the background, warm soft indoor light, real lifestyle photography style.
-  - Video prompt: top-down POV, slightly shaky handheld camera, both hands peel the yellow polka-dot tissue completely off the cream oval plate with gray polka dots and move it out of frame, presenting the whole plate in the center of the frame, brisk natural movement.
+**Visible on screen** (check against the frames)
+- Picture: The right hand pulls a pale-yellow oval plate with blue polka dots out of a yellow polka-dot wrapping cloth and slides it to the center (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.3 stops); soft light (almost no lit / shadow edge)
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #2 00:00.633–00:01.233 · Live footage + code / editor overlays (captions, graphic plate); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.35, 128 colours, 6% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: the right hand pulls a pale-yellow oval plate with blue polka dots out of a yellow polka-dot wrapping cloth and slides it to the center; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. The right hand pulls a pale-yellow oval plate with blue polka dots out of a yellow polka-dot wrapping cloth and slides it to the center, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#2 00:00.633–00:01.233 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
 
 ![shot_002](shots/shot_002.jpg)
 
-- Probabilities: live footage 51%, AI-generated video 40%, 2D animation 2% (fused)
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=0.70, 116 colors, flat blocks 5%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- [VLM] The finger edges blur and warp slightly during the motion
-- [VLM] The black penguin on the plate rim merges non-physically with the plate body as it wobbles
-- [VLM] The letters 'hot dog' on the slippers at the top have distorted edges, unlike real printing
-- [VLM] The texture of the plush toy in the background flickers slightly between frames
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- Picture: top-down view, a pair of hands in the center of the frame holds a striped plate with a penguin ornament and wobbles it slightly to show it, with slippers, plush toys and other cute items scattered around.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; backlit / background brighter than the subject; key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.0:1 (0.1 stops); soft light (almost no shadow edge)
-- Text track (captions / middle): 沉 / 沉浸式
-- Text track (title / top): hotdog / hot dog
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down view, brown carpet background. At the top two pairs of light-blue slippers printed with 'hot dog'. On the right a white rabbit plush and a blue plush toy. On the left a blue-and-white striped box. In the center, a pair of hands holds a blue-and-white striped ceramic plate with a small 3D black penguin on the rim. A polka-dot plate at the bottom. Macaron colors, soft indoor light.
-  - Video prompt: top-down view, a pair of hands holds the blue-and-white striped plate in the center of the frame and wobbles it slightly to show it, a small black penguin ornament on the rim. The slippers, plush toys, boxes and other items scattered around stay still. Fixed camera.
+**Visible on screen** (check against the frames)
+- Picture: Both hands slide a round plate with pale-blue vertical stripes out of a striped bag; a small black penguin figure stands on the rim (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text on objects in the scene (not subtitles): hotdo
+- Text track (text/middle): 沉浸式居
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #3 00:01.233–00:01.833 · Live footage + code / editor overlays (captions, graphic plate); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.51, 115 colours, 4% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: both hands slide a round plate with pale-blue vertical stripes out of a striped bag; a small black penguin figure stands on the rim; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Both hands slide a round plate with pale-blue vertical stripes out of a striped bag; a small black penguin figure stands on the rim, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#3 00:01.233–00:01.833 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
 
 ![shot_003](shots/shot_003.jpg)
 
-- Probabilities: live footage 85%, AI-generated video 6%, 2D animation 2% (fused)
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=0.63, 112 colors, flat blocks 6%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- [VLM] Real hand movement and skin texture
-- [VLM] The translucent plastic bag deforms and reflects naturally
-- [VLM] Background objects (box lettering, slippers, plush toys) have real, stable texture with no warping or flicker
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- [claude visual review] None of the usual AI warping, garbled text or texture flicker; printed text on the packaging (hot dog, PAPA PLATE, the headphone box model number) is clearly legible
-- Picture: top-down view, a pair of hands pulls a cartoon phone case with a stand out of a translucent plastic bag, household items scattered on the carpet in the background.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; front-side key + fill (standard setup); key front left; contrast about 1.4:1 (0.5 stops); soft light (wide shadow transition)
-- Text track (captions / middle): 沉浸式居家 / 沉浸式居家购物
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down view, a pair of hands holding a phone case with a cartoon girl print and a round stand, pulling it out of a translucent plastic bag. Brown carpet in the background with a shipping box, light-blue slippers, plush toys and a polka-dot plate scattered around. Soft natural indoor light, cozy home style, real photography.
-  - Video prompt: top-down view, fixed camera. A pair of hands holds a phone case with a cartoon girl print and slowly pulls it out of a translucent plastic bag, showing the whole case. The household items on the carpet stay still. Natural fluid motion, realistic light and shadow.
+**Visible on screen** (check against the frames)
+- Picture: The left hand holds a cream phone case printed with a cartoon girl while the right hand peels off the clear film; an empty black-lined box lies beside it (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.3:1 (0.4 stops); soft light (wide lit-to-shadow ramp)
+- Text on objects in the scene (not subtitles): hotdm
+- Text track (text/middle): 沉浸式居家购物
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #4 00:01.833–00:02.367 · Live footage + code / editor overlays (captions, graphic plate); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.46, 112 colours, 6% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: the left hand holds a cream phone case printed with a cartoon girl while the right hand peels off the clear film; an empty black-lined box lies beside it; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. The left hand holds a cream phone case printed with a cartoon girl while the right hand peels off the clear film; an empty black-lined box lies beside it, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#4 00:01.833–00:02.367 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
 
 ![shot_004](shots/shot_004.jpg)
 
-- Probabilities: live footage 87%, AI-generated video 5%, 3D rendering 2% (fused)
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=0.92, 94 colors, flat blocks 1%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- Temporal noise 0.61, 61% of pixels unchanged frame to frame: sensor noise present, consistent with live footage
-- [VLM] Real fingers tear open and remove the clear plastic bag, with extremely natural deformation and reflections
-- [VLM] Carpet texture, headphones and plush slippers look real and stay stable between frames with no boiling
-- [VLM] Slight handheld shake and natural focus changes
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- Picture: top-down unboxing scene on the carpet, hands hold a Miffy plush charm and tear off its clear plastic bag, with slippers, headphones and plates arranged around.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; backlit / background brighter than the subject; key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.2:1 (0.3 stops); soft light (almost no shadow edge)
-- Text track (captions / middle): 沉浸式居家购物 / 沉浸式居家购物开箱
-- Text track (title / top): hot dog / hotdog
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down view of a light-brown carpet, in the center a pair of hands holding a Miffy plush in a clear plastic bag, with white over-ear headphones, sky-blue slippers and a polka-dot ceramic plate scattered around, warm soft indoor light, Japanese unboxing style, clean portrait-style photography.
-  - Video prompt: top-down unboxing view, a pair of hands tears the plastic bag off a Miffy plush and takes it away, showing the cute plush, with slippers, headphones and plates neatly arranged around, slight handheld shake, natural everyday feel.
+**Visible on screen** (check against the frames)
+- Picture: The left hand holds a Miffy keychain in a blue sailor outfit while the right hand pulls the clear bag off (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.3:1 (0.3 stops); soft light (almost no lit / shadow edge)
+- Text track (text/middle): 沉浸式居家购物开箱
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #5 00:02.367–00:03.100 · Live footage + code / editor overlays (text labels, graphic plate); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.58, 100 colours, 1% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: the left hand holds a Miffy keychain in a blue sailor outfit while the right hand pulls the clear bag off; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. The left hand holds a Miffy keychain in a blue sailor outfit while the right hand pulls the clear bag off, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#5 00:02.367–00:03.100 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
 
 ![shot_005](shots/shot_005.jpg)
 
-- Probabilities: live footage 86%, AI-generated video 5%, stop motion 2% (fused)
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=0.75, 113 colors, flat blocks 1%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- [VLM] Real fingers squeezing plush material deform it naturally
-- [VLM] The carpet fibers and the plush toy's fur texture are sharp and real
-- [VLM] The camera has a natural faint handheld top-down breathing motion
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- [claude visual review] None of the usual AI warping, garbled text or texture flicker; printed text on the packaging (hot dog, PAPA PLATE, the headphone box model number) is clearly legible
-- Picture: top-down POV, both hands squeeze and show a pair of cute light-blue plush big-eared cartoon house shoes / earmuffs, with the carpet, slippers, headphones and other unboxed items in the background.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.3:1 (0.4 stops); soft light (almost no shadow edge)
-- Text track (text / middle): 沉浸式居家购物开箱
-- Text track (title / top): hotdog
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down POV, both hands cradling a pair of fluffy light-blue cartoon-shaped shoes, light-brown carpet background with a pair of pale-blue slippers and white headphones scattered around, soft indoor light, cozy Japanese feel.
-  - Video prompt: top-down POV, both hands gently squeeze and show the light-blue plush cartoon object, background stays still, fixed camera with faint natural shake, real light and physical interaction.
+**Visible on screen** (check against the frames)
+- Picture: Both hands squeeze a fluffy light-blue plush slipper decorated with pink piggy and cupcake details to show how soft it is (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; three-quarter key + fill (standard set-up); key light frame left, three-quarter front; lighting ratio about 1.8:1 (0.8 stops); hard light (sharp shadow edge)
+- Text track (text/middle): 沉浸式居家购物开箱
+- Text track (text/middle): 真嘟是萌萌的
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #6 00:03.100–00:03.867 · Live footage + code / editor overlays (text labels); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.52, 113 colours, 1% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: both hands squeeze a fluffy light-blue plush slipper decorated with pink piggy and cupcake details to show how soft it is; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Both hands squeeze a fluffy light-blue plush slipper decorated with pink piggy and cupcake details to show how soft it is, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#6 00:03.100–00:03.867 · live action + code / editor overlays (text labels); brings in real material (live footage)</summary>
 
 ![shot_006](shots/shot_006.jpg)
 
-- Probabilities: live footage 91%, 2D animation 2%, 3D rendering 2% (fused)
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=2.96, 97 colors, flat blocks 1%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- Temporal noise 1.76, 13% of pixels unchanged frame to frame: sensor noise present, consistent with live footage
-- [VLM] Real carpet fiber texture with natural reflections
-- [VLM] Every object (headphones, slippers, plates, phone case, plush) is detailed and in fully consistent perspective
-- [VLM] Slight handheld breathing motion
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- Picture: top-down flat lay of cute items on the carpet, including blue slippers, plush slippers, over-ear headphones, ceramic plates, a Miffy charm and a phone case, with slight handheld camera shake.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.1:1 (0.1 stops); soft light (almost no shadow edge)
-- Text track (text / middle): hotdog
-- Text track (text / middle): 真嘟是萌萌的
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down flat-lay view, cute items neatly arranged on a light-brown textured carpet: sky-blue slippers printed with hot dog, light-blue plush monster slippers, white wireless over-ear headphones with their box, a light polka-dot ceramic plate, a striped ceramic plate, a Miffy charm, a small light-colored pouch and a phone case, soft warm indoor light, Japanese lifestyle-goods display style, highly detailed.
-  - Video prompt: top-down shot of assorted cute everyday items laid flat on the carpet, camera stays looking straight down, faint handheld breathing motion, soft warm indoor light, still-life display.
+**Visible on screen** (check against the frames)
+- Picture: No hands in frame, all items laid out flat, the camera drifts slowly (wide flat lay of all items)
+- Camera / lighting: full shot; top-down; Handheld (rear main camera, slow pan); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.1 stops); soft light (almost no lit / shadow edge)
+- Text on objects in the scene (not subtitles): hot dog, hotdog
+- Text track (text/middle): 真嘟是萌萌的
+- [AI assistant review] Every item matches the real products in the unboxing shots; carpet texture and outlines are stable with no warping
+- [AI assistant review] Perspective is natural during the slight pan and the picture has sensor noise
 
-### #7 00:03.867–00:04.533 · Live footage + code / editor overlays (captions, graphic plate); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 82%, 3D render 7%, code / template render 2% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=2.27, 97 colours, 2% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Temporal noise 1.78, 14% of pixels unchanged frame to frame: sensor noise is present, consistent with live action
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: full shot, Items laid out in a grid filling the frame with gaps between; vertical. Vertical 9:16, top-down wide flat lay from directly overhead: all the unboxed items neatly arranged on a brown woven carpet - headphone box and headphones, light-blue slippers, plush slippers, polka-dot oval plate, blue-striped penguin plate, gingham pouch, phone case, Miffy keychain; the first moment of: no hands in frame, all items laid out flat, the camera drifts slowly; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: full shot, Items laid out in a grid filling the frame with gaps between; vertical, camera pan / track. Vertical 9:16, top-down wide flat lay from directly overhead: all the unboxed items neatly arranged on a brown woven carpet - headphone box and headphones, light-blue slippers, plush slippers, polka-dot oval plate, blue-striped penguin plate, gingham pouch, phone case, Miffy keychain. No hands in frame, all items laid out flat, the camera drifts slowly, natural continuous motion, slow drifting camera.
+
+</details>
+
+<details class="ref"><summary>#7 00:03.867–00:04.533 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
 
 ![shot_007](shots/shot_007.jpg)
 
-- Probabilities: live footage 86%, AI-generated video 6%, stop motion 2% (fused)
-- Text on objects in the frame (not post captions): 完好后签收！、您的思顾、您的患顾、感谢您的、请确认商品完、感谢您
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=0.48, 124 colors, flat blocks 3%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- Temporal noise 0.89, 49% of pixels unchanged frame to frame: sensor noise present, consistent with live footage
-- [VLM] Natural hand movement, real skin texture
-- [VLM] The bubble wrap and tape deform correctly under pulling
-- [VLM] The Chinese characters on the tape (such as '感谢您的惠顾') are sharp and stable with no garbling
-- [VLM] Background object textures are real and stay stable throughout
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- Picture: top-down view, a pair of hands tears open a parcel wrapped in bubble wrap and tape printed with red Chinese characters. Boxes, slippers and plush toys scattered in the background.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; front-side key + fill (standard setup); key front left; contrast about 1.5:1 (0.6 stops); soft light (wide shadow transition)
-- Text track (captions / bottom): 完好后签收！ / 您的思顾 / 您的患顾
-- Text track (captions / middle): 款 / 请确认商贴完好后签收 / 感谢您的惠顾 / 买了
-- Text track (captions / middle): 感谢您的 / 请确认商品完 / 感谢您 / 感谢您的息
-- Text track (title / top): 玲听客户专酒 / hotdog / heedg
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down view, a pair of hands in white long sleeves tearing open a parcel wrapped in clear bubble wrap and tape printed with red Chinese characters. Brown carpet in the background with a cardboard box, light-blue slippers and plush toys in plastic bags. Soft indoor light, everyday realistic style.
-  - Video prompt: top-down view, a pair of hands in white long sleeves forcefully tears open a parcel wrapped in clear bubble wrap and tape printed with red Chinese characters, the tape stretching and ripping. Brown carpet in the background with a cardboard box, light-blue slippers and plush toys scattered around. Slight handheld shake, natural continuous movement.
+**Visible on screen** (check against the frames)
+- Picture: The left hand holds a bubble-wrapped parcel while the right fingernail slits along the red-and-white courier tape (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; three-quarter key + fill (standard set-up); key light frame left, three-quarter front; lighting ratio about 1.5:1 (0.6 stops); soft light (wide lit-to-shadow ramp)
+- Text on objects in the scene (not subtitles): Y, 感谢您健
+- Text track (text/middle): 款波点的体子
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #8 00:04.533–00:11.700 · Live footage + code / editor overlays (captions); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.38, 123 colours, 4% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: the left hand holds a bubble-wrapped parcel while the right fingernail slits along the red-and-white courier tape; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. The left hand holds a bubble-wrapped parcel while the right fingernail slits along the red-and-white courier tape, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#8 00:04.533–00:05.167 · live action + code / editor overlays (static graphics); brings in real material (live footage)</summary>
 
 ![shot_008](shots/shot_008.jpg)
 
-- Probabilities: live footage 84%, AI-generated video 6%, 3D rendering 2% (fused)
-- Material: user's real material: live-action footage
-- In-shot motion beat: 10.23 s
-- Photo / video texture: noise σ=0.56, 98 colors, flat blocks 3%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- [VLM] Real hands open the bubble wrap and the yellow polka-dot cloth bag, with extremely natural deformation and feel
-- [VLM] The carpet texture, slippers and the printed lettering on the box tape (iKF etc.) are sharp and real with no distortion
-- [VLM] Natural indoor ambient light and soft shadows, no AI flicker or artifacts on the edges of the hands and objects
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- [claude visual review] None of the usual AI warping, garbled text or texture flicker; printed text on the packaging (hot dog, PAPA PLATE, the headphone box model number) is clearly legible
-- Picture: top-down view, both hands take a plate wrapped in yellow polka-dot cloth out of the bubble wrap, remove the cloth and hold up a cream oval ceramic plate with light-blue polka dots.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.2:1 (0.3 stops); soft light (almost no shadow edge)
-- Text track (captions / middle): 买了一款波点的盘子 / 期待住 / 拿来放早餐应该是很完美了
-- Text track (title / top): hoedog / 玲听客户专活 / hetdisg / 玲听客户专酒
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down view, a beige carpet with a wrapped cardboard box, blue slippers and a plush toy scattered on it, a pair of hands in a white long-sleeved sweatshirt holding up an oval cream ceramic plate with light-blue polka dots on the rim, warm soft natural indoor light.
-  - Video prompt: top-down unboxing view, a pair of hands takes an item wrapped in yellow polka-dot cloth out of clear bubble wrap, gently removes the cloth cover to reveal a cream oval ceramic plate with pale-blue polka dots and holds it level with both hands to show it, fixed camera, natural light, everyday feel.
+**Visible on screen** (check against the frames)
+- Picture: Both hands pull the bubble wrap apart, revealing a yellow polka-dot cloth with a YUU tag inside (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.3 stops); soft light (almost no lit / shadow edge)
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #9 00:11.700–00:17.033 · Live footage + code / editor overlays (text labels, styled text); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 10%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.35, 100 colours, 3% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Temporal noise 0.91, 47% of pixels unchanged frame to frame: sensor noise is present, consistent with live action
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: both hands pull the bubble wrap apart, revealing a yellow polka-dot cloth with a YUU tag inside; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Both hands pull the bubble wrap apart, revealing a yellow polka-dot cloth with a YUU tag inside, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#9 00:05.167–00:05.967 · live action + code / editor overlays (static graphics); brings in real material (live footage)</summary>
 
 ![shot_009](shots/shot_009.jpg)
 
-- Probabilities: live footage 83%, AI-generated video 8%, 2D animation 2% (fused)
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=0.53, 109 colors, flat blocks 4%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- [VLM] Real hands open the mailer and the phone-case box, with natural deformation and creasing
-- [VLM] The printed text on the box is sharp and stable ('聆听客户 专注极致', 'iKF' etc.), the barcode is real
-- [VLM] Slippers, plush toys, plates and other real clutter sit on the carpet with natural diffuse light and shadow
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- [claude visual review] None of the usual AI warping, garbled text or texture flicker; printed text on the packaging (hot dog, PAPA PLATE, the headphone box model number) is clearly legible
-- Picture: top-down view, the creator opens a plastic-wrapped box with both hands, takes out a phone case with a cartoon girl print and a stand and shows it, with slippers, a shipping box and plush toys scattered on the carpet.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.3:1 (0.4 stops); medium softness
-- Text track (text / middle): 手机壳了
-- Text track (title / top): hotdog / 极致 / 玲听客户专 / hedug
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down view, on a light-brown woven carpet a pair of hands in a white long-sleeved sweatshirt opens a box inside a clear plastic bag. Light-blue slippers, a shipping box, plush toys and a small round plate scattered around. Warm cozy light, soft shadows, lifestyle unboxing photography.
-  - Video prompt: fixed top-down camera, both hands tear open the white outer packaging with a black logo, take a light-colored phone case with a cute cartoon girl print and a round magnetic stand out of the inner box, lift it and show the front and back to the camera, with everyday clutter and shipping boxes scattered around.
+**Visible on screen** (check against the frames)
+- Picture: Keep pulling off the bubble wrap and lift out the plate wrapped in yellow polka-dot cloth with a YUU tag (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.3 stops); soft light (almost no lit / shadow edge)
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #10 00:17.033–00:22.900 · Live footage + code / editor overlays (captions); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.37, 128 colours, 4% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: keep pulling off the bubble wrap and lift out the plate wrapped in yellow polka-dot cloth with a YUU tag; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Keep pulling off the bubble wrap and lift out the plate wrapped in yellow polka-dot cloth with a YUU tag, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#10 00:05.967–00:06.567 · live action; brings in real material (live footage)</summary>
 
 ![shot_010](shots/shot_010.jpg)
 
-- Probabilities: live footage 51%, AI-generated video 40%, stop motion 2% (fused)
-- Material: user's real material: live-action footage
-- Likely tool: Kling/Hailuo
-- Photo / video texture: noise σ=0.84, 125 colors, flat blocks 2%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- [VLM] 00:01–00:02 as the right hand pulls out the stand, the fingers lack bone structure, with slight sticking and warping
-- [VLM] 00:03 the camera cutout on the phone case is irregular, not a standard circle
-- [VLM] 00:05 as the phone turns sideways, the body thickness is out of proportion, the edges are uneven, the stand on the back seems to float on the body, and the left hand's fingers merge with the phone edge
-- [VLM] The slippers, plush toys and other objects in the background stay completely still throughout, typical of image-to-video
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- Picture: first-person top-down view, both hands hold a phone case with a cartoon print and a ring stand, pull the stand out and turn it sideways to show the thickness. Background full of cute clutter.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.3:1 (0.4 stops); soft light (wide shadow transition)
-- Text track (captions / middle): 装上新皮肤 / 支架可以调整
-- Text track (title / top): hot dog / hotdog
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: first-person top-down view, both hands holding a clear phone case with a cartoon girl print and a ring stand on the back. Beige carpet in the background with cute items scattered on it: light-blue hot-dog-print slippers, a Miffy plush, blue plush slippers, beige over-ear headphones, a polka-dot plate, a striped pencil case. Soft overall tones, cream style, bright, Xiaohongshu product-recommendation photo style.
-  - Video prompt: both hands hold the phone case, the right hand pinches the ring stand on the back, pulls it open, then lets go. Then both hands turn the case to the right to show its side. Background objects stay completely still. Smooth motion.
+**Visible on screen** (check against the frames)
+- Picture: Both hands hold the cloth-wrapped plate still in the center, showing the YUU tag (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.3 stops); soft light (almost no lit / shadow edge)
+- Text on objects in the scene (not subtitles): YUU, tofarch
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #11 00:22.900–00:23.567 · AI-generated video + code / editor overlays (text labels, graphic plate)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.42, 141 colours, 3% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: both hands hold the cloth-wrapped plate still in the center, showing the YUU tag; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Both hands hold the cloth-wrapped plate still in the center, showing the YUU tag, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#11 00:06.567–00:07.300 · live action + code / editor overlays (static graphics); brings in real material (live footage)</summary>
 
 ![shot_011](shots/shot_011.jpg)
 
-- Probabilities: AI-generated video 51%, live footage 41%, 3D rendering 2% (fused)
-- ⚠️ To be confirmed: live footage / stop motion or AI, to be confirmed: no AIGC label; 24 fps-source traces appear in AI, stop motion and cinema-camera footage alike
-- Material: AI-generated
-- Likely tool: Kling / Hailuo / Runway Gen-3 (image-to-video)
-- Photo / video texture: noise σ=0.42, 97 colors, flat blocks 4%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- [VLM] Every object in the background (slippers, the lettering on the shipping box, the plush) is absolutely pixel-still for the whole clip, without the tiny light changes or camera breathing a real shot would have
-- [VLM] Where the right thumb touches the yellow sponge there is no real physical compression, and the box does not wobble at all while being wiped, typical of the local motion of image-to-video
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- [claude visual review] None of the usual AI warping, garbled text or texture flicker; printed text on the packaging (hot dog, PAPA PLATE, the headphone box model number) is clearly legible
-- Picture: top-down view, a pair of hands in white long sleeves holds a headphone box, the right hand rubs a small yellow sponge back and forth along the edge of the box. Slippers, plush toys, shipping boxes and other clutter scattered on the carpet in the background.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; high key (bright overall, almost no shadows); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.3:1 (0.4 stops); soft light (almost no shadow edge)
-- Text track (text / middle): D.STUDIO
-- Text track (text / middle): 买了新的头戴式耳机
-- Text track (text / middle): KF
-- Text track (title / top): hetdiag / hoedon / CEYD.STUD / hotdag
-- Remake: the original is AI-generated: take the original shot's first and last frames for first/last-frame generation, which reproduces composition and motion closely; to swap the subject, edit the first frame with an image model first
-  - First-frame image prompt: top-down view, a pair of hands in white long sleeves holding a white headphone box, the right hand holding a small yellow sponge. Brown carpet in the background, with light-blue slippers, a white shipping box, plush toys and a phone case scattered around. Soft indoor light, everyday realistic style.
-  - Video prompt: keep the background completely still; both hands hold the headphone box, the right hand rubs a yellow sponge back and forth along the edge of the box, natural continuous movement.
+**Visible on screen** (check against the frames)
+- Picture: The right hand unties the knot on top of the cloth and loosens it (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.3 stops); soft light (almost no lit / shadow edge)
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #12 00:23.567–00:30.000 · Live footage + code / editor overlays (captions); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.43, 148 colours, 3% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: the right hand unties the knot on top of the cloth and loosens it; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. The right hand unties the knot on top of the cloth and loosens it, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#12 00:07.300–00:08.233 · live action + code / editor overlays (subtitles, static graphics); brings in real material (live footage)</summary>
 
 ![shot_012](shots/shot_012.jpg)
 
-- Probabilities: live footage 84%, AI-generated video 6%, 3D rendering 2% (fused)
-- Material: user's real material: live-action footage
-- In-shot motion beat: 28.93 s
-- Photo / video texture: noise σ=0.62, 89 colors, flat blocks 4%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- [VLM] Finger joints, nail reflections and movements fully obey physics, no AI distortion
-- [VLM] The Chinese and English type on the box is sharp and crisp (IKF King Pro)
-- [VLM] Surrounding real objects (slippers, shipping boxes, carpet pile) are detailed and consistent
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- [claude visual review] None of the usual AI warping, garbled text or texture flicker; printed text on the packaging (hot dog, PAPA PLATE, the headphone box model number) is clearly legible
-- Picture: top-down view, the unboxer opens the packaging of off-white over-ear headphones on the beige carpet, takes the headphones out and shows them to the camera.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; backlit / background brighter than the subject; key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.2:1 (0.3 stops); soft light (wide shadow transition)
-- Text track (text / middle): D.STUDIO
-- Text track (captions / middle): 的头戴式耳机 / 起拆开看看吧 / 还是喜欢这种淡淡的颜色
-- Text track (text / middle): IKF King Pro
-- Text track (title / top): het dag / hoedg / CEYD.STUD / hotdog
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down view, an opened off-white over-ear headphone box on a beige carpet, light-blue slippers and a small plate beside it, both hands lifting the headphones out, warm bright soft indoor light, fresh soothing tones, live-footage look.
-  - Video prompt: fixed top-down camera, a pair of hands lifts off-white over-ear headphones out of the box insert and opens them up in front of the camera to show the front and the earcups, gentle natural movement, soft bright light.
+**Visible on screen** (check against the frames)
+- Picture: Pull the pale-yellow blue-dotted oval plate out of the cloth; the cloth slides to the left and the plate settles in the center (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.3 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/middle): 拿来放早应该是很完美了 / 拿来放早餐应该是很完美了
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #13 00:30.000–00:31.200 · AI-generated video + code / editor overlays (text labels, static sticker)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.39, 101 colours, 6% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: pull the pale-yellow blue-dotted oval plate out of the cloth; the cloth slides to the left and the plate settles in the center; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Pull the pale-yellow blue-dotted oval plate out of the cloth; the cloth slides to the left and the plate settles in the center, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#13 00:08.233–00:10.233 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
 
 ![shot_013](shots/shot_013.jpg)
 
-- Probabilities: AI-generated video 50%, live footage 40%, 3D rendering 3% (fused)
-- ⚠️ To be confirmed: live footage / stop motion or AI, to be confirmed: no AIGC label; 24 fps-source traces appear in AI, stop motion and cinema-camera footage alike
-- Material: AI-generated
-- Likely tool: Kling / Hailuo
-- Photo / video texture: noise σ=0.60, 76 colors, flat blocks 2%
-- Re-transcoded by the platform (Douyin/TikTok), sensor noise crushed: noise-based evidence is void, live vs AI rests mainly on frame rate and picture content
-- [VLM] Finger edges and joints (especially the thumbs) lack real detail and look slightly stiff
-- [VLM] As the thumbs press the earcups the deformation lacks real physical feedback, with slight pixel blending / sticking
-- [VLM] Apart from the hands and parts of the headphones, the background (lamp, box) is absolutely still, typical of the local motion of image-to-video
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- [claude visual review] None of the usual AI warping, garbled text or texture flicker; printed text on the packaging (hot dog, PAPA PLATE, the headphone box model number) is clearly legible
-- Picture: first-person view, both hands hold a pair of white over-ear headphones, thumbs pressing the earcups to show how soft they are. Carpet, a lamp and the box in the background. Fixed close-up.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; backlit / background brighter than the subject; key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.3:1 (0.4 stops); soft light (almost no shadow edge)
-- Text track (text / middle): 软软的挺舒服
-- Remake: the original is AI-generated: take the original shot's first and last frames for first/last-frame generation, which reproduces composition and motion closely; to swap the subject, edit the first frame with an image model first
-  - First-frame image prompt: first-person view, both hands holding a pair of white over-ear headphones, with L and R marked inside the earcups. Light-brown carpet, a small lamp with a blue base and the white headphone box in the background. Warm tones, soft bright light, close-up, cozy atmosphere, high image quality.
-  - Video prompt: both hands hold the white over-ear headphones; the left and right thumbs gently press the foam of each earcup, the foam dents slightly to show how soft it is, then they release. Background objects stay completely still, fixed close-up.
+**Visible on screen** (check against the frames)
+- Picture: Both hands hold the rim and tilt the plate back and forth, showing the glaze highlights and blue dots (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; backlit / background brighter than subject; key light frame right, three-quarter front; lighting ratio about 1.4:1 (0.5 stops); soft light (wide lit-to-shadow ramp)
+- Text track (text/middle): 拿来放早餐应该是很完美了
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #14 00:31.200–00:34.500 · Live footage + code / editor overlays (text labels, static sticker); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.47, 98 colours, 5% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: both hands hold the rim and tilt the plate back and forth, showing the glaze highlights and blue dots; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Both hands hold the rim and tilt the plate back and forth, showing the glaze highlights and blue dots, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#14 00:10.233–00:11.700 · live action + code / editor overlays (static graphics); brings in real material (live footage)</summary>
 
 ![shot_014](shots/shot_014.jpg)
 
-- Probabilities: live footage 50%, AI-generated video 40%, 3D rendering 2% (fused)
-- Material: user's real material: live-action footage
-- Likely tool: Kling / Hailuo
-- Photo / video texture: noise σ=0.66, 97 colors, flat blocks 4%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- [VLM] Finger structure and joint bending look unnatural, especially the thumbs
-- [VLM] The edges and material of the headphones warp slightly and 'boil' as they turn
-- [VLM] Every object in the background (slippers, plates, plush toys) stays completely still with no perspective change or small movement, typical of the frozen background in image-to-video
-- [VLM] The text 'hot dog' on the slippers and the text on the box at the left have blurry edges, an AI-generation trait
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- Picture: first-person top-down view, both hands hold a pair of off-white over-ear headphones and turn them over in front of the camera, carpet and scattered clutter in the background.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; backlit / background brighter than the subject; key front left; contrast about 1.5:1 (0.5 stops); soft light (wide shadow transition)
-- Text track (text / middle): 和队友打游戏也可以用
-- Text track (title / top): hot dog / hotdog / CmY / hot deg
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: first-person top-down view, both hands holding a pair of off-white over-ear headphones with a microphone. Brown carpet in the background, with a white box, a pair of light-blue slippers printed with 'hot dog', a blue plush toy and a small plate with blue polka dots scattered around. Soft indoor light, realistic photography style.
-  - Video prompt: both hands hold the headphones and turn them left and right to show different angles, background objects stay completely still.
+**Visible on screen** (check against the frames)
+- Picture: Move the plate to the left and turn it to another angle to show the glaze (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.3 stops); soft light (almost no lit / shadow edge)
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #15 00:34.500–00:36.167 · Live footage + code / editor overlays (captions, graphic plate); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.48, 91 colours, 6% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: move the plate to the left and turn it to another angle to show the glaze; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Move the plate to the left and turn it to another angle to show the glaze, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#15 00:11.700–00:12.467 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
 
 ![shot_015](shots/shot_015.jpg)
 
-- Probabilities: live footage 85%, AI-generated video 5%, 3D rendering 2% (fused)
-- Material: user's real material: live-action footage; remake reference: product reference image
-- Photo / video texture: noise σ=0.62, 87 colors, flat blocks 2%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- [VLM] Natural small hand movements, nail detail and sleeve creases
-- [VLM] The headphones' metal headband extends smoothly and the mechanical structure is entirely plausible
-- [VLM] The carpet texture and the reflection on the small lamp in the background are real and natural
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- [claude visual review] None of the usual AI warping, garbled text or texture flicker; printed text on the packaging (hot dog, PAPA PLATE, the headphone box model number) is clearly legible
-- Picture: top-down tabletop view, both hands pick up off-white over-ear headphones and extend the headband to adjust its length, with a small lamp, plates and the box in the background.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.2:1 (0.3 stops); soft light (almost no shadow edge)
-- Text track (captions / middle): 可以调节 / 可
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame); reference for generation: product reference image
-  - First-frame image prompt: top-down view, a pair of hands in white long sleeves adjusting off-white over-ear headphones, a small lamp, a snack plate and the box on a blanket background, warm soft indoor light.
-  - Video prompt: fixed top-down camera, both hands hold the off-white over-ear headphones and pull the headband out on both sides to show the adjustment mechanism, steady natural movement, warm soft indoor light.
+**Visible on screen** (check against the frames)
+- Picture: Pull a small white printed box out of a silver courier bag (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.3 stops); soft light (almost no lit / shadow edge)
+- Text track (text/middle): 好久没买手机壳
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #16 00:36.167–00:36.800 · Live footage + code / editor overlays (graphic plate); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.45, 101 colours, 4% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: pull a small white printed box out of a silver courier bag; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Pull a small white printed box out of a silver courier bag, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#16 00:12.467–00:13.267 · live action + code / editor overlays (static graphics); brings in real material (live footage)</summary>
 
 ![shot_016](shots/shot_016.jpg)
 
-- Probabilities: live footage 84%, AI-generated video 6%, 3D rendering 2% (fused)
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=0.60, 87 colors, flat blocks 2%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- [VLM] Real hand detail with natural skin creases and joint movement
-- [VLM] The headphones' metal slider clicks and slides physically, with real sheen and reflections
-- [VLM] Carpet texture, the lit lamp, plates and plush toys have consistent light and shadow as real props
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- [claude visual review] None of the usual AI warping, garbled text or texture flicker; printed text on the packaging (hot dog, PAPA PLATE, the headphone box model number) is clearly legible
-- Picture: top-down first-person view, both hands extend the telescoping headband of the off-white headphones to show it, with the carpet, a lamp, plates and other home objects in the background.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; front-side key + fill (standard setup); key front right; contrast about 1.4:1 (0.5 stops); soft light (wide shadow transition)
-- Text track (text / bottom): 中
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down close-up, hands in white long sleeves holding and adjusting the headband of off-white over-ear headphones, a warm yellow carpet, a retro lamp, a polka-dot plate and a plush toy in the background, soft warm indoor light.
-  - Video prompt: fixed top-down close-up, both hands hold the two ends of the off-white headphones, pull them outward to show the metal slider, then push them back, gentle natural movement, warm soft light.
+**Visible on screen** (check against the frames)
+- Picture: Take the white box printed with STRONG PROTECTION and small black icons fully out of the bag (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.1:1 (0.1 stops); soft light (almost no lit / shadow edge)
+- Text on objects in the scene (not subtitles): D, QUIGKHELP, STRONG, OTECTON, PROTECTION, QUICKY
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #17 00:36.800–00:39.933 · Live footage + code / editor overlays (captions, text labels, graphic plate, styled text); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.44, 105 colours, 7% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: take the white box printed with STRONG PROTECTION and small black icons fully out of the bag; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Take the white box printed with STRONG PROTECTION and small black icons fully out of the bag, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#17 00:13.267–00:14.133 · live action + code / editor overlays (static graphics); brings in real material (live footage)</summary>
 
 ![shot_017](shots/shot_017.jpg)
 
-- Probabilities: live footage 85%, AI-generated video 6%, stop motion 2% (fused)
-- Text on objects in the frame (not post captions): 提碳疗级、立部休浆、设品名称、美己买使利升货！、三、名大升级期节等你来探装
-- Material: user's real material: live-action footage; remake reference: product reference image
-- Photo / video texture: noise σ=0.40, 142 colors, flat blocks 4%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- Re-transcoded by the platform (Douyin/TikTok), sensor noise crushed: noise-based evidence is void, live vs AI rests mainly on frame rate and picture content
-- [VLM] A real hand holds an iPhone and taps on the screen, knuckles and skin texture natural
-- [VLM] Real unboxed items scattered in the background (off-white over-ear headphones, box, slippers, pouch)
-- [VLM] The handheld camera has slight breathing and natural focus changes
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- Picture: top-down POV, one hand holds a phone and operates the headphones' companion app, with the off-white headphones and other unboxed items scattered on the carpet in the background, natural indoor light.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.1:1 (0.2 stops); soft light (almost no shadow edge)
-- Text track (captions / middle): 升设通关之像！ / 视升级 / app里有贴心的介绍 / 23.16
-- Text track (captions / middle): 提碳疗级 / 立部休浆 / 设品名称 / ?
-- Text track (captions / middle): 美己买使利升货！ / 三 / 名大升级期节等你来探装
-- Text track (text / middle): 级升份
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame); reference for generation: product reference image
-  - First-frame image prompt: first-person top-down close-up, a fair hand holding an iPhone, the lit screen showing the headphone pairing app, a beige carpet in the background with off-white over-ear headphones, the box and light-blue slippers scattered on it, soft warm-white indoor light, real photographic feel.
-  - Video prompt: first-person top-down view, slightly shaky handheld phone camera, one hand holds a smartphone and taps and swipes on the screen, showing the companion app switching pages, with the headphones and unboxed items on the carpet in the background, real light and shadow and a slight handheld focus feel.
+**Visible on screen** (check against the frames)
+- Picture: Open the lid of the white box to reveal the phone case inside (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.3:1 (0.3 stops); soft light (wide lit-to-shadow ramp)
+- Text on objects in the scene (not subtitles): 小玉小王
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #18 00:39.933–00:43.033 · Live footage + code / editor overlays (text labels, static sticker); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.42, 98 colours, 6% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: open the lid of the white box to reveal the phone case inside; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Open the lid of the white box to reveal the phone case inside, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#18 00:14.133–00:14.967 · live action + code / editor overlays (static graphics); brings in real material (live footage)</summary>
 
 ![shot_018](shots/shot_018.jpg)
 
-- Probabilities: live footage 82%, AI-generated video 8%, 2D animation 2% (fused)
-- Text on objects in the frame (not post captions): 放级、放旗L、放模L
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=0.32, 106 colors, flat blocks 6%
-- Re-transcoded by the platform (Douyin/TikTok), sensor noise crushed: noise-based evidence is void, live vs AI rests mainly on frame rate and picture content
-- [VLM] Real hands hold the headphones and the phone, skin texture and handheld micro-shake natural
-- [VLM] The phone screen clearly shows a music player UI, and the highlights reflect naturally as the angle changes
-- [VLM] The carpet, slippers and box in the background have real indoor diffuse light and shadow
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- [claude visual review] None of the usual AI warping, garbled text or texture flicker; printed text on the packaging (hot dog, PAPA PLATE, the headphone box model number) is clearly legible
-- Picture: first-person top-down view, hands hold the over-ear headphones and a phone playing music, with the carpet, the headphone box and other clutter in the background.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.1:1 (0.1 stops); soft light (almost no shadow edge)
-- Text track (text / middle): 音质很不错还有50分贝降噪
-- Text track (captions / middle): 放级 / 放旗L / 放模L
-- Text track (title / top): Hg
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down view, both hands holding objects, the left hand holding off-white over-ear noise-cancelling headphones, the right hand holding a smartphone with a lit screen playing music, a light-brown carpet, the headphone box and slippers in the background, warm soft indoor light, realistic lifestyle style.
-  - Video prompt: first-person slightly high-angle view, both hands sway a little to show the off-white over-ear headphones and the lit phone, the phone screen showing a music player, natural handheld micro-shake, held slightly tilted above the indoor carpet.
+**Visible on screen** (check against the frames)
+- Picture: Peel the clear film off the phone case; the empty black-lined box lies beside it (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; three-quarter key + fill (standard set-up); key light frame left, three-quarter front; lighting ratio about 1.4:1 (0.5 stops); medium-soft
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #19 00:43.033–00:44.000 · Live footage + code / editor overlays (captions, static sticker); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.51, 109 colours, 6% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: peel the clear film off the phone case; the empty black-lined box lies beside it; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Peel the clear film off the phone case; the empty black-lined box lies beside it, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#19 00:14.967–00:15.633 · live action + code / editor overlays (static graphics); brings in real material (live footage)</summary>
 
 ![shot_019](shots/shot_019.jpg)
 
-- Probabilities: live footage 88%, 3D rendering 6%, 2D animation 2% (fused)
-- Text on objects in the frame (not post captions): O、C
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=2.57, 68 colors, flat blocks 4%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- Temporal noise 1.65, 10% of pixels unchanged frame to frame: sensor noise present, consistent with live footage
-- [VLM] The carpet fibers and the paper texture of the box are extremely real and detailed
-- [VLM] The headphones' plastic and the earcup leather show natural diffuse reflection and faint shadows
-- [VLM] The camera has the natural slight shake and perspective change of a handheld phone
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- Picture: top-down close-up of white over-ear noise-cancelling headphones with an external microphone and their box lying on the carpet, a handheld phone pans slightly to show them.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.2:1 (0.2 stops); soft light (almost no shadow edge)
-- Text track (captions / middle): O / C
-- Text track (captions / middle): 喜欢喜欢 / ing Pro头意 / 喜欢喜欢? / g Pro 头真
-- Text track (text / middle): King Pro 头戴式
-- Text track (title / top): C
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down close-up, pure white wireless over-ear headphones with a metal external microphone on a beige coarse-fiber carpet, the white headphone box beside them, soft warm indoor light, realistic photographic feel
-  - Video prompt: handheld phone top-down close-up, slight handheld shake with a panning look around, filming the white over-ear headphones and their box on the beige carpet, even soft light
+**Visible on screen** (check against the frames)
+- Picture: Tear the paper insert out of the inside of the case (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.3:1 (0.3 stops); soft light (wide lit-to-shadow ramp)
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #20 00:44.000–00:44.900 · Live footage; introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.40, 115 colours, 5% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: tear the paper insert out of the inside of the case; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Tear the paper insert out of the inside of the case, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#20 00:15.633–00:17.033 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
 
 ![shot_020](shots/shot_020.jpg)
 
-- Probabilities: live footage 87%, 3D rendering 6%, 2D animation 2% (fused)
-- Text on objects in the frame (not post captions): 6
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=1.98, 68 colors, flat blocks 4%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- Temporal noise 1.63, 13% of pixels unchanged frame to frame: sensor noise present, consistent with live footage
-- [VLM] The carpet fibers look real and natural, no AI texture drift or boiling
-- [VLM] Highlights and reflections on the white plastic headphone shell transition naturally, and the shadow at the box edge obeys physics
-- [VLM] The slight, real breathing shake of handheld shooting
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- Picture: white over-ear noise-cancelling headphones resting on a brown carpet with the product box behind them, shown in a top-down close shot.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.1:1 (0.1 stops); soft light (almost no shadow edge)
-- Text track (text / middle): O
-- Text track (title / top): 6
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down close-up, a pair of cream-white wireless over-ear headphones lying flat on a brown woven carpet, the matching white product box in the background, soft warm indoor light, consumer-electronics product photography, realistic style.
-  - Video prompt: slight handheld high-angle shot, held on the cream-white over-ear headphones and the box behind them on the carpet, with a faint handheld breathing sway, static display.
+**Visible on screen** (check against the frames)
+- Picture: Both hands hold up the case to show the cartoon-girl print and the magnetic ring on the back (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.2 stops); soft light (almost no lit / shadow edge)
+- Text track (text/middle): 装上新皮肤
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #21 00:44.900–00:46.333 · Live footage + code / editor overlays (text labels, graphic plate); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.56, 118 colours, 4% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: both hands hold up the case to show the cartoon-girl print and the magnetic ring on the back; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Both hands hold up the case to show the cartoon-girl print and the magnetic ring on the back, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#21 00:17.033–00:18.533 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
 
 ![shot_021](shots/shot_021.jpg)
 
-- Probabilities: live footage 87%, AI-generated video 5%, 2D animation 2% (fused)
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=0.65, 110 colors, flat blocks 1%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- Temporal noise 0.78, 53% of pixels unchanged frame to frame: sensor noise present, consistent with live footage
-- [VLM] Real hands open a plastic bag, with physically real finger detail and bag reflections and creases
-- [VLM] The woven carpet, the headphone box, slippers and other items have natural, stable light and texture, no AI warping
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- [claude visual review] None of the usual AI warping, garbled text or texture flicker; printed text on the packaging (hot dog, PAPA PLATE, the headphone box model number) is clearly legible
-- Picture: top-down floor unboxing, both hands take plush blue cotton slippers out of a clear zip bag, with the headphones, another pair of slippers and a pouch arranged around.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.2:1 (0.2 stops); soft light (almost no shadow edge)
-- Text track (text / middle): 买了新的棉拖鞋
-- Text track (title / top): hot dog / hotdog / hoedog
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down view, white over-ear headphones, blue slippers and a makeup bag on a cream woven carpet, in the center a pair of hands opening a clear plastic bag holding a pair of fluffy light-blue cartoon cotton slippers, soft warm indoor light, lifestyle unboxing photography.
-  - Video prompt: fixed top-down camera, both hands slowly pull a pair of light-blue plush cartoon cotton slippers out of a clear plastic bag and show them to the camera, with the headphones and everyday items neatly arranged on the floor, natural fluid movement, realistic lifestyle unboxing style.
+**Visible on screen** (check against the frames)
+- Picture: Fit the case onto a phone and press the edges in (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.3 stops); soft light (wide lit-to-shadow ramp)
+- Text track (text/middle): 装上新皮肤
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #22 00:46.333–00:49.867 · Live footage + code / editor overlays (captions, graphic plate); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.65, 122 colours, 3% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: fit the case onto a phone and press the edges in; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Fit the case onto a phone and press the edges in, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#22 00:18.533–00:20.567 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
 
 ![shot_022](shots/shot_022.jpg)
 
-- Probabilities: live footage 86%, AI-generated video 5%, 2D animation 2% (fused)
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=0.77, 111 colors, flat blocks 1%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- [VLM] Real finger deformation and handling, natural continuous movement
-- [VLM] The fabric fibers and the stuffing of the plush slippers deform realistically
-- [VLM] The woven carpet texture, headphones, plates and other items keep stable perspective with no AI artifacts
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- [claude visual review] None of the usual AI warping, garbled text or texture flicker; printed text on the packaging (hot dog, PAPA PLATE, the headphone box model number) is clearly legible
-- Picture: top-down view, both hands pick up and show a pair of light-blue plush cartoon cotton slippers, with the headphones, plates and another pair of slippers scattered in the background, soft natural indoor light.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.1:1 (0.2 stops); soft light (almost no shadow edge)
-- Text track (captions / middle): 软乎乎的 / 平的
-- Text track (title / top): hoedog / hotdog
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down, both hands holding a pair of light-blue plush big-eared cartoon animal slippers decorated with small 3D cakes. A beige-brown woven carpet, a retro polka-dot plate and over-ear headphones in the background. Warm soft natural indoor light, fresh soothing Japanese style, rich detail.
-  - Video prompt: top-down view, both hands take out one light-blue big-eared cartoon plush slipper, then put the other next to it to show the pair, and gently squeeze the slippers to show how soft and fluffy they are. Slight handheld camera movement, soft indoor light.
+**Visible on screen** (check against the frames)
+- Picture: Hold up the phone in its new case and tilt it back and forth (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; three-quarter key + fill (standard set-up); key light frame right, three-quarter front; lighting ratio about 1.4:1 (0.5 stops); soft light (wide lit-to-shadow ramp)
+- Text track (text/middle): 支架可以调整
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #23 00:49.867–00:51.600 · Live footage + code / editor overlays (captions, graphic plate); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.73, 126 colours, 2% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: hold up the phone in its new case and tilt it back and forth; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Hold up the phone in its new case and tilt it back and forth, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#23 00:20.567–00:21.900 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
 
 ![shot_023](shots/shot_023.jpg)
 
-- Probabilities: live footage 86%, AI-generated video 5%, 2D animation 2% (fused)
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=0.67, 104 colors, flat blocks 3%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- [VLM] Real hand movement, skin texture and clothing creases
-- [VLM] Natural physical interaction (slitting the tape, opening the box flaps)
-- [VLM] Real material textures (carpet, corrugated box, plush toys)
-- [VLM] The text 'hot dog' on the slippers is sharp and stable with no warping
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- Picture: top-down view, a pair of hands in white long sleeves slits open a shipping box on the carpet with a small knife, revealing the Miffy plush charm inside, with slippers, headphones and other cute items scattered around.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; backlit / background brighter than the subject; key front right; contrast about 1.7:1 (0.8 stops); soft light (wide shadow transition)
-- Text track (captions / middle): 应该是我的米菲小挂件 / 啊啊啊激动~ / 啊啊啊激动
-- Text track (title / top): hoedog / hotdog / hot dog
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down view, an unopened small shipping box centered on a brown carpet, with light-blue slippers, white over-ear headphones, a blue checked makeup bag and a blue plush toy scattered around. A pair of hands in white long sleeves holds a small yellow knife, about to slit the box open. Soft warm indoor light, fresh Japanese style.
-  - Video prompt: top-down view, a pair of hands in white long sleeves slits the tape of the small shipping box in the center of the carpet with a small yellow knife, then opens the box flaps with both hands to reveal the Miffy plush charm inside. Slippers, headphones and other items in the background. Natural fluid movement, fixed camera.
+**Visible on screen** (check against the frames)
+- Picture: The right hand flips open the magnetic ring stand on the back and rotates it (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; three-quarter key + fill (standard set-up); key light frame right, three-quarter front; lighting ratio about 1.6:1 (0.7 stops); soft light (wide lit-to-shadow ramp)
+- Text track (text/middle): 支架可以调整
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #24 00:51.600–00:58.733 · Live footage + code / editor overlays (captions); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.64, 122 colours, 2% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: the right hand flips open the magnetic ring stand on the back and rotates it; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. The right hand flips open the magnetic ring stand on the back and rotates it, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#24 00:21.900–00:22.900 · live action; brings in real material (live footage)</summary>
 
 ![shot_024](shots/shot_024.jpg)
 
-- Probabilities: live footage 85%, AI-generated video 7%, 3D rendering 2% (fused)
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=0.84, 96 colors, flat blocks 1%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- Temporal noise 0.53, 66% of pixels unchanged frame to frame: sensor noise present, consistent with live footage
-- [VLM] Both hands open the parcel and plastic wrap with a real physical feel, finger detail and nails natural with no warping
-- [VLM] The plastic bag's reflections, creases and friction fully follow real physics
-- [VLM] The plush toys, headphones, slippers and other clutter around have real fabric and plastic textures
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- Picture: first-person top-down view, both hands take the Miffy plush charm out of the box and open its clear plastic bag to show it, with slippers, headphones and other everyday items around, soft diffuse indoor light.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.1:1 (0.1 stops); soft light (almost no shadow edge)
-- Text track (captions / middle): 啊啊啊激动~ / 萌翻啦！ / 好可爱！
-- Text track (text / middle): UBE
-- Text track (title / top): hoedog / hot dog / hotdog
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down shot, on a brown carpet both hands open a small corrugated box holding a Miffy plush charm in a clear plastic bag, with sky-blue slippers, over-ear headphones and plush toys scattered in the background, soft warm indoor light, everyday feel.
-  - Video prompt: first-person top-down view, both hands take a Miffy plush charm in a clear bag out of the box, remove the bag and hold the charm up to the camera, with headphones and plush slippers scattered around, fixed camera, soft indoor light.
+**Visible on screen** (check against the frames)
+- Picture: Stand the phone on its ring stand with its side facing the camera (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; backlit / background brighter than subject; key light frame left, three-quarter front; lighting ratio about 1.4:1 (0.5 stops); hard light (sharp shadow edge)
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #25 00:58.733–01:01.033 · Live footage + code / editor overlays (captions); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.83, 129 colours, 2% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: stand the phone on its ring stand with its side facing the camera; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Stand the phone on its ring stand with its side facing the camera, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#25 00:22.900–00:23.567 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
 
 ![shot_025](shots/shot_025.jpg)
 
-- Probabilities: live footage 87%, AI-generated video 5%, 2D animation 2% (fused)
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=0.78, 113 colors, flat blocks 3%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- Temporal noise 0.63, 57% of pixels unchanged frame to frame: sensor noise present, consistent with live footage
-- [VLM] Real hands physically open the box and take out the ceramic plate
-- [VLM] Carpet fiber detail is sharp, with contact and occlusion entirely consistent with reality
-- [VLM] Natural skin texture on the hands, no AI artifacts or warping
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- Picture: top-down view, both hands open a blue-and-white striped box and take out a striped ceramic plate with a small penguin on the rim, slippers and plush toys scattered around, natural diffuse indoor light.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; high key (bright overall, almost no shadows); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.0:1 (0.0 stops); soft light (almost no shadow edge)
-- Text track (text / middle): PAPA PLATE
-- Text track (captions / middle): 是 / 一个小盘子 / 是一个小盘子
-- Text track (title / top): hoedog / hotdog / hot dog
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down view, on a beige plush carpet both hands holding a paper box printed with blue stripes and a small penguin, with light-blue slippers, plush toys and a white headphone box scattered in the background, soft diffuse indoor light, warm Japanese lifestyle look, high resolution, rich detail.
-  - Video prompt: fixed top-down view, both hands open the penguin-striped box and steadily pull out a blue-and-white striped ceramic plate with a small 3D penguin ornament and show it, natural fluid movement, soft indoor light.
+**Visible on screen** (check against the frames)
+- Picture: The left hand holds the white headphone box while the right hand slits the seal with a small yellow box cutter (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; high key (bright overall, almost no shadows); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.3:1 (0.4 stops); soft light (almost no lit / shadow edge)
+- Text track (text/middle): 买了新的头戴式耳机
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #26 01:01.033–01:04.067 · Live footage + code / editor overlays (text labels, graphic plate); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.40, 96 colours, 4% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: the left hand holds the white headphone box while the right hand slits the seal with a small yellow box cutter; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. The left hand holds the white headphone box while the right hand slits the seal with a small yellow box cutter, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#26 00:23.567–00:24.333 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
 
 ![shot_026](shots/shot_026.jpg)
 
-- Probabilities: live footage 85%, AI-generated video 6%, 2D animation 2% (fused)
-- Text on objects in the frame (not post captions): Q
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=0.53, 121 colors, flat blocks 4%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- [VLM] Both hands move the ceramic plate slightly and the glaze highlights shift continuously and naturally with the angle
-- [VLM] The headphones, slippers, plush toys and wrapping paper in the background have real, stable texture and light
-- [VLM] Printed text around (such as 'hot dog', 'PAPA PLATE') is sharp and regular with no AI distortion
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- [claude visual review] None of the usual AI warping, garbled text or texture flicker; printed text on the packaging (hot dog, PAPA PLATE, the headphone box model number) is clearly legible
-- Picture: top-down view, both hands show a blue-and-white striped ceramic plate with a small 3D penguin on the rim, with headphones, slippers, cute plush toys and other goods filling the background.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; high key (bright overall, almost no shadows); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.0:1 (0.1 stops); soft light (almost no shadow edge)
-- Text track (text / middle): 立体小企鹅
-- Text track (text / middle): Q
-- Text track (title / top): hotdog / hoedog / hot dog
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down view, both hands holding up a ceramic plate with a small 3D penguin sculpture on the rim and light-blue watercolor stripes on the surface. A beige carpet in the background with light-blue slippers, white over-ear headphones and plush toys, soft indoor light, cozy Japanese lifestyle-goods style, high-resolution close-up.
-  - Video prompt: fixed top-down camera, both hands hold the blue-and-white striped penguin ceramic plate steadily, tilt it slightly left and right to show the glaze sheen, then hold it centered. Background props stay still, bright soft natural light.
+**Visible on screen** (check against the frames)
+- Picture: Both hands lift the outer box printed with a photo of cream headphones and strip off the shrink wrap (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; high key (bright overall, almost no shadows); key light frame left, three-quarter front; lighting ratio about 1.5:1 (0.5 stops); soft light (wide lit-to-shadow ramp)
+- Text track (text/middle): 了新的头戴式耳机
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #27 01:04.067–01:08.867 · Live footage + code / editor overlays (captions); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 70%, AI-generated video 10%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.29, 82 colours, 11% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Temporal noise 0.91, 45% of pixels unchanged frame to frame: sensor noise is present, consistent with live action
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: both hands lift the outer box printed with a photo of cream headphones and strip off the shrink wrap; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Both hands lift the outer box printed with a photo of cream headphones and strip off the shrink wrap, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#27 00:24.333–00:24.900 · live action + code / editor overlays (static graphics); brings in real material (live footage)</summary>
 
 ![shot_027](shots/shot_027.jpg)
 
-- Probabilities: live footage 87%, AI-generated video 5%, stop motion 2% (fused)
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=0.90, 116 colors, flat blocks 1%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- Temporal noise 0.61, 63% of pixels unchanged frame to frame: sensor noise present, consistent with live footage
-- [VLM] Real hand movement and natural fabric creasing
-- [VLM] The carpet texture, headphones, plush toys and other everyday props are physically consistent and real
-- [VLM] Natural handheld shake and real motion blur
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- Picture: top-down view, the creator shows and turns over a homemade yellow-and-blue checked bear-print makeup bag with both hands, with the carpet, slippers, headphones and plush toys in the background.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; backlit / background brighter than the subject; key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.0:1 (0.1 stops); soft light (wide shadow transition)
-- Text track (captions / middle): 给哈哈一定要分享这个自己做的化妆包 / 蓝色小熊
-- Text track (text / middle): ballay
-- Text track (text / middle): hellds
-- Text track (title / top): hetdog / hotdog / hot deog / hot dog
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down, both hands holding up a quilted zip makeup bag in pale yellow and pale blue check with a cartoon bear print on the carpet, with white over-ear headphones, sky-blue slippers and plush toys scattered in the background, warm soft indoor light, real lifestyle look, vertical.
-  - Video prompt: top-down shot, both hands hold the yellow-and-blue checked bear makeup bag forward to show it, turn it over and pull the zipper open, with the bedroom carpet and scattered cute stationery props in the background, even soft indoor light, real live-action movement.
+**Visible on screen** (check against the frames)
+- Picture: Set the box straight in the center to show the front of the package (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; three-quarter key + fill (standard set-up); key light frame left, three-quarter front; lighting ratio about 1.4:1 (0.5 stops); soft light (wide lit-to-shadow ramp)
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #28 01:08.867–01:09.900 · Live footage; introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 10%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.32, 82 colours, 10% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Temporal noise 0.92, 47% of pixels unchanged frame to frame: sensor noise is present, consistent with live action
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: set the box straight in the center to show the front of the package; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Set the box straight in the center to show the front of the package, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#28 00:24.900–00:25.667 · live action + code / editor overlays (text labels); brings in real material (live footage)</summary>
 
 ![shot_028](shots/shot_028.jpg)
 
-- Probabilities: live footage 91%, 2D animation 2%, 3D rendering 2% (fused)
-- Text on objects in the frame (not post captions): 中、hot dog、hotdog
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=2.87, 98 colors, flat blocks 1%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- Temporal noise 1.78, 13% of pixels unchanged frame to frame: sensor noise present, consistent with live footage
-- [VLM] The carpet fibers and object edges are natural and real
-- [VLM] The letters hot dog on the slippers and the Miffy tag are sharp and stable with no AI warping
-- [VLM] The camera has natural faint handheld breathing and small focus shifts
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- Picture: top-down flat lay of assorted cute everyday items on the carpet, including headphones, slippers, ceramic plates, a phone case and plush toys, with faint handheld top-down camera sway.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.0:1 (0.0 stops); soft light (almost no shadow edge)
-- Text track (text / bottom): 中
-- Text track (captions / middle): hot dog / hotdog
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down view, a neat flat lay of cute items on a brown coarse-fiber carpet, including white over-ear headphones, pale-blue hot-dog slippers, plush puppy slippers, a light polka-dot ceramic plate, a striped plate, a Miffy plush keychain and a printed phone case, soft even warm indoor light, Japanese variety-goods style, highly detailed photography.
-  - Video prompt: top-down display of the collection of cute lifestyle goods on the carpet, camera held straight above with a slight handheld breathing sway, nothing moves, a still flat-lay display.
+**Visible on screen** (check against the frames)
+- Picture: Both hands hold the box still, showing the headphone photo on the front (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.1:1 (0.1 stops); soft light (almost no lit / shadow edge)
+- Text track (text/middle): 起拆开看看吧
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-### #29 01:09.900–01:11.533 · Live footage + code / editor overlays (captions); introduces real material (live-action footage)
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 70%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.55, 89 colours, 7% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: both hands hold the box still, showing the headphone photo on the front; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Both hands hold the box still, showing the headphone photo on the front, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#29 00:25.667–00:26.367 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
 
 ![shot_029](shots/shot_029.jpg)
 
-- Probabilities: live footage 92%, 2D animation 2%, stop motion 2% (fused)
-- Material: user's real material: live-action footage
-- Photo / video texture: noise σ=1.41, 110 colors, flat blocks 2%
-- The whole video is native 30 fps and the live-action shots have no 24 fps-source duplicate frames (92% of duration): typical of straight-from-phone footage, generative models mostly output 24 fps
-- Temporal noise 1.84, 11% of pixels unchanged frame to frame: sensor noise present, consistent with live footage
-- [VLM] The carpet fiber texture is extremely sharp and natural
-- [VLM] The plush slippers, plastic sandals and ceramic plates reflect light with real physical properties
-- [VLM] Slight handheld camera shake and natural perspective change
-- [claude visual review] Real carpet texture, the folds of the white sweater cuffs and finger detail stay stable; reflections and creases on the clear bags change naturally with the motion
-- [claude visual review] Every shot has the same beige carpet, the same set of products and the same overhead setup: one shoot cut into pieces
-- Picture: top-down still-life display of home goods on the carpet, including cute slippers, ceramic plates, the Miffy charm and the phone case, with a slow slight camera move.
-- Framing / light: close-up / tight shot (hands and product); top-down (straight down onto the carpet) to high angle; overhead desk mount (phone fixed above the person's head), a few shots handheld by someone else; frontal soft light (flat); key frontal (from the camera direction, both sides of the subject equally bright); contrast about 1.2:1 (0.3 stops); hard light (clear shadow edge)
-- Text track (captions / middle): 拜拜噜下次见 / 拜拜下次见
-- Text track (text / middle): hotdog
-- Text track (title / top): hot dog / hotdog
-- Remake: the original is live footage: reshoot following the shooting plan (shot size / camera / lighting); only when shooting is not possible, approximate with AI image-to-video (using the first frame as reference); the user must supply the real material: live-action footage (whole frame)
-  - First-frame image prompt: top-down view, several cute home items neatly arranged on a brown terry carpet, including sky-blue hot-dog-print slippers, light-blue plush bear slippers, a white oval ceramic plate with blue polka dots, a blue-and-white striped round plate, a small white rabbit charm and a phone case, soft diffuse natural indoor light, fresh soothing Japanese style, highly detailed.
-  - Video prompt: top-down still-life shot, handheld phone with a slight breathing feel pans slowly from left to right with a little sway, showing the neatly arranged cute slippers, ceramic plates and plush toys on the brown carpet, soft diffuse indoor light, steady and fine picture.
+**Visible on screen** (check against the frames)
+- Picture: Open the inner box and lift the white tissue wrapped around the headphones (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.3:1 (0.3 stops); soft light (almost no lit / shadow edge)
+- Text track (text/middle): 起拆开看看吧
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
 
-## Notes
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 70%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.51, 88 colours, 4% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
 
-- Deterministic forensics are reliable for "is it moving, is it a whole-image push, is the texture rendered, was there a 24→30 frame-rate conversion"; telling live footage, AI and 3D apart relies on the VLM and human review.
-- Platform transcoding usually strips metadata; missing metadata does not mean there was none.
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: open the inner box and lift the white tissue wrapped around the headphones; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Open the inner box and lift the white tissue wrapped around the headphones, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#30 00:26.367–00:27.133 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
+
+![shot_030](shots/shot_030.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Lift the cream headphones out of the tissue, ear cup first (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.2 stops); soft light (wide lit-to-shadow ramp)
+- Text on objects in the scene (not subtitles): hotdng, hoedog
+- Text track (text/middle): 起拆开看看吧
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.39, 89 colours, 4% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: lift the cream headphones out of the tissue, ear cup first; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Lift the cream headphones out of the tissue, ear cup first, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#31 00:27.133–00:28.100 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
+
+![shot_031](shots/shot_031.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Shake the tissue off; the headband swings out (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.3 stops); soft light (wide lit-to-shadow ramp)
+- Text track (text/middle): 还是喜欢这种淡淡的颜色
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 70%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.50, 84 colours, 4% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: shake the tissue off; the headband swings out; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Shake the tissue off; the headband swings out, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#32 00:28.100–00:30.000 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
+
+![shot_032](shots/shot_032.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Each hand holds one ear cup, showing the pearly shells (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; backlit / background brighter than subject; key light frame left, three-quarter front; lighting ratio about 1.8:1 (0.8 stops); soft light (wide lit-to-shadow ramp)
+- Text track (text/middle): 还是喜欢这种淡淡的颜色
+- Motion beats within the shot: 28.93s
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.81, 100 colours, 3% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: each hand holds one ear cup, showing the pearly shells; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Each hand holds one ear cup, showing the pearly shells, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#33 00:30.000–00:31.200 · live action + code / editor overlays (text labels); brings in real material (live footage)</summary>
+
+![shot_033](shots/shot_033.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Both hands squeeze the inner cushions of the two ear cups, marked L and R (closer top-down shot by the lamp)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.3:1 (0.4 stops); soft light (almost no lit / shadow edge)
+- Text track (text/middle): 软软的挺舒服
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 70%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.55, 76 colours, 2% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, Headphones centred, lamp and box along the top edge; vertical. Vertical 9:16, top-down from directly overhead, lower and closer than the main angle; a mushroom lamp with a blue base and the headphone box at the top, a polka-dot plate at the left edge, two hands in white sleeves in the middle; the first moment of: both hands squeeze the inner cushions of the two ear cups, marked L and R; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, Headphones centred, lamp and box along the top edge; vertical. Vertical 9:16, top-down from directly overhead, lower and closer than the main angle; a mushroom lamp with a blue base and the headphone box at the top, a polka-dot plate at the left edge, two hands in white sleeves in the middle. Both hands squeeze the inner cushions of the two ear cups, marked L and R, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#34 00:31.200–00:32.500 · live action + code / editor overlays (static graphics); brings in real material (live footage)</summary>
+
+![shot_034](shots/shot_034.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Both hands stretch the headband sideways and press it (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; backlit / background brighter than subject; key light frame left, three-quarter front; lighting ratio about 1.8:1 (0.8 stops); soft light (wide lit-to-shadow ramp)
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.62, 99 colours, 4% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: both hands stretch the headband sideways and press it; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Both hands stretch the headband sideways and press it, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#35 00:32.500–00:33.367 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
+
+![shot_035](shots/shot_035.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: One hand holds the headphones while the other pulls out the detachable mic (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.1:1 (0.2 stops); soft light (almost no lit / shadow edge)
+- Text on objects in the scene (not subtitles): hoedeg, hee day, hee dag
+- Text track (text/middle): 和队友打游戏也可以用
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.45, 107 colours, 4% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: one hand holds the headphones while the other pulls out the detachable mic; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. One hand holds the headphones while the other pulls out the detachable mic, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#36 00:33.367–00:34.500 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
+
+![shot_036](shots/shot_036.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Both hands lift the headphones with the mic hanging below (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; backlit / background brighter than subject; key light frame left, three-quarter front; lighting ratio about 2.0:1 (1.0 stops); soft light (wide lit-to-shadow ramp)
+- Text track (text/middle): 和队友打游戏也可以用
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.59, 95 colours, 3% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: both hands lift the headphones with the mic hanging below; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Both hands lift the headphones with the mic hanging below, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#37 00:34.500–00:35.100 · live action + code / editor overlays (subtitles, static graphics); brings in real material (live footage)</summary>
+
+![shot_037](shots/shot_037.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Both hands extend the headband slider, showing the metal rail (closer top-down shot by the lamp)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.1:1 (0.1 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/middle): 可以 / 可以调节
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 70%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.39, 87 colours, 2% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, Headphones centred, lamp and box along the top edge; vertical. Vertical 9:16, top-down from directly overhead, lower and closer than the main angle; a mushroom lamp with a blue base and the headphone box at the top, a polka-dot plate at the left edge, two hands in white sleeves in the middle; the first moment of: both hands extend the headband slider, showing the metal rail; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, Headphones centred, lamp and box along the top edge; vertical. Vertical 9:16, top-down from directly overhead, lower and closer than the main angle; a mushroom lamp with a blue base and the headphone box at the top, a polka-dot plate at the left edge, two hands in white sleeves in the middle. Both hands extend the headband slider, showing the metal rail, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#38 00:35.100–00:36.167 · live action + code / editor overlays (static graphics); brings in real material (live footage)</summary>
+
+![shot_038](shots/shot_038.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Hold the headphones up facing the camera, then turn them to the side (closer top-down shot by the lamp)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.3 stops); soft light (almost no lit / shadow edge)
+- Text track (text/middle): 可以调
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 70%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.51, 86 colours, 2% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, Headphones centred, lamp and box along the top edge; vertical. Vertical 9:16, top-down from directly overhead, lower and closer than the main angle; a mushroom lamp with a blue base and the headphone box at the top, a polka-dot plate at the left edge, two hands in white sleeves in the middle; the first moment of: hold the headphones up facing the camera, then turn them to the side; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, Headphones centred, lamp and box along the top edge; vertical. Vertical 9:16, top-down from directly overhead, lower and closer than the main angle; a mushroom lamp with a blue base and the headphone box at the top, a polka-dot plate at the left edge, two hands in white sleeves in the middle. Hold the headphones up facing the camera, then turn them to the side, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#39 00:36.167–00:36.800 · live action + code / editor overlays (static graphics); brings in real material (live footage)</summary>
+
+![shot_039](shots/shot_039.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Pull the headband slider once more (closer top-down shot by the lamp)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; three-quarter key + fill (standard set-up); key light frame right, three-quarter front; lighting ratio about 1.4:1 (0.5 stops); soft light (wide lit-to-shadow ramp)
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.54, 88 colours, 2% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, Headphones centred, lamp and box along the top edge; vertical. Vertical 9:16, top-down from directly overhead, lower and closer than the main angle; a mushroom lamp with a blue base and the headphone box at the top, a polka-dot plate at the left edge, two hands in white sleeves in the middle; the first moment of: pull the headband slider once more; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, Headphones centred, lamp and box along the top edge; vertical. Vertical 9:16, top-down from directly overhead, lower and closer than the main angle; a mushroom lamp with a blue base and the headphone box at the top, a polka-dot plate at the left edge, two hands in white sleeves in the middle. Pull the headband slider once more, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#40 00:36.800–00:39.933 · live action + code / editor overlays (subtitles, text labels, static graphics); brings in real material (live footage)</summary>
+
+![shot_040](shots/shot_040.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: The left hand holds a phone next to the headphones; the screen shows the headphone app's intro pages, a finger scrolls down and opens the device page (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.1:1 (0.2 stops); soft light (almost no lit / shadow edge)
+- Text on objects in the scene (not subtitles): 将模升级！, 23:16, 升级, 质升级, 三便利升级！, 使利升息！
+- Text track (subtitle/middle): app里有贴心的介绍
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.40, 150 colours, 4% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: the left hand holds a phone next to the headphones; the screen shows the headphone app's intro pages, a finger scrolls down and opens the device page; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. The left hand holds a phone next to the headphones; the screen shows the headphone app's intro pages, a finger scrolls down and opens the device page, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#41 00:39.933–00:43.033 · live action + code / editor overlays (subtitles, text labels, static sticker); brings in real material (live footage)</summary>
+
+![shot_041](shots/shot_041.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: The left hand holds the headphones, the right hand holds a phone playing music (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.1:1 (0.1 stops); soft light (almost no lit / shadow edge)
+- Text on objects in the scene (not subtitles): O, 放狱L, 放纵L, King Pro 头惠
+- Text track (subtitle/middle): 音质很不错还有50分贝降噪
+- Text track (text/middle): 喜欢喜欢?
+- [AI assistant review] The player UI on the phone screen is legible with buttons in stable positions; fingers and headphone reflections look natural: a filmed phone screen, not an AI picture
+- [AI assistant review] Same carpet and same props as the shots around it, positions continuous
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 68%, AI-generated video 12%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.32, 107 colours, 6% flat blocks
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away: noise cues no longer apply, live action vs AI rests on frame rate and picture content
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: the left hand holds the headphones, the right hand holds a phone playing music; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. The left hand holds the headphones, the right hand holds a phone playing music, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#42 00:43.033–00:44.000 · live action + code / editor overlays (text labels, static sticker); brings in real material (live footage)</summary>
+
+![shot_042](shots/shot_042.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: The headphones lie flat with the mic reaching to the bottom right; the camera drifts slowly (low-angle close shot)
+- Camera / lighting: medium close-up; slightly high angle; Handheld (rear main camera, slow drift); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.1:1 (0.2 stops); soft light (almost no lit / shadow edge)
+- Text on objects in the scene (not subtitles): O
+- Text track (text/middle): 喜欢喜欢
+- [AI assistant review] Carpet texture, headphone edges and the print on the box stay stable; perspective is natural as the camera drifts, no AI warping
+- [AI assistant review] Same headphones and same carpet as the shots before and after
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 67%, 3D render 20%, code / template render 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=2.22, 68 colours, 4% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Temporal noise 1.69, 10% of pixels unchanged frame to frame: sensor noise is present, consistent with live action
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, slightly high angle, Headphones in the lower middle, box cutting across the top-left corner, carpet texture filling the background; vertical. Vertical 9:16, low camera tilted slightly down, close shot of cream-white over-ear headphones lying flat on a brown woven carpet, the headphone box at an angle in the top-left corner; the first moment of: the headphones lie flat with the mic reaching to the bottom right; the camera drifts slowly; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, slightly high angle, Headphones in the lower middle, box cutting across the top-left corner, carpet texture filling the background; vertical, camera pan / track. Vertical 9:16, low camera tilted slightly down, close shot of cream-white over-ear headphones lying flat on a brown woven carpet, the headphone box at an angle in the top-left corner. The headphones lie flat with the mic reaching to the bottom right; the camera drifts slowly, natural continuous motion, slow drifting camera.
+
+</details>
+
+<details class="ref"><summary>#43 00:44.000–00:44.900 · live action; brings in real material (live footage)</summary>
+
+![shot_043](shots/shot_043.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: The headphones lie flat with both pearly ear cups facing up; the camera slowly pushes in (low-angle close shot)
+- Camera / lighting: medium close-up; slightly high angle; Handheld (rear main camera, slow drift); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.1:1 (0.1 stops); soft light (almost no lit / shadow edge)
+- Text on objects in the scene (not subtitles): O
+- [AI assistant review] Carpet texture, headphone edges and the print on the box stay stable; perspective is natural as the camera drifts, no AI warping
+- [AI assistant review] Same headphones and same carpet as the shots before and after
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 68%, 3D render 19%, code / template render 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=1.74, 69 colours, 4% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Temporal noise 1.64, 14% of pixels unchanged frame to frame: sensor noise is present, consistent with live action
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, slightly high angle, Headphones in the lower middle, box cutting across the top-left corner, carpet texture filling the background; vertical. Vertical 9:16, low camera tilted slightly down, close shot of cream-white over-ear headphones lying flat on a brown woven carpet, the headphone box at an angle in the top-left corner; the first moment of: the headphones lie flat with both pearly ear cups facing up; the camera slowly pushes in; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, slightly high angle, Headphones in the lower middle, box cutting across the top-left corner, carpet texture filling the background; vertical, camera push-in. Vertical 9:16, low camera tilted slightly down, close shot of cream-white over-ear headphones lying flat on a brown woven carpet, the headphone box at an angle in the top-left corner. The headphones lie flat with both pearly ear cups facing up; the camera slowly pushes in, natural continuous motion, slow drifting camera.
+
+</details>
+
+<details class="ref"><summary>#44 00:44.900–00:45.467 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
+
+![shot_044](shots/shot_044.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Tear open a clear plastic bag to reveal fluffy light-blue slippers (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.2 stops); soft light (almost no lit / shadow edge)
+- Text track (text/middle): 买了新的棉拖鞋
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.57, 101 colours, 1% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: tear open a clear plastic bag to reveal fluffy light-blue slippers; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Tear open a clear plastic bag to reveal fluffy light-blue slippers, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#45 00:45.467–00:46.333 · live action + code / editor overlays (subtitles, static graphics); brings in real material (live footage)</summary>
+
+![shot_045](shots/shot_045.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Take the plush slippers out of the bag and place them in the center (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.1:1 (0.2 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/middle): 美了新的棉拖鞋 / 买了新的棉拖鞋
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.53, 112 colours, 1% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: take the plush slippers out of the bag and place them in the center; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Take the plush slippers out of the bag and place them in the center, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#46 00:46.333–00:47.000 · live action + code / editor overlays (static graphics); brings in real material (live footage)</summary>
+
+![shot_046](shots/shot_046.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Reach into a slipper and pull out the clear plastic shaping insert (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.1:1 (0.2 stops); soft light (almost no lit / shadow edge)
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.51, 112 colours, 1% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: reach into a slipper and pull out the clear plastic shaping insert; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Reach into a slipper and pull out the clear plastic shaping insert, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#47 00:47.000–00:47.667 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
+
+![shot_047](shots/shot_047.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Pull the insert out of the other slipper, showing the pink lining (main top-down angle)
+- Camera / lighting: close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.1:1 (0.2 stops); soft light (almost no lit / shadow edge)
+- Text track (text/middle): 好可爱呀
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.53, 110 colours, 1% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: pull the insert out of the other slipper, showing the pink lining; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Pull the insert out of the other slipper, showing the pink lining, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#48 00:47.667–00:48.633 · live action + code / editor overlays (subtitles, static graphics); brings in real material (live footage)</summary>
+
+![shot_048](shots/shot_048.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Both hands set the pair of slippers side by side (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.3 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/middle): 好可爱呀 / 软乎乎的
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 10%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.89, 103 colours, 1% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Temporal noise 0.49, 72% of pixels unchanged frame to frame: sensor noise is present, consistent with live action
+  - 83% of sampled frames show a frontal face on a fixed camera, voice on the audio track
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: both hands set the pair of slippers side by side; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Both hands set the pair of slippers side by side, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#49 00:48.633–00:49.867 · live action + code / editor overlays (subtitles, static graphics); brings in real material (live footage)</summary>
+
+![shot_049](shots/shot_049.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Both hands squeeze the long fur on the slippers to show the fluff (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.3 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/middle): 平乎的 / 乎的
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.67, 115 colours, 1% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: both hands squeeze the long fur on the slippers to show the fluff; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Both hands squeeze the long fur on the slippers to show the fluff, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#50 00:49.867–00:50.500 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
+
+![shot_050](shots/shot_050.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Hold a kraft box and slit it along the center seam with the small yellow cutter (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (wide lit-to-shadow ramp)
+- Text track (text/middle): 应该是我的米菲小挂件
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.52, 104 colours, 3% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: hold a kraft box and slit it along the center seam with the small yellow cutter; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Hold a kraft box and slit it along the center seam with the small yellow cutter, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#51 00:50.500–00:51.000 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
+
+![shot_051](shots/shot_051.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Fold back both flaps to reveal a clear bag inside (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; backlit / background brighter than subject; key light frame right, three-quarter front; lighting ratio about 1.4:1 (0.4 stops); hard light (sharp shadow edge)
+- Text track (text/middle): 应该是我的米菲小打件
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.57, 106 colours, 3% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: fold back both flaps to reveal a clear bag inside; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Fold back both flaps to reveal a clear bag inside, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#52 00:51.000–00:51.600 · live action + code / editor overlays (subtitles, static graphics); brings in real material (live footage)</summary>
+
+![shot_052](shots/shot_052.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Open the box to see Miffy inside the bag (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; backlit / background brighter than subject; key light frame right, three-quarter front; lighting ratio about 1.4:1 (0.5 stops); soft light (wide lit-to-shadow ramp)
+- Text track (subtitle/middle): 啊啊啊激动 / 啊啊啊激动~
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.57, 108 colours, 2% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: open the box to see Miffy inside the bag; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Open the box to see Miffy inside the bag, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#53 00:51.600–00:52.600 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
+
+![shot_053](shots/shot_053.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Lift the clear bag with Miffy out of the box (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; backlit / background brighter than subject; key light frame right, three-quarter front; lighting ratio about 1.7:1 (0.8 stops); soft light (wide lit-to-shadow ramp)
+- Text track (text/middle): 啊激动~
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.57, 104 colours, 2% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: lift the clear bag with Miffy out of the box; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Lift the clear bag with Miffy out of the box, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#54 00:52.600–00:54.333 · live action + code / editor overlays (static graphics); brings in real material (live footage)</summary>
+
+![shot_054](shots/shot_054.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Hold up the bag to show the Miffy keychain and its tag, then tear the bag (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; backlit / background brighter than subject; key light frame right, three-quarter front; lighting ratio about 1.4:1 (0.5 stops); soft light (wide lit-to-shadow ramp)
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.67, 106 colours, 1% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: hold up the bag to show the Miffy keychain and its tag, then tear the bag; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Hold up the bag to show the Miffy keychain and its tag, then tear the bag, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#55 00:54.333–00:55.233 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
+
+![shot_055](shots/shot_055.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Pull the Miffy keychain out of the bag, the metal ring showing (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.1:1 (0.2 stops); soft light (almost no lit / shadow edge)
+- Text track (text/middle): 萌翻啦！
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.75, 94 colours, 1% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: pull the Miffy keychain out of the bag, the metal ring showing; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Pull the Miffy keychain out of the bag, the metal ring showing, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#56 00:55.233–00:56.467 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
+
+![shot_056](shots/shot_056.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Both hands hold Miffy up through the clear bag, facing the camera (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text on objects in the scene (not subtitles): BE, UBE
+- Text track (text/middle): 萌翻啦！
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.58, 102 colours, 1% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: both hands hold Miffy up through the clear bag, facing the camera; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Both hands hold Miffy up through the clear bag, facing the camera, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#57 00:56.467–00:57.167 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
+
+![shot_057](shots/shot_057.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Pull the bag away and hold Miffy in the palm (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.1:1 (0.2 stops); soft light (almost no lit / shadow edge)
+- Text track (text/middle): 好可爱！
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 10%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.86, 94 colours, 1% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: pull the bag away and hold Miffy in the palm; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Pull the bag away and hold Miffy in the palm, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#58 00:57.167–00:58.733 · live action + code / editor overlays (text labels); brings in real material (live footage)</summary>
+
+![shot_058](shots/shot_058.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Miffy rests in the palm, facing the camera (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text track (text/middle): 好可爱！
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 71%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.75, 94 colours, 1% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: Miffy rests in the palm, facing the camera; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Miffy rests in the palm, facing the camera, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#59 00:58.733–00:59.433 · live action + code / editor overlays (static graphics); brings in real material (live footage)</summary>
+
+![shot_059](shots/shot_059.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Both hands pick up a blue-and-white striped bag printed PAPA PLATE (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.59, 111 colours, 3% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: both hands pick up a blue-and-white striped bag printed PAPA PLATE; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Both hands pick up a blue-and-white striped bag printed PAPA PLATE, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#60 00:59.433–01:00.133 · live action + code / editor overlays (subtitles, static graphics); brings in real material (live footage)</summary>
+
+![shot_060](shots/shot_060.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Open the mouth of the bag to show the plate inside (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; high key (bright overall, almost no shadows); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.1 stops); soft light (almost no lit / shadow edge)
+- Text on objects in the scene (not subtitles): 是
+- Text track (subtitle/middle): 个小盘子
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.62, 113 colours, 3% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: open the mouth of the bag to show the plate inside; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Open the mouth of the bag to show the plate inside, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#61 01:00.133–01:01.033 · live action + code / editor overlays (subtitles, static graphics); brings in real material (live footage)</summary>
+
+![shot_061](shots/shot_061.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Slide the pale-blue striped round plate out of the bag (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.0 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/middle): 是一个小盘子 / 立体小企鹅
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.65, 113 colours, 3% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: slide the pale-blue striped round plate out of the bag; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Slide the pale-blue striped round plate out of the bag, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#62 01:01.033–01:02.133 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
+
+![shot_062](shots/shot_062.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Both hands hold the striped plate with the black penguin figure on its rim (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; high key (bright overall, almost no shadows); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.1 stops); soft light (almost no lit / shadow edge)
+- Text track (text/middle): 立体小企鹅
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.50, 121 colours, 4% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: both hands hold the striped plate with the black penguin figure on its rim; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Both hands hold the striped plate with the black penguin figure on its rim, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#63 01:02.133–01:04.067 · live action + code / editor overlays (subtitles, static graphics); brings in real material (live footage)</summary>
+
+![shot_063](shots/shot_063.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Slowly tilt the plate side to side to show the penguin figure (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; high key (bright overall, almost no shadows); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.1 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/middle): 立体小企鹅 / 哈哈哈一定要分享这个自己做的化妆包
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.49, 123 colours, 3% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: slowly tilt the plate side to side to show the penguin figure; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Slowly tilt the plate side to side to show the penguin figure, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#64 01:04.067–01:04.667 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
+
+![shot_064](shots/shot_064.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Unzip a gingham pouch (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.0:1 (0.1 stops); soft light (almost no lit / shadow edge)
+- Text track (text/middle): 哈哈哈一定要分享这个自己做的化妆包
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.55, 113 colours, 1% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: unzip a gingham pouch; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Unzip a gingham pouch, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#65 01:04.667–01:06.733 · live action + code / editor overlays (subtitles, static graphics); brings in real material (live footage)</summary>
+
+![shot_065](shots/shot_065.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Open the pouch to show the inside, then turn it to show the bear print and fabric label (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.3:1 (0.4 stops); soft light (almost no lit / shadow edge)
+- Text track (subtitle/middle): 哈哈哈一定要分享这个自己做的化妆包 / 蓝色小熊
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.69, 115 colours, 1% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: open the pouch to show the inside, then turn it to show the bear print and fabric label; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Open the pouch to show the inside, then turn it to show the bear print and fabric label, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#66 01:06.733–01:07.467 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
+
+![shot_066](shots/shot_066.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Zip the pouch closed (main top-down angle)
+- Camera / lighting: medium shot; top-down; Overhead phone stand; backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.1:1 (0.1 stops); soft light (almost no lit / shadow edge)
+- Text track (text/middle): 蓝色小熊
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.57, 108 colours, 1% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Platform transcode (Douyin/TikTok) has compressed the sensor noise away, but the file and this shot are native 30fps with no 24fps-source duplicate frames: counted as phone footage
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: zip the pouch closed; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium shot, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Zip the pouch closed, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#67 01:07.467–01:08.867 · live action + code / editor overlays (text labels, static graphics); brings in real material (live footage)</summary>
+
+![shot_067](shots/shot_067.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: Lift the pouch and turn it side to side to show the bear print (main top-down angle)
+- Camera / lighting: medium close-up; top-down; Overhead phone stand; backlit / background brighter than subject; key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.1:1 (0.1 stops); soft light (almost no lit / shadow edge)
+- Text track (text/middle): 蓝色小熊
+- [AI assistant review] Real hand actions: slitting tape, pulling bubble wrap, zipping; fingers and packaging deform physically, and printed words on the packaging (STRONG PROTECTION, YUU, PAPA PLATE, hot dog) are sharp, not garbled
+- [AI assistant review] Background props (slippers, parcels, plush slippers) stay in place across neighbouring shots and change as the unboxing goes on
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 72%, AI-generated video 11%, film / TV footage 5% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=0.76, 115 colours, 1% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle; the first moment of: lift the pouch and turn it side to side to show the bear print; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: medium close-up, top-down, Product centred slightly low; the top third is left for already-unboxed items as background; vertical. Vertical 9:16, phone directly overhead looking straight down at a brown woven carpet; light-blue slippers, fluffy blue plush slippers and parcels along the top; two hands in loose white long sleeves working in the lower middle. Lift the pouch and turn it side to side to show the bear print, natural continuous motion, locked-off camera.
+
+</details>
+
+<details class="ref"><summary>#68 01:08.867–01:09.900 · still image + pan/zoom (photo) + code / editor overlays (subtitles); brings in real material (photo)</summary>
+
+![shot_068](shots/shot_068.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: No hands in frame, the camera slowly pans across all the items laid out (wide flat lay of all items)
+- [AI assistant review] The whole frame moves with one smooth zoom + pan and nothing inside it moves (no hands, no objects); the subtitle says 大合照 (group photo): looks like a slow push on a flat-lay photo
+- [AI assistant review] The flat lay is a flat surface, so a phone moving slowly over it would give the same single motion: it could also be filmed; leaning photo push 65%
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: still image + pan/zoom 81%, AI-generated video 4%, 2D animation 3% (fused_agent)
+- Still source: photo
+- Material: the user's real material: photo
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Whole frame moves as one rigid transform (98% inliers, 0.08px residual, no local motion) → pan/zoom on a still image: zoom -0.7%/s, pan 64px/s
+  - Photographic texture: noise σ=2.39, 98 colours, 2% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Temporal noise 1.80, 13% of pixels unchanged frame to frame: sensor noise is present, consistent with live action
+
+- Remake: Still-image move: one image + the measured zoom / pan parameters, reproduced exactly with local ffmpeg; real material the user must supply: photo (whole frame), photo (part of the frame)
+
+</details>
+
+<details class="ref"><summary>#69 01:09.900–01:11.533 · live action + code / editor overlays (text labels); brings in real material (live footage)</summary>
+
+![shot_069](shots/shot_069.jpg)
+
+**Visible on screen** (check against the frames)
+- Picture: The camera keeps drifting across the flat lay over the slippers, polka-dot plate, striped plate, Miffy and phone case (wide flat lay of all items)
+- Camera / lighting: full shot; top-down; Handheld (rear main camera, slow pan); soft frontal light (flat light); key light frontal (from the camera side; both sides of the subject about equally bright); lighting ratio about 1.2:1 (0.2 stops); hard light (sharp shadow edge)
+- Text track (text/middle): 拜拜噜下次见
+- [AI assistant review] Every item matches the real products in the unboxing shots; carpet texture and outlines are stable with no warping
+- [AI assistant review] Perspective is natural during the slight pan and the picture has sensor noise
+
+**How it was made, as inferred by the tools** (inferred, not seen)
+- Inference: live action 85%, 3D render 5%, code / template render 2% (fused_agent)
+- Material: the user's real material: live footage
+- Basis (tool measurements, not necessarily visible to the eye):
+  - Photographic texture: noise σ=1.26, 110 colours, 3% flat blocks
+  - The whole file is native 30fps and photographic shots carry no 24fps-source duplicate frames (75% of the duration): typical of straight-from-phone footage, generators mostly output 24fps
+  - Temporal noise 1.87, 11% of pixels unchanged frame to frame: sensor noise is present, consistent with live action
+
+- Remake: Source is live action: reshoot per the shooting plan (shot size / camera setup / lighting); only fall back to AI image-to-video (first frame as reference) when a shoot is not possible; real material the user must supply: live footage (whole frame)
+  - First-frame image prompt: full shot, Items laid out in a grid filling the frame with gaps between; vertical. Vertical 9:16, top-down wide flat lay from directly overhead: all the unboxed items neatly arranged on a brown woven carpet - headphone box and headphones, light-blue slippers, plush slippers, polka-dot oval plate, blue-striped penguin plate, gingham pouch, phone case, Miffy keychain; the first moment of: the camera keeps drifting across the flat lay over the slippers, polka-dot plate, striped plate, Miffy and phone case; soft warm indoor ceiling light, creamy low saturation, realistic phone-camera look
+  - Video prompt: full shot, Items laid out in a grid filling the frame with gaps between; vertical, camera pull-out. Vertical 9:16, top-down wide flat lay from directly overhead: all the unboxed items neatly arranged on a brown woven carpet - headphone box and headphones, light-blue slippers, plush slippers, polka-dot oval plate, blue-striped penguin plate, gingham pouch, phone case, Miffy keychain. The camera keeps drifting across the flat lay over the slippers, polka-dot plate, striped plate, Miffy and phone case, natural continuous motion, slow drifting camera.
+
+</details>
+
+### Metadata clues
+
+- Encoder: `Lavf61.7.100`
+- platform: Douyin/TikTok
+
+### Notes
+
+- Deterministic forensics is reliable on motion, whole-frame pan/zoom, rendered texture and 24→30 fps conversion; telling live action from AI from 3D needs image reading (a VLM or an AI assistant's review), and a look at the frames yourself.
+- Platform transcoding usually strips metadata; missing metadata proves nothing.
+- The full data is in `breakdown.json`; the package for models starts at `REEL.md`.

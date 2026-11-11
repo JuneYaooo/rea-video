@@ -156,6 +156,33 @@ def cmd_eval(args) -> int:
     return 0
 
 
+def cmd_reel(args) -> int:
+    from .reel import write
+
+    root = Path(args.out_dir)
+    if args.check:
+        from .reel import check
+
+        errs = check(root)
+        print("\n".join(errs) if errs else T("符合 Reel v1", "conforms to Reel v1"))
+        return 1 if errs else 0
+    b = read_json(root / "breakdown.json")
+    set_lang(b.get("lang", "zh"))
+    print(write(b, root))
+    return 0
+
+
+def cmd_pdf(args) -> int:
+    from .pdf import write_pdf
+
+    try:
+        print(write_pdf(Path(args.out_dir)))
+    except RuntimeError as e:
+        print(f"rea-video: {e}", file=sys.stderr)
+        return 1
+    return 0
+
+
 def cmd_capsule(args) -> int:
     from .integrations.capsule_cinema import export_capsule_analysis
 
@@ -516,6 +543,15 @@ def main(argv: list[str] | None = None) -> int:
     sm = sub.add_parser("summary", help="紧凑打印拆解结果（低置信镜头会被标出来）")
     sm.add_argument("breakdown")
     sm.set_defaults(func=cmd_summary)
+
+    rl = sub.add_parser("reel", help="从 breakdown.json 重新生成给模型读的拆片包（REEL.md + reel/）；decompose 和 apply-review 会自动生成")
+    rl.add_argument("out_dir")
+    rl.add_argument("--check", action="store_true", help="只校验目录是否符合 Reel 规范（docs/reel.md），不重写")
+    rl.set_defaults(func=cmd_reel)
+
+    pd = sub.add_parser("pdf", help="把 report.html 打印成 report.pdf（用本机的 Chrome / Chromium / Edge，折叠内容全部展开）")
+    pd.add_argument("out_dir")
+    pd.set_defaults(func=cmd_pdf)
 
     rv = sub.add_parser("review", help="能看图的 agent 当 VLM：生成逐镜看图任务和答案模板")
     rv.add_argument("out_dir", help="decompose 的输出目录")

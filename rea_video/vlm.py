@@ -366,6 +366,7 @@ WHOLE_PROMPT = """你是短视频拆解专家。完整观看并**仔细收听**�
   "summary": "一句话概括",
   "format": "口播|剧情|商品展示|知识讲解|MV|混剪|影视解说|其他",
   "hook": "开头 3 秒如何抓人",
+  "highlights": ["这条视频能火 / 能卖货的关键做法，2–4 条，每条写手法 + 在哪一秒 + 为什么有效，不写空话"],
   "segments": [{{"start": 0.0, "end": 3.0, "role": "<<NARRATIVE_ENUM>>", "beat": "这一段在讲什么（一句话，换个题材也能照着写的那种）", "copy": "这一段的旁白/字幕文案", "audio": "人声/音乐/音效"}}],
   "narration": {{"type": "tts|human|none|mixed", "voice": "性别/年龄感/音色", "style": "语速、情绪、口癖", "language": "zh|en|...",
                  "lines": [{{"start": 0.0, "end": 2.0, "speaker": "角色编号或 旁白", "text": "台词/旁白原文"}}]}},
@@ -468,6 +469,9 @@ def normalize_whole(raw) -> dict | None:
     for k in ("summary", "format", "hook", "ambience", "mix", "style", "overall_production"):
         if k in w and w[k] is not None and not isinstance(w[k], str):
             w[k] = str(w[k])
+    if "highlights" in w:
+        h = w["highlights"] if isinstance(w["highlights"], list) else [w["highlights"]]
+        w["highlights"] = [str(x) for x in h if isinstance(x, (str, int, float)) and str(x).strip()][:5]
     if "warnings" in w and not isinstance(w["warnings"], list):
         w["warnings"] = [str(w["warnings"])] if w["warnings"] else []
     return w

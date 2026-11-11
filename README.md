@@ -227,6 +227,7 @@ No. rea-video is for learning a video's structure, pacing and techniques, then r
 - [docs/cases.md](docs/cases.md): details on each example
 - [docs/decompose.md](docs/decompose.md): detection rules
 - [docs/cli.md](docs/cli.md): CLI usage and capsule-cinema integration
+- [docs/reel.md](docs/reel.md): Reel, the standard breakdown package that agents and downstream tools read
 - [rea_video/capabilities/](rea_video/capabilities/README.md): capability tables for video / image / audio models, used to pick models for the remake plan
 - [eval/RESULTS.md](eval/RESULTS.md): eval results
 
@@ -241,3 +242,5 @@ Want a video broken down? Open a [request issue](https://github.com/JuneYaooo/re
 ## Credits
 
 Inspired by [REA (Reverse Engineer Anything)](https://github.com/morluto/rea): work back from what you see to how it was made, back every claim with evidence, and verify by measuring.
+
+Sound separation uses [UVR MDX-Net](https://github.com/TRvlvr/model_repo) for voice and music, and [BandIt v2](https://github.com/kwatcharasupat/bandit-v2) (Watcharasupat, Wu and Orife; weights CC BY-SA 4.0) for sound effects. Both models are downloaded on first use and are not part of this repo.

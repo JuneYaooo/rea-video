@@ -1570,7 +1570,7 @@ def restyle_rendered(pack: dict, shots: list[dict], video: str | Path, frame_h: 
 
 
 def summary_lines(pack: dict, sfx_align: dict | None = None) -> list[str]:
-    cues = pack.get("text_cues", [])
+    cues = [c for c in pack.get("text_cues", []) if not c.get("part_of_picture")]  # words filmed in the scene are not packaging
     L = []
     subs = [c for c in cues if c["kind"] == "subtitle"]
     if subs:
@@ -1751,7 +1751,11 @@ def apply_review(pack: dict) -> None:
                 st["what"] = a["what"]
         else:
             st["in_picture"] = True
-            st["in_picture_why"] = T("{by} 看图：画面本身的东西", "{by} looked at the frames: part of the picture itself", by=rv.get('by', 'agent'))
+            from .pipeline import reviewer_name
+
+            st["in_picture_why"] = T("{by} 看图：画面本身的东西", "{by} looked at the frames: part of the picture itself", by=reviewer_name(rv.get('by', 'agent')))
+    # the reviewer's missed stickers are this review's list: drop the ones an earlier apply added, then add the current ones
+    pack["stickers"] = [st for st in pack.get("stickers", []) if not str(st.get("id", "")).startswith("sticker_agent_")]
     ids = {st["id"] for st in pack.get("stickers", [])}
     for k, m in enumerate(rv.get("missed", []), 1):
         sid = f"sticker_agent_{k:02d}"
@@ -1769,6 +1773,8 @@ def apply_review(pack: dict) -> None:
 
 
 def finalize_pack(breakdown: dict, out: Path) -> dict | None:
+    from .classify import _same_words
+
     """After shots are labelled and the audio plan exists: SFX alignment, exports, summary lines."""
     pack = breakdown.get("packaging")
     if not pack:
@@ -1781,16 +1787,22 @@ def finalize_pack(breakdown: dict, out: Path) -> dict | None:
         c["shot"] = r["index"] if r else None
         # on a rendered / recorded picture, words are the picture's content, not a separate overlay
         c["part_of_picture"] = bool(r and labels[r["id"]] in ("code_render", "screen_capture") and c["kind"] not in ("subtitle",))
+        # an image reader listed this shot's post-production words: the rest is text filmed in the scene
+        said = r and ((r.get("vlm") or {}).get("overlay_text") if isinstance((r.get("vlm") or {}).get("overlay_text"), list)
+                      else (r.get("review") or {}).get("overlay_text"))
+        if isinstance(said, list) and not any(_same_words(c["text"], o) for o in said):  # [] = no post words in this shot
+            c["part_of_picture"] = True
     src = breakdown.get("source") or {}
     frame_h = src.get("width") if src.get("rotation") in (90, 270) else src.get("height")
     if src.get("path"):
         restyle_rendered(pack, breakdown["shots"], src["path"], frame_h)
     stickers = [s for s in pack.get("stickers", []) if not s.get("in_picture")]
-    cues = [c for c in pack.get("text_cues", []) if c["kind"] != "scene"]
+    cues = [c for c in pack.get("text_cues", []) if c["kind"] != "scene" and not c.get("part_of_picture")]
     cuts = [r["start"] for r in breakdown["shots"][1:]]
     plan = breakdown.get("audio_plan") or {}
     sfx = plan.get("sfx_merged", [])
-    has_vlm_sfx = any(e.get("source") == "vlm" for e in sfx)
+    # heard, or looked for on the separated effects track: then a silent track means no effects, not "guess from the mix"
+    has_vlm_sfx = any(e.get("source") == "vlm" for e in sfx) or (out / "stems" / "effects.wav").is_file()
     if not has_vlm_sfx:
         known = {round(float(e.get("t", -9)), 2) for e in sfx}
         for e in pack.get("sfx_anchored", []):

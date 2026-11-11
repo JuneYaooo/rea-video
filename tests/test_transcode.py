@@ -84,12 +84,15 @@ def test_reader_decides_when_tools_are_undecided():
     live = {"live_action": 0.9, "ai_video": 0.1}
     facts = {"transcode_degraded": True, "native_cadence": True}
     rec = {"deterministic": {"probs": {"cg_3d": 0.35, "ai_video": 0.27, "live_action": 0.22, "code_render": 0.09}, "facts": facts},
-           "review": {"label_probs": live}}
+           "vlm": {"label_probs": live}}
     assert _vlm_gate(rec, live, {"native30": False}) == live          # 3D 0.35 / AI 0.27 / live 0.22 is no call
     rec["deterministic"]["probs"] = {"cg_3d": 0.45, "ai_video": 0.27, "live_action": 0.22, "code_render": 0.06}
     assert _vlm_gate(rec, live, {"native30": False}) is None          # a 0.45 lead is a call: live must be in the top two
     rec["deterministic"]["probs"] = {"cg_3d": 0.35, "ai_video": 0.3, "live_action": 0.12, "code_render": 0.23}
     assert _vlm_gate(rec, live, {"native30": False}) is None          # the reader's pick trails by too much
+    # an agent review alone may still make that call when fusing lands on its pick (see test_aspects)
+    rec = {"deterministic": rec["deterministic"], "review": {"label_probs": live}}
+    assert _vlm_gate(rec, live, {"native30": False}) == live
 
 
 def test_sharpness_rhythm_alone_is_weak_evidence():

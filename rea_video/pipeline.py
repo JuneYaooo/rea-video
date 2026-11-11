@@ -429,6 +429,37 @@ def visual_opinion(rec: dict) -> dict | None:
 AI_LIVE_AXIS = ("ai_video", "live_action", "avatar")
 
 
+MUSIC_STEM_SILENT_DB = -50.0  # accompaniment stem this quiet holds no music (eval case dual_role: -60 dB; quiet BGM in ai_daihuo: -33 dB)
+SCENE_SOUND_LABELS = ("live_action", "ai_video", "avatar", "film_footage", "stop_motion", "anim_2d")  # pictures that come with their own sound
+
+
+def reviewer_name(by: str) -> str:
+    """How a reviewer is named in the report: an AI assistant as such (no model name), a person by their name."""
+    from .report import _AGENTS
+
+    return T("AI 助手", "AI assistant") if str(by).lower() in _AGENTS else str(by)
+
+
+def _placed_in_edit(e: dict, cuts: list[float] | None = None) -> bool:
+    """An effect added in the edit: it lands on a text pop or a sticker, or it sits alone (loud, with digital silence
+    around it on the effects track) on a cut. A sound that only meets a cut is not enough: filmed and generated shots
+    start with their own action sounds and the live sound jumps at every cut (eval cases v11 / v12: a box set down,
+    fruit dropping in, a lid twisted, all on cuts)."""
+    on = e.get("on") or {}
+    t = float(e.get("t", -9))
+    at_cut = any(abs(t - c) <= 0.2 for c in cuts or [])
+    # a subtitle that changes at a cut is the cut itself (eval case unboxing: tearing sounds on every cut, the line
+    # changing with it), so a text or sticker pop counts only away from a cut
+    if on and on.get("type") != "cut" and not at_cut:
+        return True
+    return bool(on) and float(e.get("level_db", -99)) >= -30 and float(e.get("bed_db", 0)) <= -80
+
+
+def _label_at(shots: list[dict], t: float) -> str | None:
+    r = next((r for r in shots if r["start"] <= t < r["end"]), None)
+    return (r.get("base") or {}).get("label") if r else None
+
+
 def _vlm_gate(rec: dict, vprobs: dict | None, vctx: dict) -> dict | None:
     """When only one image reader answered (the VLM, or an agent review, not both), let it decide only where
     image readers have proved reliable. Measured on eval/articles + holdout + holdout2: they fix 3D vs
@@ -459,7 +490,15 @@ def _vlm_gate(rec: dict, vprobs: dict | None, vctx: dict) -> dict | None:
     # only measured "rendered texture", which is the part the reader cannot see wrong (particle explainer #5 / #21:
     # tools 3D then AI, reader code render)
     same_group = group_of(v) == group_of(d) == "rendered"
-    if v not in (d, ranked[1][0]) and not person and not undecided and not same_group:  # it must back one of the tools' two best guesses
+    # an agent review is the only reader: it looked at the frames with the tools' evidence beside it and the rules in
+    # SKILL.md, so it may pick a label outside the tools' top two (eval daihuo: a camera filming a real phone reads
+    # as 3D / code render after a transcode, tools 40% / agent 97.5%). Hard frame-rate evidence below still wins.
+    # The exception holds only when fusing actually lands on the agent's pick; a compromise label nobody voted for
+    # is worse than the tools' call (eval holdout2 dual_role_realcat: agent "still image move" + tools "code render"
+    # fused to "AI video").
+    agent_only = bool(rec.get("review")) and not rec.get("vlm") \
+        and decide(fuse(rec["deterministic"]["probs"], vprobs, facts.get("temporal_family", "dynamic")))[0] == v
+    if v not in (d, ranked[1][0]) and not person and not undecided and not same_group and not agent_only:  # it must back one of the tools' two best guesses
         return None
     # the tools' confidence only protects the AI / live axis (frame-rate evidence), not a "rendered" texture call
     if (d in AI_LIVE_AXIS or v in AI_LIVE_AXIS) and not (person and d not in AI_LIVE_AXIS):
@@ -467,7 +506,7 @@ def _vlm_gate(rec: dict, vprobs: dict | None, vctx: dict) -> dict | None:
         if dp >= 0.65 and dp - sp >= 0.25 and facts.get("pulldown") != "interpolated":  # tools are sure: frame-rate evidence beats "looks real / looks like a presenter"
             return None
     if (v == "live_action" and facts.get("transcode_degraded") and not vctx.get("native30")
-            and not facts.get("native_cadence")):
+            and not facts.get("native_cadence") and not (agent_only and not facts.get("pulldown"))):
         # transcoded 24fps-source footage never becomes live action on looks alone; a shot that itself carries
         # no duplicate frames in a 30 fps file has the camera cadence, so the reader's eye decides there
         # (issue #8 lipstick ad: AI opener with pulldown + 75 s of phone footage without, whole-video native30 False)
@@ -575,26 +614,30 @@ def finalize(breakdown: dict, out: Path, engine: str | None = None) -> dict:
         label, conf = decide(probs) if vprobs else top(probs)
         src = seen.get("image_source")
         img_src = src if src and src != "unknown" else image_source_guess(rec["features"], rec["deterministic"]["facts"])
-        evidence = (list(rec["deterministic"]["evidence"]) + [f"[VLM] {e}" for e in (rec.get("vlm") or {}).get("evidence", [])[:6]]
-                    + [T("[{by} 看图] {e}", "[{by} review] {e}", by=(rec.get('review') or {}).get('_by', 'agent'), e=e)
-                       for e in (rec.get("review") or {}).get("evidence", [])[:6]])
+        # what an image reader says is visible (checkable against the frames) vs what the tools measured
+        seen_ev = ([f"[VLM] {e}" for e in (rec.get("vlm") or {}).get("evidence", [])[:6]]
+                   + [T("[{by} 看图] {e}", "[{by} review] {e}", by=reviewer_name((rec.get('review') or {}).get('_by', 'agent')), e=e)
+                      for e in (rec.get("review") or {}).get("evidence", [])[:6]])
+        measured = list(rec["deterministic"]["evidence"])
         split = (rec.get("review") or {}).get("split_suggestion")
         if split and split.get("cuts"):
-            by = (rec.get("review") or {}).get("_by", "agent")
+            by = reviewer_name((rec.get("review") or {}).get("_by", "agent"))
             seq = "→".join(LABEL_ZH.get(x, x) for x in split.get("labels") or [])
-            evidence.append(T("[{by} 看图] 本镜头疑为多刀合并，建议在 {at} 处拆分", "[{by} review] This shot looks like several cuts merged; suggest splitting at {at}",
+            seen_ev.append(T("[{by} 看图] 本镜头疑为多刀合并，建议在 {at} 处拆分", "[{by} review] This shot looks like several cuts merged; suggest splitting at {at}",
                               by=by, at=join(fmt_time(c) for c in split["cuts"][:6]))
                             + (T("（{seq}）", " ({seq})", seq=seq) if seq else "") + (T("：", ": ") + split['note'] if split.get("note") else ""))
+        evidence = measured + seen_ev
         decided = "fused" if rec.get("vlm") else ("fused_agent" if rec.get("review") else "deterministic")
         user = rec.get("user") or {}
         if user.get("label") in LABEL_ZH:  # the user said what this shot is: that is the answer
             label, conf, decided = user["label"], 1.0, "user"
             probs = {k: (1.0 if k == label else 0.0) for k in LABEL_ZH}
-            evidence = [T("[用户纠正] 改为{l}", "[User correction] Changed to {l}", l=LABEL_ZH[label]) + (T("：", ": ") + user['note'] if user.get("note") else "")] + evidence
+            measured = [T("[用户纠正] 改为{l}", "[User correction] Changed to {l}", l=LABEL_ZH[label]) + (T("：", ": ") + user['note'] if user.get("note") else "")] + measured
+            evidence = measured + seen_ev
         rec["base"] = {"label": label, "label_zh": LABEL_ZH[label], "confidence": round(conf, 3), "probs": round_floats(probs),
                        "image_source": img_src if label in ("static_hold", "still_motion") else None,
                        "generator_guess": seen.get("generator_guess"),
-                       "decided_by": decided, "evidence": evidence}
+                       "decided_by": decided, "evidence": evidence, "seen": seen_ev, "measured": measured}
         vt = (rec.get("vlm") or {}).get("label_probs")
         dt = top(rec["deterministic"]["probs"])[0]
         rv = (rec.get("review") or {}).get("label_probs")
@@ -611,8 +654,13 @@ def finalize(breakdown: dict, out: Path, engine: str | None = None) -> dict:
         if agent_dispute:
             rec["base"]["disputed"] = agent_dispute
         seen_live = (seen.get("label_probs") or {}).get("live_action", 0.0) / (sum((seen.get("label_probs") or {}).values()) or 1.0)
-        doubt = None if decided == "user" else _ai_or_live_doubt(label, rec["deterministic"]["facts"], prov, vctx, seen_live,
-                                                                  seen=bool(seen.get("label_probs")))
+        # an agent review that looked at the frames and backs the verdict firmly (and no VLM against it) settles the
+        # "to confirm" the tools would raise; it only changes the flag, not the verdict
+        ra = (rec.get("review") or {}).get("raw_probs") or (rec.get("review") or {}).get("label_probs") or {}
+        confirmed = bool(ra) and top(ra)[0] == label and ra[label] / (sum(ra.values()) or 1.0) >= 0.85 \
+            and not (vt and group_of(_top_group_label(vt)) != group_of(label))
+        doubt = None if decided == "user" or confirmed else _ai_or_live_doubt(label, rec["deterministic"]["facts"], prov, vctx, seen_live,
+                                                                               seen=bool(seen.get("label_probs")))
         if not doubt and decided != "user" and label in UNMEASURED and not (rec.get("vlm") and rec.get("review")):
             doubt = (T("{l}只有一方看图判断（工具测不出这一类）：", "{l} rests on a single image reader (the tools cannot measure this class): ", l=LABEL_ZH[label]) +
                      (T("定格动画和 AI 视频、实拍容易混", "stop motion is easily confused with AI video and live action") if label == "stop_motion"
@@ -621,7 +669,9 @@ def finalize(breakdown: dict, out: Path, engine: str | None = None) -> dict:
         if doubt:
             rec["base"]["confidence"] = round(min(conf, DOUBT_CAP), 3)
             rec["base"]["uncertain"] = doubt
-        rec["layers"], scene_text = drop_scene_text(rec["layers"], label, (rec.get("vlm") or {}).get("overlay_text"))
+        said = (rec.get("vlm") or {}).get("overlay_text")
+        said = said if isinstance(said, list) else (rec.get("review") or {}).get("overlay_text")
+        rec["layers"], scene_text = drop_scene_text(rec["layers"], label, said)
         if scene_text:
             rec["base"]["scene_text"] = scene_text  # read by OCR but printed on things in the scene, not overlays
         if label in ("code_render", "screen_capture"):
@@ -638,11 +688,15 @@ def finalize(breakdown: dict, out: Path, engine: str | None = None) -> dict:
             rec["layers"] = [l for l in rec["layers"] if not (l.get("texts") and l["kind"] in ("label", "title")
                                                                and any(_same_words(t, h) for t in l["texts"] for h in huazi))] + extra
         if (rec.get("features") or {}).get("measured_region"):
-            rec["base"]["evidence"].append(T("画面统计只在贴纸/动图之外的区域测量（x{:.0%} y{:.0%} 宽{:.0%} 高{:.0%}）",
-                                             "Picture statistics measured only outside the sticker / GIF region (x{:.0%} y{:.0%} w{:.0%} h{:.0%})").format(*rec["features"]["measured_region"]))
+            note = T("画面统计只在贴纸/动图之外的区域测量（x{:.0%} y{:.0%} 宽{:.0%} 高{:.0%}）",
+                     "Picture statistics measured only outside the sticker / GIF region (x{:.0%} y{:.0%} w{:.0%} h{:.0%})").format(*rec["features"]["measured_region"])
+            rec["base"]["evidence"].append(note)
+            rec["base"]["measured"].append(note)
         if (rec.get("features") or {}).get("picture_box"):
-            rec["base"]["evidence"].append(T("画面嵌在黑边里（画面框 x{:.0%} y{:.0%} 宽{:.0%} 高{:.0%}），画面统计只在框内测量",
-                                             "The picture sits inside black bars (box x{:.0%} y{:.0%} w{:.0%} h{:.0%}); picture statistics measured inside the box only").format(*rec["features"]["picture_box"]))
+            note = T("画面嵌在黑边里（画面框 x{:.0%} y{:.0%} 宽{:.0%} 高{:.0%}），画面统计只在框内测量",
+                     "The picture sits inside black bars (box x{:.0%} y{:.0%} w{:.0%} h{:.0%}); picture statistics measured inside the box only").format(*rec["features"]["picture_box"])
+            rec["base"]["evidence"].append(note)
+            rec["base"]["measured"].append(note)
         # imported real material: full-frame from the base label, embedded regions only where
         # the frame is a rendered layout (photographic bases would trip the region detector)
         rendered_frame = label in ("code_render", "screen_capture", "cg_3d") or (label in ("static_hold", "still_motion") and img_src in ("graphic", "screenshot"))
@@ -729,7 +783,7 @@ def finalize(breakdown: dict, out: Path, engine: str | None = None) -> dict:
         verdict += semi() + T("剪辑卡在音乐节拍上", "cuts land on the music beat")
     summary = {
         "duration": breakdown["source"]["duration"], "shots": len(shot_records), "verdict": verdict,
-        "production_mix": [{"label": k, "label_zh": LABEL_ZH[k], "seconds": round(v, 2), "ratio": round(v / total, 3)} for k, v in mix_sorted],
+        "production_mix": [{"label": k, "label_zh": LABEL_ZH[k], "seconds": round(v, 2), "ratio": round(v / total, 4)} for k, v in mix_sorted],
         "overlay_kinds": overlay_kinds, "confidence": round(conf, 3),
         "transitions": {t: sum(1 for r in shot_records if r["transition_in"] == t) for t in sorted({r["transition_in"] for r in shot_records})},
         "avg_shot_s": round(total / max(1, len(shot_records)), 2),
@@ -762,6 +816,8 @@ def finalize(breakdown: dict, out: Path, engine: str | None = None) -> dict:
     aspects.finalize(breakdown)
     breakdown["aspects"] = round_floats(breakdown["aspects"])
     summary["aspects"] = aspects.summary_lines(breakdown)
+    for rec in shot_records:  # the prompts carry this run's framing (shot size, angle, move): rebuild them now it is known
+        rec["replication"] = planner.plan_shot(rec["base"]["label"], rec, video_meta, engine=engine)
     for rec in shot_records:  # filmed shots: rebuild by shooting, with this shot's framing / camera / light
         if rec["base"]["label"] == "live_action":
             res = {k: v.get("result") for k, v in (rec.get("aspects") or {}).items() if v.get("result")}
@@ -776,11 +832,54 @@ def finalize(breakdown: dict, out: Path, engine: str | None = None) -> dict:
             rec["narrative"] = told[rec["index"]]
     breakdown["narrative"] = narrative.beats(breakdown)
 
+    st_lv = ((breakdown.get("stems") or {}).get("level_db") or {})
+    mus = audio.get("music") or {}
+    if mus.get("present") and st_lv.get("music") is not None and st_lv["music"] <= MUSIC_STEM_SILENT_DB:
+        # the separated accompaniment is near silent: the "beat" was measured on voice and room sound in the mix
+        audio["music"] = {**mus, "present": False, "dropped_by_stems": st_lv["music"]}
+    fx = Path(out) / "stems" / "effects.wav"
+    if fx.is_file():  # effects found on their own separated track replace the onsets picked off the mix
+        from .effects import detect as detect_effects
+
+        audio["sfx"] = {"events": detect_effects(fx), "source": "effects_stem"}
     breakdown["audio_plan"] = merge_audio_with_vlm(audio, breakdown.get("whole_video_vlm"))
     if pack:
         from .packaging import finalize_pack
 
         finalize_pack(breakdown, out)
+    if fx.is_file():  # the same sound used again is one effect to find, counted
+        from .effects import group as group_effects
+
+        sfx_all = breakdown["audio_plan"].get("sfx_merged", [])
+        groups = group_effects(sfx_all, fx)
+        out_groups = []
+        for g in groups:
+            mem = [sfx_all[i] for i in g["members"]]
+            for e in mem:
+                e["group"] = g["id"]
+            # the effects track also carries the picture's own sound (ambience, foley, a generator's audio). An effect
+            # added in the edit lands on an edit: a text pop, a sticker, a cut. A sound that never does, inside filmed or
+            # generated footage, is the picture's own (eval daihuo: spoon and lid sounds in the Seedance clip)
+            cuts = [r["start"] for r in shot_records[1:]]
+            in_scene = bool(pack) and not any(_placed_in_edit(e, cuts) for e in mem) and all(_label_at(shot_records, e["t"]) in SCENE_SOUND_LABELS for e in mem)
+            for e in mem:
+                e["in_scene"] = in_scene
+            out_groups.append({"id": g["id"], "rep": g["rep"], "type": sfx_all[g["rep"]].get("type", ""), "count": len(mem),
+                               "times": [round(float(e["t"]), 2) for e in mem], "in_scene": in_scene})
+        breakdown["audio_plan"]["sfx_groups"] = out_groups
+        if pack:  # the sync counts were taken before the picture's own sound was set apart: count the added effects only
+            from .packaging import summary_lines as pack_summary
+
+            counts: dict[str, int] = {}
+            possible: dict[str, int] = {}
+            for e in sfx_all:
+                on = e.get("on") or {}
+                if on and not e.get("in_scene"):
+                    tally = possible if e.get("confidence") == "low" else counts
+                    tally[on["type"]] = tally.get(on["type"], 0) + 1
+            pack["sfx_alignment"] = {**(pack.get("sfx_alignment") or {}), "sfx_on": counts, "sfx_on_possible": possible}
+            pack["summary_zh"] = pack_summary({**pack, "stickers": [st for st in pack.get("stickers", []) if not st.get("in_picture")]},
+                                              pack["sfx_alignment"])
     srcs = classify_sound_sources(breakdown)
     breakdown["sound_sources"] = srcs
     for t in breakdown["audio_plan"].get("plan", []):
@@ -814,7 +913,7 @@ def finalize(breakdown: dict, out: Path, engine: str | None = None) -> dict:
         a_parts.append(T("BGM {bpm}（{src}", "music {bpm} ({src}", bpm=T("无明显节拍", "no clear beat") if audio['music'].get('no_beat') else f"{audio['music'].get('tempo_bpm', '?')}BPM",
                          src=ms.get('source_zh', T('来源待确认', 'source to confirm')))
                        + (T("，倾向{m}", ", leaning {m}", m=MUSIC_ZH[ms['leaning']]) if ms.get("source") == "unknown" else "") + T("）", ")"))
-    sfx_all = breakdown["audio_plan"].get("sfx_merged", [])
+    sfx_all = [e for e in breakdown["audio_plan"].get("sfx_merged", []) if not e.get("in_scene")]  # the picture's own sound is not an effect to add
     n_maybe = sum(1 for e in sfx_all if e.get("confidence") == "low")
     if len(sfx_all) - n_maybe:
         a_parts.append(T("音效 {n} 处", "{n} sound effects", n=len(sfx_all) - n_maybe))
@@ -853,5 +952,10 @@ def finalize(breakdown: dict, out: Path, engine: str | None = None) -> dict:
     write_json(out / "breakdown.json", breakdown, compact=True)
     from .report import write_reports
 
+    from .stems import cut_sfx
+
+    plan_a = breakdown.get("audio_plan") or {}
+    cut_sfx(breakdown["source"].get("path", ""), plan_a.get("sfx_merged", []), out,
+            groups=[g for g in plan_a.get("sfx_groups") or [] if not g.get("in_scene")] if plan_a.get("sfx_groups") else None)
     write_reports(breakdown, out)
     return breakdown

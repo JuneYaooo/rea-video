@@ -27,7 +27,11 @@
         },
         "keyframes": {"type": "integer"},
         "shots_per_generation": {"type": "integer"},
-        "prompt_tokens": {"type": "integer"}
+        "prompt_tokens": {"type": "integer"},
+        "exclusive_inputs": {
+          "description": "Groups of primitives that cannot be used in the same request (e.g. first/last frame vs references)",
+          "type": "array", "items": {"type": "array", "items": {"type": "string", "pattern": "^video\\."}, "minItems": 1}
+        }
       }
     },
     "audio": {

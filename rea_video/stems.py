@@ -35,22 +35,27 @@ def models_dir() -> Path:
 MODEL_SHA256 = "317554b07fe1ea5279a77f2b1520a41ea4b93432560c4ffd08792c30fddf9adc"  # 校验下载，防替换
 
 
-def ensure_model(force: bool = False) -> Path:
-    p = models_dir() / MODEL_NAME
-    if not force and p.is_file() and sha256_file(p) == MODEL_SHA256:
+def ensure_file(name: str, url: str, sha256: str, size: str, force: bool = False) -> Path:
+    """A model file in models_dir(), downloaded once and checked against its SHA-256."""
+    p = models_dir() / name
+    if not force and p.is_file() and sha256_file(p) == sha256:
         return p
     p.parent.mkdir(parents=True, exist_ok=True)
-    LOG.info("downloading %s (~67 MB) -> %s", MODEL_NAME, p)
+    LOG.info("downloading %s (%s) -> %s", name, size, p)
     # per-process temp name: several decompose runs may download at the same time
     tmp = p.with_name(f"{p.name}.{os.getpid()}.{uuid.uuid4().hex[:8]}.part")
     try:
-        fetch(MODEL_URL, tmp)
-        if sha256_file(tmp) != MODEL_SHA256:
-            raise OSError(f"checksum mismatch for {MODEL_NAME} ({tmp.stat().st_size} bytes); delete it and retry")
+        fetch(url, tmp)
+        if sha256_file(tmp) != sha256:
+            raise OSError(f"checksum mismatch for {name} ({tmp.stat().st_size} bytes); delete it and retry")
         tmp.replace(p)  # atomic: readers see the old file or the complete new one
     finally:
         tmp.unlink(missing_ok=True)
     return p
+
+
+def ensure_model(force: bool = False) -> Path:
+    return ensure_file(MODEL_NAME, MODEL_URL, MODEL_SHA256, "~67 MB", force=force)
 
 
 def _session():
@@ -137,6 +142,56 @@ def extract_stems(path: str | Path, out_dir: str | Path) -> dict:
         return {"ok": False, "reason": f"{type(e).__name__}: {e}", "original": str(out / "original.wav")}
     save_wav(voc, out / "vocals.wav")
     save_wav(inst, out / "music.wav")
-    return {"ok": True, "model": MODEL_NAME, "original": str(out / "original.wav"), "vocals": str(out / "vocals.wav"),
-            "music": str(out / "music.wav"), "level_db": {"mix": round(_db(mix), 1), "vocals": round(_db(voc), 1),
-                                                         "music": round(_db(inst), 1)}}
+    got = {"ok": True, "model": MODEL_NAME, "original": str(out / "original.wav"), "vocals": str(out / "vocals.wav"),
+           "music": str(out / "music.wav"), "level_db": {"mix": round(_db(mix), 1), "vocals": round(_db(voc), 1),
+                                                        "music": round(_db(inst), 1)}}
+    # effects get a track of their own (dialogue / music / effects model): the two stems above both carry some
+    from .effects import extract_effects
+
+    fx = extract_effects(path, out_dir)
+    if fx.get("ok"):
+        got["effects"] = fx["effects"]
+        got["level_db"]["effects"] = fx["level_db"]
+        got["effects_model"] = fx["model"]
+    return got
+
+
+SFX_DIR = "sfx"
+
+
+def cut_sfx(src: str | Path, sfx: list[dict], out_dir: str | Path, limit: int = 60, groups: list[dict] | None = None) -> int:
+    """One short clip per sound effect (out_dir/sfx/sfx_NN.wav), cut from the separated effects track when there
+    is one, else from the original sound, so a reader can hear what each one is before looking for a similar one.
+    Sets e["clip"]; returns how many were written."""
+    import shutil
+
+    d = Path(out_dir) / SFX_DIR
+    shutil.rmtree(d, ignore_errors=True)
+    for e in sfx:
+        e.pop("clip", None)
+    fx = Path(out_dir) / "stems" / "effects.wav"
+    if fx.is_file():  # the effect alone, without the voice and music around it
+        src = fx
+    if not sfx or not Path(src).is_file():
+        return 0
+    d.mkdir(parents=True, exist_ok=True)
+    n = 0
+    picks = [(k, sfx[g["rep"]]) for k, g in enumerate(groups, 1)] if groups else list(enumerate(sfx[:limit], 1))
+    for i, e in picks[:limit]:
+        t = float(e.get("t", 0.0))
+        a = max(0.0, t - 0.12)  # a little lead-in so the attack is heard
+        dur = min(max(float(e.get("dur") or 0.0), 0.3) + 0.35, 1.5)
+        f = d / f"sfx_{i:02d}.wav"
+        r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{a:.3f}", "-t", f"{dur:.3f}", "-i", str(src), "-vn",
+                            "-ac", "1", "-ar", "22050", "-af", "afade=t=out:st={:.3f}:d=0.08".format(max(0.0, dur - 0.08)),
+                            "-c:a", "pcm_s16le", str(f)], capture_output=True)
+        if r.returncode == 0 and f.is_file() and f.stat().st_size > 100:
+            e["clip"] = f"{SFX_DIR}/{f.name}"
+            n += 1
+    for g in groups or []:  # one clip per distinct sound, shared by every time it is used
+        clip = sfx[g["rep"]].get("clip")
+        g["clip"] = clip
+        for i in g.get("members") or [j for j, e in enumerate(sfx) if e.get("group") == g["id"]]:
+            if clip:
+                sfx[i]["clip"] = clip
+    return n
