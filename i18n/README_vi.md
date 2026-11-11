@@ -151,6 +151,21 @@ Thay tương đương: một sản phẩm mới hoàn toàn, nhãn dán tiếng 
 
 Các video đối chiếu HD sử dụng âm thanh gốc. Bản gốc và các bản của OiiOii được trích từ bài viết để tiện đối chiếu.
 
+## Nhà tài trợ
+
+rea-video miễn phí và mã nguồn mở. Nhà tài trợ giúp dự án được duy trì.
+
+<table><tr>
+<td align="center" width="200"><a href="https://chatcut.io/r/github-e4rd"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../docs/brand/chatcut-logo-light.svg">
+  <img src="../docs/brand/chatcut-logo-dark.svg" height="32" alt="ChatCut">
+</picture></a></td>
+<td><b><a href="https://chatcut.io/r/github-e4rd">ChatCut</a></b> là công cụ dựng video AI dùng trong Claude Code và Codex: tạo các cảnh quay, sắp lên timeline và xuất video hoàn chỉnh.<br>
+<a href="https://chatcut.io/r/github-e4rd">Dùng thử ChatCut miễn phí</a></td>
+</tr></table>
+
+<sub>Được tài trợ</sub>
+
 ## Độ chính xác
 
 Độ chính xác khi kết luận cách dựng video, tính trọng số theo thời lượng từng shot:

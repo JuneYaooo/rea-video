@@ -151,6 +151,21 @@ rea-video で分解したあとは、[capsule-cinema](https://github.com/JuneYao
 
 HD 比較動画の音声は元動画のものです。元動画と OiiOii 版は記事から引用しており、比較のためだけに載せています。
 
+## スポンサー
+
+rea-video は無料のオープンソースです。スポンサーの支援でメンテナンスを続けています。
+
+<table><tr>
+<td align="center" width="200"><a href="https://chatcut.io/r/github-e4rd"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../docs/brand/chatcut-logo-light.svg">
+  <img src="../docs/brand/chatcut-logo-dark.svg" height="32" alt="ChatCut">
+</picture></a></td>
+<td><b><a href="https://chatcut.io/r/github-e4rd">ChatCut</a></b> は Claude Code と Codex で使える AI 動画編集ツールです。ショットを生成してタイムラインに並べ、完成した動画を書き出します。<br>
+<a href="https://chatcut.io/r/github-e4rd">ChatCut を無料で試す</a></td>
+</tr></table>
+
+<sub>スポンサー</sub>
+
 ## 精度
 
 制作方法の判定精度（ショットの長さで重み付け）：

@@ -151,6 +151,21 @@ Same swap: an original new product, English sticker → Chinese caption. Element
 
 The HD comparison videos use the original audio. The originals and OiiOii versions come from the articles and are shown for comparison only.
 
+## Sponsors
+
+rea-video is free and open source. Sponsors help keep it maintained.
+
+<table><tr>
+<td align="center" width="200"><a href="https://chatcut.io/r/github-e4rd"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/brand/chatcut-logo-light.svg">
+  <img src="docs/brand/chatcut-logo-dark.svg" height="32" alt="ChatCut">
+</picture></a></td>
+<td><b><a href="https://chatcut.io/r/github-e4rd">ChatCut</a></b> is an AI video editor for Claude Code and Codex that generates the shots, cuts them on a timeline and exports the finished video.<br>
+<a href="https://chatcut.io/r/github-e4rd">Try ChatCut for free</a></td>
+</tr></table>
+
+<sub>Sponsored</sub>
+
 ## Accuracy
 
 Accuracy of the how-it-was-made call, weighted by shot duration:

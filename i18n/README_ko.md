@@ -151,6 +151,21 @@ GIF마다 원본, OiiOii 리메이크, 우리 리메이크, 요소 교체 버전
 
 HD 비교 영상에는 원본 오디오를 썼습니다. 원본과 OiiOii 버전은 해당 글에서 가져왔고, 비교용으로만 보여 드립니다.
 
+## 스폰서
+
+rea-video는 무료 오픈소스입니다. 스폰서의 지원으로 꾸준히 유지보수하고 있습니다.
+
+<table><tr>
+<td align="center" width="200"><a href="https://chatcut.io/r/github-e4rd"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../docs/brand/chatcut-logo-light.svg">
+  <img src="../docs/brand/chatcut-logo-dark.svg" height="32" alt="ChatCut">
+</picture></a></td>
+<td><b><a href="https://chatcut.io/r/github-e4rd">ChatCut</a></b>는 Claude Code와 Codex에서 쓰는 AI 영상 편집 도구로, 샷을 생성하고 타임라인에서 편집해 완성된 영상을 내보냅니다.<br>
+<a href="https://chatcut.io/r/github-e4rd">ChatCut 무료로 써 보기</a></td>
+</tr></table>
+
+<sub>스폰서</sub>
+
 ## 정확도
 
 제작 방식 판정 정확도(샷 길이로 가중):

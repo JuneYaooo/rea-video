@@ -151,6 +151,21 @@ rea-video --help
 
 В HD-видео для сравнения звук оригинальный. Оригиналы и версии OiiOii взяты из статей и показаны только для сравнения.
 
+## Спонсоры
+
+rea-video бесплатный и открытый. Спонсоры помогают его поддерживать.
+
+<table><tr>
+<td align="center" width="200"><a href="https://chatcut.io/r/github-e4rd"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../docs/brand/chatcut-logo-light.svg">
+  <img src="../docs/brand/chatcut-logo-dark.svg" height="32" alt="ChatCut">
+</picture></a></td>
+<td><b><a href="https://chatcut.io/r/github-e4rd">ChatCut</a></b> — ИИ-видеоредактор для Claude Code и Codex: генерирует кадры, собирает их на таймлайне и экспортирует готовое видео.<br>
+<a href="https://chatcut.io/r/github-e4rd">Попробовать ChatCut бесплатно</a></td>
+</tr></table>
+
+<sub>Реклама</sub>
+
 ## Точность
 
 Насколько точно определяется, как сделан кадр (с весом по длительности кадров):

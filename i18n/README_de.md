@@ -151,6 +151,21 @@ Gleicher Tausch: ein eigenes, neues Produkt; englischer Sticker → chinesische 
 
 Die HD-Vergleichsvideos laufen mit dem Originalton. Originale und OiiOii-Versionen stammen aus den Artikeln und sind nur zum Vergleich dabei.
 
+## Sponsoren
+
+rea-video ist kostenlos und Open Source. Sponsoren helfen, es weiter zu pflegen.
+
+<table><tr>
+<td align="center" width="200"><a href="https://chatcut.io/r/github-e4rd"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../docs/brand/chatcut-logo-light.svg">
+  <img src="../docs/brand/chatcut-logo-dark.svg" height="32" alt="ChatCut">
+</picture></a></td>
+<td><b><a href="https://chatcut.io/r/github-e4rd">ChatCut</a></b> ist ein KI-Videoeditor für Claude Code und Codex: Er generiert die Shots, schneidet sie auf einer Timeline und exportiert das fertige Video.<br>
+<a href="https://chatcut.io/r/github-e4rd">ChatCut kostenlos testen</a></td>
+</tr></table>
+
+<sub>Gesponsert</sub>
+
 ## Genauigkeit
 
 Wie zuverlässig rea-video erkennt, wie ein Shot entstanden ist (gewichtet nach Shot-Länge):

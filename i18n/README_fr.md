@@ -151,6 +151,21 @@ Même remplacement : un nouveau produit inventé, sticker en anglais → sous-ti
 
 Les comparatifs HD utilisent le son d'origine. Les originaux et les versions d'OiiOii viennent des articles et ne sont montrés qu'à titre de comparaison.
 
+## Sponsors
+
+rea-video est gratuit et open source. Les sponsors aident à le maintenir.
+
+<table><tr>
+<td align="center" width="200"><a href="https://chatcut.io/r/github-e4rd"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../docs/brand/chatcut-logo-light.svg">
+  <img src="../docs/brand/chatcut-logo-dark.svg" height="32" alt="ChatCut">
+</picture></a></td>
+<td><b><a href="https://chatcut.io/r/github-e4rd">ChatCut</a></b> est un éditeur vidéo IA pour Claude Code et Codex qui génère les plans, les monte sur une timeline et exporte la vidéo finale.<br>
+<a href="https://chatcut.io/r/github-e4rd">Essayer ChatCut gratuitement</a></td>
+</tr></table>
+
+<sub>Sponsorisé</sub>
+
 ## Précision
 
 Précision sur le mode de fabrication de chaque plan, pondérée par la durée des plans :
