@@ -151,6 +151,8 @@ rea-video で分解したあとは、[capsule-cinema](https://github.com/JuneYao
 
 HD 比較動画の音声は元動画のものです。元動画と OiiOii 版は記事から引用しており、比較のためだけに載せています。
 
+[ChatCut](https://chatcut.io/r/github-e4rd) でリメイクすることもできます。モデルを自分で用意する必要はなく、生成したショットはそのままタイムラインに入り、続けて編集できます。<sub>スポンサー</sub>
+
 ## スポンサー
 
 rea-video は無料のオープンソースです。スポンサーの支援でメンテナンスを続けています。
@@ -164,7 +166,7 @@ rea-video は無料のオープンソースです。スポンサーの支援で�
 <a href="https://chatcut.io/r/github-e4rd">ChatCut を無料で試す</a></td>
 </tr></table>
 
-<sub>スポンサー</sub>
+<sub>スポンサー · <a href="https://reavideo.ai/en/contact/">スポンサーになる</a></sub>
 
 ## 精度
 

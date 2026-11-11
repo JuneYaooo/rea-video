@@ -151,6 +151,8 @@ Mesma troca: um produto novo, original; adesivo em inglês → legenda em chinê
 
 Os vídeos comparativos em HD usam o áudio original. Os originais e as versões da OiiOii foram tirados dos artigos e estão aqui só para comparação.
 
+Você também pode fazer o remake no [ChatCut](https://chatcut.io/r/github-e4rd), um editor de vídeo com IA hospedado: não precisa configurar nenhum modelo, e as tomadas geradas já caem numa linha do tempo que você pode continuar editando. <sub>Patrocinador</sub>
+
 ## Patrocinadores
 
 O rea-video é gratuito e open source. Os patrocinadores ajudam a mantê-lo.
@@ -164,7 +166,7 @@ O rea-video é gratuito e open source. Os patrocinadores ajudam a mantê-lo.
 <a href="https://chatcut.io/r/github-e4rd">Experimente o ChatCut de graça</a></td>
 </tr></table>
 
-<sub>Patrocinado</sub>
+<sub>Patrocinado · <a href="https://reavideo.ai/en/contact/">Seja um patrocinador</a></sub>
 
 ## Precisão
 

@@ -151,6 +151,8 @@ Même remplacement : un nouveau produit inventé, sticker en anglais → sous-ti
 
 Les comparatifs HD utilisent le son d'origine. Les originaux et les versions d'OiiOii viennent des articles et ne sont montrés qu'à titre de comparaison.
 
+Le remake peut aussi se faire dans [ChatCut](https://chatcut.io/r/github-e4rd), un éditeur vidéo IA hébergé : aucun modèle à configurer, et les plans générés arrivent sur une timeline que vous pouvez continuer à monter. <sub>Sponsor</sub>
+
 ## Sponsors
 
 rea-video est gratuit et open source. Les sponsors aident à le maintenir.
@@ -164,7 +166,7 @@ rea-video est gratuit et open source. Les sponsors aident à le maintenir.
 <a href="https://chatcut.io/r/github-e4rd">Essayer ChatCut gratuitement</a></td>
 </tr></table>
 
-<sub>Sponsorisé</sub>
+<sub>Sponsorisé · <a href="https://reavideo.ai/en/contact/">Devenir sponsor</a></sub>
 
 ## Précision
 

@@ -151,6 +151,8 @@ Mismo cambio: un producto nuevo y propio, sticker en inglés → subtítulo en c
 
 Los vídeos comparativos en HD llevan el audio original. Los originales y las versiones de OiiOii salen de esos artículos y se incluyen solo para comparar.
 
+También puedes hacer el remake en [ChatCut](https://chatcut.io/r/github-e4rd), un editor de vídeo con IA en la nube: no hay que configurar ningún modelo y las tomas generadas van directas a una línea de tiempo que puedes seguir editando. <sub>Patrocinador</sub>
+
 ## Patrocinadores
 
 rea-video es gratuito y de código abierto. Los patrocinadores ayudan a mantenerlo.
@@ -164,7 +166,7 @@ rea-video es gratuito y de código abierto. Los patrocinadores ayudan a mantener
 <a href="https://chatcut.io/r/github-e4rd">Prueba ChatCut gratis</a></td>
 </tr></table>
 
-<sub>Patrocinado</sub>
+<sub>Patrocinado · <a href="https://reavideo.ai/en/contact/">Hazte patrocinador</a></sub>
 
 ## Precisión
 

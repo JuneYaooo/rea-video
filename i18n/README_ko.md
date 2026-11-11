@@ -151,6 +151,8 @@ GIF마다 원본, OiiOii 리메이크, 우리 리메이크, 요소 교체 버전
 
 HD 비교 영상에는 원본 오디오를 썼습니다. 원본과 OiiOii 버전은 해당 글에서 가져왔고, 비교용으로만 보여 드립니다.
 
+[ChatCut](https://chatcut.io/r/github-e4rd)로 리메이크할 수도 있습니다. 모델을 직접 설정할 필요 없이, 생성된 샷이 바로 타임라인에 들어가 이어서 편집할 수 있습니다. <sub>스폰서</sub>
+
 ## 스폰서
 
 rea-video는 무료 오픈소스입니다. 스폰서의 지원으로 꾸준히 유지보수하고 있습니다.
@@ -164,7 +166,7 @@ rea-video는 무료 오픈소스입니다. 스폰서의 지원으로 꾸준히 �
 <a href="https://chatcut.io/r/github-e4rd">ChatCut 무료로 써 보기</a></td>
 </tr></table>
 
-<sub>스폰서</sub>
+<sub>스폰서 · <a href="https://reavideo.ai/en/contact/">스폰서 되기</a></sub>
 
 ## 정확도
 

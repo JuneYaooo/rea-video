@@ -151,6 +151,8 @@ Same swap: an original new product, English sticker → Chinese caption. Element
 
 The HD comparison videos use the original audio. The originals and OiiOii versions come from the articles and are shown for comparison only.
 
+You can also do the remake in [ChatCut](https://chatcut.io/r/github-e4rd), a hosted AI video editor: there is no model to set up, and the generated shots land on a timeline you can keep editing. <sub>Sponsor</sub>
+
 ## Sponsors
 
 rea-video is free and open source. Sponsors help keep it maintained.
@@ -164,7 +166,7 @@ rea-video is free and open source. Sponsors help keep it maintained.
 <a href="https://chatcut.io/r/github-e4rd">Try ChatCut for free</a></td>
 </tr></table>
 
-<sub>Sponsored</sub>
+<sub>Sponsored · <a href="https://reavideo.ai/en/contact/">Become a sponsor</a></sub>
 
 ## Accuracy
 

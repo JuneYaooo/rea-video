@@ -151,6 +151,8 @@ Gleicher Tausch: ein eigenes, neues Produkt; englischer Sticker → chinesische 
 
 Die HD-Vergleichsvideos laufen mit dem Originalton. Originale und OiiOii-Versionen stammen aus den Artikeln und sind nur zum Vergleich dabei.
 
+Das Remake geht auch mit [ChatCut](https://chatcut.io/r/github-e4rd), einem gehosteten KI-Videoeditor: Kein Modell muss eingerichtet werden, und die generierten Shots landen auf einer Timeline, die du weiter bearbeiten kannst. <sub>Sponsor</sub>
+
 ## Sponsoren
 
 rea-video ist kostenlos und Open Source. Sponsoren helfen, es weiter zu pflegen.
@@ -164,7 +166,7 @@ rea-video ist kostenlos und Open Source. Sponsoren helfen, es weiter zu pflegen.
 <a href="https://chatcut.io/r/github-e4rd">ChatCut kostenlos testen</a></td>
 </tr></table>
 
-<sub>Gesponsert</sub>
+<sub>Gesponsert · <a href="https://reavideo.ai/en/contact/">Sponsor werden</a></sub>
 
 ## Genauigkeit
 

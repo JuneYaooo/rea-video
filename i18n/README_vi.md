@@ -151,6 +151,8 @@ Thay tương đương: một sản phẩm mới hoàn toàn, nhãn dán tiếng 
 
 Các video đối chiếu HD sử dụng âm thanh gốc. Bản gốc và các bản của OiiOii được trích từ bài viết để tiện đối chiếu.
 
+Bạn cũng có thể remake bằng [ChatCut](https://chatcut.io/r/github-e4rd), công cụ dựng video AI chạy sẵn trên đám mây: không cần tự cấu hình mô hình, các cảnh quay tạo ra được đưa thẳng lên timeline để bạn dựng tiếp. <sub>Nhà tài trợ</sub>
+
 ## Nhà tài trợ
 
 rea-video miễn phí và mã nguồn mở. Nhà tài trợ giúp dự án được duy trì.
@@ -164,7 +166,7 @@ rea-video miễn phí và mã nguồn mở. Nhà tài trợ giúp dự án đư�
 <a href="https://chatcut.io/r/github-e4rd">Dùng thử ChatCut miễn phí</a></td>
 </tr></table>
 
-<sub>Được tài trợ</sub>
+<sub>Được tài trợ · <a href="https://reavideo.ai/en/contact/">Trở thành nhà tài trợ</a></sub>
 
 ## Độ chính xác
 

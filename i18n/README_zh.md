@@ -149,6 +149,8 @@ rea-video 拆完，交给 [capsule-cinema](https://github.com/JuneYaooo/capsule-
 
 高清对比视频的声音用原片。原片和 OiiOii 版取自公众号文章，仅用于对比展示。
 
+也可以用 [ChatCut](https://chatcut.io/r/github-e4rd) 来复刻：不用自己配模型，生成的镜头直接进时间线，可以接着剪。<sub>赞助商</sub>
+
 ## 赞助商
 
 rea-video 免费开源，赞助商的支持让它能持续维护。
@@ -162,7 +164,7 @@ rea-video 免费开源，赞助商的支持让它能持续维护。
 <a href="https://chatcut.io/r/github-e4rd">免费试用 ChatCut</a></td>
 </tr></table>
 
-<sub>赞助内容</sub>
+<sub>赞助内容 · <a href="https://reavideo.ai/zh/contact/">成为赞助商</a></sub>
 
 ## 准不准
 
