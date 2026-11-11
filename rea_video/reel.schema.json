@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/JuneYaooo/rea-video/reel.schema.json",
-  "title": "Reel v1 front matter",
+  "title": "Reel front matter",
   "description": "Front matter of the files in a Reel package (docs/reel.md). Unknown fields are allowed everywhere: readers ignore what they do not know.",
   "$defs": {
     "version": {"const": 1},

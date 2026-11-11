@@ -316,7 +316,7 @@ def _schema_errors(data: dict, part: str, where: str) -> list[str]:
 
 
 def check(root: Path) -> list[str]:
-    """Problems that make `root` a non-conforming Reel v1 package (empty list = conforms). See docs/reel.md, “Conformance”."""
+    """Problems that make `root` a non-conforming Reel package (empty list = conforms). See docs/reel.md, “Conformance”."""
     root = Path(root)
     errs: list[str] = []
     entry = root / ENTRY

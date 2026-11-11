@@ -142,8 +142,12 @@ def test_effects_found_on_their_own_track(tmp_path):
 
 
 def test_effects_separation_degrades_without_a_model(tmp_path, monkeypatch):
+    import sys
+    import types
+
     from rea_video import effects
 
+    monkeypatch.setitem(sys.modules, "onnxruntime", types.SimpleNamespace(InferenceSession=lambda *a, **k: None))
     monkeypatch.setattr(effects, "ensure_model", lambda: (_ for _ in ()).throw(OSError("offline")))
     got = effects.extract_effects(tmp_path / "x.wav", tmp_path)
     assert got["ok"] is False and "offline" in got["reason"]

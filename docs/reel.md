@@ -1,4 +1,4 @@
-# Reel 拆片包：视频拆解的标准包（v1）
+# Reel 拆片包：视频拆解的标准包
 
 拆一条视频，会得到两样东西：
 
@@ -31,7 +31,7 @@
 ```bash
 rea-video decompose ref.mp4 -o out/ref      # 拆解时一起生成拆片包
 rea-video reel out/ref                      # 旧的输出目录，从 breakdown.json 补出拆片包
-rea-video reel out/ref --check              # 检查是否符合 Reel v1
+rea-video reel out/ref --check              # 检查是否符合 Reel 格式
 ```
 
 ```python
@@ -191,7 +191,7 @@ pkg = reel.read("out/ref")      # {"card": {...}, "timeline": [{"shot": 7, "star
 
 ## 一致性要求
 
-一个目录是合格的 Reel v1 拆片包，当且仅当：
+一个目录是合格的 Reel 拆片包，当且仅当：
 
 1. 根目录有 `REEL.md`，前置信息符合 schema 里的 `card`。
 2. `REEL.md` 地图里列出的每个路径都存在。
@@ -203,7 +203,7 @@ pkg = reel.read("out/ref")      # {"card": {...}, "timeline": [{"shot": 7, "star
 schema 在 `rea_video/reel.schema.json`（JSON Schema 2020-12）。检查一个目录：
 
 ```bash
-rea-video reel out/ref --check     # 合格时输出“符合 Reel v1”，否则逐条列出问题，退出码 1
+rea-video reel out/ref --check     # 合格时输出“符合 Reel 格式”，否则逐条列出问题，退出码 1
 ```
 
 写拆片包的一方必须满足上面全部规则；读的一方遇到不认识的字段、键、主题文件时忽略，不报错。

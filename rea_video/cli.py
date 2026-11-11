@@ -164,7 +164,7 @@ def cmd_reel(args) -> int:
         from .reel import check
 
         errs = check(root)
-        print("\n".join(errs) if errs else T("符合 Reel v1", "conforms to Reel v1"))
+        print("\n".join(errs) if errs else T("符合 Reel 格式", "conforms to the Reel format"))
         return 1 if errs else 0
     b = read_json(root / "breakdown.json")
     set_lang(b.get("lang", "zh"))
