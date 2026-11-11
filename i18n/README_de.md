@@ -118,12 +118,6 @@ Erkennt richtig, dass der Song KI-generiert ist (er stammt aus Suno). Das Vision
 Komplett echt gedreht: Handy-Rig von oben, ein Teppich, eine Kameraposition, kein Voice-over, Raumton plus Stock-BGM. Nach dem Transcoding durch die Plattform hielt das Offline-Tool 35 % für KI; nach der Prüfung durch den Agenten waren es 97 % Realaufnahmen.<br>
 <a href="../docs/cases/videos/unboxing.mp4">Video</a> · <a href="../docs/cases/unboxing/report_en.md">Bericht</a>
 </td>
-<td width="50%" valign="top">
-<a href="../docs/cases.md#7-ai-与真人混合用自己的出镜视频生成带货片"><img src="../docs/cases/ai_daihuo/thumb.jpg"></a><br>
-<b>Hybrid aus KI und echter Person</b> · 58 s · 21 Shots<br>
-75 % echt (Talking Head + abgefilmter Handybildschirm), 25 % KI: Die Creatorin hat Jimeng einen Clip von sich vor der Kamera und zwei Produktfotos gegeben und daraus ein Produktsegment mit „echter Person“ generieren lassen. Verraten haben den KI-Teil das Jimeng-Wasserzeichen und verstümmelter Text auf der Geschenkbox.<br>
-<a href="../docs/cases/videos/ai_daihuo.mp4">Video</a> · <a href="../docs/cases/ai_daihuo/report_en.md">Bericht</a>
-</td>
 </tr>
 </table>
 

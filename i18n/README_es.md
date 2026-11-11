@@ -118,12 +118,6 @@ Detecta bien que la canción es de IA (se hizo con Suno). El modelo de visión t
 Todo es imagen real: el móvil en un soporte cenital, una alfombra, una sola posición de cámara, sin voz en off, solo sonido ambiente y música de fondo de biblioteca. Por la recompresión de la plataforma, la herramienta offline dio un 35 % como IA; tras la revisión del agente, quedó en un 97 % de imagen real.<br>
 <a href="../docs/cases/videos/unboxing.mp4">Vídeo</a> · <a href="../docs/cases/unboxing/report_en.md">Informe</a>
 </td>
-<td width="50%" valign="top">
-<a href="../docs/cases.md#7-ai-与真人混合用自己的出镜视频生成带货片"><img src="../docs/cases/ai_daihuo/thumb.jpg"></a><br>
-<b>Híbrido de IA y persona real</b> · 58 s · 21 planos<br>
-75 % real (vídeo a cámara + la pantalla de un móvil grabada) y 25 % IA: la creadora le pasó a Jimeng un clip suyo hablando a cámara y dos fotos del producto para generar un tramo de producto "con persona real". La parte de IA la delataron la marca de agua de Jimeng y el texto deformado de la caja de regalo.<br>
-<a href="../docs/cases/videos/ai_daihuo.mp4">Vídeo</a> · <a href="../docs/cases/ai_daihuo/report_en.md">Informe</a>
-</td>
 </tr>
 </table>
 

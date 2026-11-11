@@ -118,12 +118,6 @@ Acerta que a música foi gerada por IA (foi feita no Suno). O modelo de visão c
 Tudo filmado: celular num suporte apontado de cima, um tapete, uma posição de câmera, sem narração, som ambiente e trilha de biblioteca. Como a plataforma recomprimiu o vídeo, a ferramenta offline marcou 35% como IA; depois da revisão do agente, ficou em 97% filmagem real.<br>
 <a href="../docs/cases/videos/unboxing.mp4">Vídeo</a> · <a href="../docs/cases/unboxing/report_en.md">Relatório</a>
 </td>
-<td width="50%" valign="top">
-<a href="../docs/cases.md#7-ai-与真人混合用自己的出镜视频生成带货片"><img src="../docs/cases/ai_daihuo/thumb.jpg"></a><br>
-<b>Híbrido de IA + pessoa real</b> · 58 s · 21 planos<br>
-75% real (apresentadora falando para a câmera + tela de celular filmada) e 25% IA: a criadora mandou para o Jimeng um clipe dela mesma falando para a câmera e duas fotos do produto, e gerou um trecho de venda com "pessoa real". A parte de IA foi pega pela marca d'água do Jimeng e pelo texto embaralhado na caixa de presente.<br>
-<a href="../docs/cases/videos/ai_daihuo.mp4">Vídeo</a> · <a href="../docs/cases/ai_daihuo/report_en.md">Relatório</a>
-</td>
 </tr>
 </table>
 

@@ -118,12 +118,6 @@ AI キャラの会話 + コードで作った UI + 8 秒の実際の画面録画
 全編実写。スマホを俯瞰スタンドに固定し、ラグ 1 枚・カメラ位置 1 つ、ナレーションなし、環境音 + ライブラリ BGM。プラットフォームの再エンコードのせいでツール単体では 35% を AI と誤判定しましたが、エージェントの目視確認で実写 97% まで戻りました。<br>
 <a href="../docs/cases/videos/unboxing.mp4">動画</a> · <a href="../docs/cases/unboxing/report_ja.md">レポート</a>
 </td>
-<td width="50%" valign="top">
-<a href="../docs/cases.md#7-ai-与真人混合用自己的出镜视频生成带货片"><img src="../docs/cases/ai_daihuo/thumb.jpg"></a><br>
-<b>AI と実写のハイブリッド</b> · 58 秒 · 21 ショット<br>
-実写 75%（トーク + スマホ画面の撮影）、AI 25%。投稿者が自分の出演クリップと商品写真 2 枚を即夢に渡して、「本人が商品を紹介している」AI 映像を作っています。即夢の透かしとギフトボックスの文字化けから AI 部分を特定しました。<br>
-<a href="../docs/cases/videos/ai_daihuo.mp4">動画</a> · <a href="../docs/cases/ai_daihuo/report_ja.md">レポート</a>
-</td>
 </tr>
 </table>
 

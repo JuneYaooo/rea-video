@@ -116,12 +116,6 @@ AI 人物对话 + 代码界面 + 8 秒真实录屏。5 个对话镜头被界面�
 全部实拍：头顶俯拍支架、一块地毯一个机位，无口播，同期声 + 曲库 BGM。平台转码后，工具把 35% 判成了 AI，agent 看图复核后回到 97% 实拍。<br>
 <a href="../docs/cases/videos/unboxing.mp4">视频</a> · <a href="../docs/cases/unboxing/report.md">报告</a>
 </td>
-<td width="50%" valign="top">
-<a href="../docs/cases.md#7-ai-与真人混合用自己的出镜视频生成带货片"><img src="../docs/cases/ai_daihuo/thumb.jpg"></a><br>
-<b>AI 与真人混合</b> · 58 秒 · 21 镜<br>
-实拍 75%（口播 + 拍手机屏幕演示）+ AI 25%：作者拿自己的出镜视频和两张商品图，在即梦里生成「真人带货」片段。靠即梦水印和礼盒乱码认出 AI 段。<br>
-<a href="../docs/cases/videos/ai_daihuo.mp4">视频</a> · <a href="../docs/cases/ai_daihuo/report.md">报告</a>
-</td>
 </tr>
 </table>
 

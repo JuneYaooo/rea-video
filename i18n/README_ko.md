@@ -118,12 +118,6 @@ AI 캐릭터 대화 + 코드로 만든 UI + 실제 화면 녹화 8초. 대화 �
 전부 실제 촬영입니다. 부감 휴대폰 거치대, 러그 한 장, 카메라 위치 한 곳, 보이스오버 없이 현장음과 라이브러리 BGM. 플랫폼 트랜스코딩을 거친 탓에 오프라인 도구는 35%를 AI로 판정했는데, 에이전트가 검토한 뒤 97% 실사로 바로잡았습니다.<br>
 <a href="../docs/cases/videos/unboxing.mp4">영상</a> · <a href="../docs/cases/unboxing/report_en.md">리포트</a>
 </td>
-<td width="50%" valign="top">
-<a href="../docs/cases.md#7-ai-与真人混合用自己的出镜视频生成带货片"><img src="../docs/cases/ai_daihuo/thumb.jpg"></a><br>
-<b>AI + 실제 인물 혼합</b> · 58초 · 21샷<br>
-75%는 실제 촬영(토킹헤드 + 휴대폰 화면 촬영), 25%는 AI입니다. 크리에이터가 자기 출연 영상과 제품 사진 두 장을 Jimeng에 넣어 "실제 인물"이 나오는 제품 구간을 만들었습니다. AI 부분은 Jimeng 워터마크와 선물 상자에 깨진 글자로 잡아냈습니다.<br>
-<a href="../docs/cases/videos/ai_daihuo.mp4">영상</a> · <a href="../docs/cases/ai_daihuo/report_en.md">리포트</a>
-</td>
 </tr>
 </table>
 

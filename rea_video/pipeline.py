@@ -429,7 +429,7 @@ def visual_opinion(rec: dict) -> dict | None:
 AI_LIVE_AXIS = ("ai_video", "live_action", "avatar")
 
 
-MUSIC_STEM_SILENT_DB = -50.0  # accompaniment stem this quiet holds no music (eval case dual_role: -60 dB; quiet BGM in ai_daihuo: -33 dB)
+MUSIC_STEM_SILENT_DB = -50.0  # accompaniment stem this quiet holds no music (eval case dual_role: -60 dB; quiet BGM in eval daihuo: -33 dB)
 SCENE_SOUND_LABELS = ("live_action", "ai_video", "avatar", "film_footage", "stop_motion", "anim_2d")  # pictures that come with their own sound
 
 

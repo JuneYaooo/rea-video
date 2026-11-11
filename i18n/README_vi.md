@@ -118,12 +118,6 @@ Bắt đúng bài hát do AI tạo (làm bằng Suno). Vision model từng nhậ
 100% quay thật: điện thoại gắn giá quay từ trên xuống, một tấm thảm, một góc máy, không thu lời bình, chỉ có tiếng phòng và nhạc nền từ kho. Sau khi bị nền tảng nén lại, công cụ offline đoán nhầm 35% là AI; qua bước agent rà soát ảnh thì kết quả về đúng 97% quay thật.<br>
 <a href="../docs/cases/videos/unboxing.mp4">Video</a> · <a href="../docs/cases/unboxing/report_en.md">Báo cáo</a>
 </td>
-<td width="50%" valign="top">
-<a href="../docs/cases.md#7-ai-与真人混合用自己的出镜视频生成带货片"><img src="../docs/cases/ai_daihuo/thumb.jpg"></a><br>
-<b>Kết hợp AI + người thật</b> · 58 giây · 21 shot<br>
-75% quay thật (người dẫn nói trước ống kính + quay màn hình điện thoại) và 25% AI: tác giả đưa clip tự quay và 2 ảnh sản phẩm vào Jimeng để tạo đoạn giới thiệu "người thật". Phần AI bị lộ qua watermark Jimeng và chữ trên hộp quà bị biến dạng.<br>
-<a href="../docs/cases/videos/ai_daihuo.mp4">Video</a> · <a href="../docs/cases/ai_daihuo/report_en.md">Báo cáo</a>
-</td>
 </tr>
 </table>
 

@@ -118,12 +118,6 @@ La chanson est bien identifiée comme générée par IA (elle a été faite avec
 Entièrement tourné : un téléphone fixé en plongée, un tapis, une seule position de caméra, pas de voix off, son d'ambiance et musique de fond de librairie. Après le transcodage de la plateforme, l'outil hors ligne en classait 35 % en IA ; après vérification par l'agent, on arrive à 97 % de prise de vue réelle.<br>
 <a href="../docs/cases/videos/unboxing.mp4">Vidéo</a> · <a href="../docs/cases/unboxing/report_en.md">Rapport</a>
 </td>
-<td width="50%" valign="top">
-<a href="../docs/cases.md#7-ai-与真人混合用自己的出镜视频生成带货片"><img src="../docs/cases/ai_daihuo/thumb.jpg"></a><br>
-<b>Hybride IA + personne réelle</b> · 58 s · 21 plans<br>
-75 % réel (face caméra + écran de téléphone filmé) et 25 % IA : la créatrice a fourni à Jimeng son propre clip face caméra et deux photos produit pour générer un passage produit « avec une vraie personne ». La partie IA a été trahie par le filigrane Jimeng et le texte illisible sur la boîte cadeau.<br>
-<a href="../docs/cases/videos/ai_daihuo.mp4">Vidéo</a> · <a href="../docs/cases/ai_daihuo/report_en.md">Rapport</a>
-</td>
 </tr>
 </table>
 

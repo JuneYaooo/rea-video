@@ -118,12 +118,6 @@ Correctly flags the song as AI-generated (it was made with Suno). The vision mod
 All real footage: an overhead phone rig, one rug, one camera position, no voice-over, room sound plus library BGM. After platform transcoding, the offline tools called 35% of it AI; after agent review it came out 97% live-action.<br>
 <a href="docs/cases/videos/unboxing.mp4">Video</a> · <a href="docs/cases/unboxing/report_en.md">Report</a>
 </td>
-<td width="50%" valign="top">
-<a href="docs/cases.md#7-ai-与真人混合用自己的出镜视频生成带货片"><img src="docs/cases/ai_daihuo/thumb.jpg"></a><br>
-<b>AI + real person hybrid</b> · 58 s · 21 shots<br>
-75% real (talking head + filming a phone screen) and 25% AI: the creator fed her own on-camera clip and two product photos to Jimeng to generate a "real-person" product segment. The AI part gave itself away with the Jimeng watermark and garbled text on the gift box.<br>
-<a href="docs/cases/videos/ai_daihuo.mp4">Video</a> · <a href="docs/cases/ai_daihuo/report_en.md">Report</a>
-</td>
 </tr>
 </table>
 
