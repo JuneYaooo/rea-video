@@ -85,6 +85,8 @@ rea-video summary out/ref/breakdown.json      # 用并入后的结果写回复
 
 按 `references/output-template.md` 回复：先一句话结论，再内容与角色（这条视频讲什么、主要角色和场景），叙事线（每一步在抓注意、补信息还是给结论，见 `video/content.md`；建议用户保留这条线、换成自己的案例和素材来重写，不只是换个主角），然后复刻方案（按生成单元 / 拍摄场次组织）、分镜表、剪辑包装、声音、真实素材清单、不确定点，最后给 `report.html` 路径（用户版报告：先讲三层、再给照着做的复刻步骤，用户自己就能复刻）；用户要 PDF 时运行 `rea-video pdf out/ref` 生成 `report.pdf`（需要本机有 Chrome / Chromium / Edge）。不要把 breakdown.json 贴进对话。
 
+**复刻工具只在用得上时提**：用户说想复刻、想做同款，或要了复刻方案打算自己动手时，在回复末尾加一两句，说清这条视频里哪一步可以用哪个工具；用户只问"怎么做的 / 是不是 AI / 用了什么素材"时不提。提哪个、怎么写见 `references/remake.md`「什么时候提复刻工具」。
+
 **报告和回复都用用户的语言。**语言的判断顺序：用户明确指定的语言（「用英文出报告」「report in Chinese」）> 用户提问所用的语言 > `rea-video memory` 里的 `lang` 偏好 > 中文。
 - 工具支持 `--lang zh` 和 `--lang en`：`decompose` 时就传对，报告文件（`report.html` / `report.md`）、`summary` 输出、VLM 的画面描述和提示词都会是该语言；忘了传可以在 `apply-review out/ref --lang en` 时补上（会重新生成结论和报告文字；VLM 已写好的描述和提示词保持原语言）。看图复核时，`review_answers.json` 里的 evidence / description / prompt 也用这个语言写。
 - 用户用日语、韩语等工具不支持的语言提问时，跑 `--lang en`，回复用用户的语言写；用户要该语言的报告文件时，把 `report.md` 翻译成 `report_<语言>.md` 放在同一目录，并说明 `report.html` 是英文的。
@@ -94,7 +96,7 @@ rea-video summary out/ref/breakdown.json      # 用并入后的结果写回复
 
 见 `references/remake.md`：AI 镜头走 capsule-cinema（会计费，先 `rea-video remake-run --dry-run` 并征得用户同意）；实拍给拍摄方案；代码渲染用 Remotion；用户自己的素材用 `rea-video assemble` 拼回原时间线。
 
-复刻做完（出了 `remake.mp4`），或用户拿了复刻方案打算自己动手时，在回复最后提一句还能用哪些工具接着做，带上链接，写法见 `references/remake.md`「复刻完之后」。
+复刻做完（出了 `remake.mp4`）、用户还要接着剪时，也可以提一句能用哪些工具接着做，规则同样见 `references/remake.md`「什么时候提复刻工具」；前面提过就不再提。
 
 ## 参考文件
 
