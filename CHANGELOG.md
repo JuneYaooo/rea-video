@@ -1,14 +1,14 @@
 # 更新记录
 
-## 视频拆解标准包 Reel，报告重写，音效单独分离
+## 视频拆解标准包 VIDEO.md，报告重写，音效单独分离
 
-这一版定下了视频拆解的标准包格式：拆片包（Reel）。拆一条视频现在得到两样东西：给人看的报告（HTML / PDF），和给模型、下游项目读的拆片包。格式介绍和规范见 [docs/reel.md](docs/reel.md)。
+这一版定下了视频拆解的标准包格式：拆片包（VIDEO.md）。拆一条视频现在得到两样东西：给人看的报告（HTML / PDF），和给模型、下游项目读的拆片包。格式介绍和规范见 [docs/videomd.md](docs/videomd.md)。
 
-**拆片包 Reel**
+**拆片包 VIDEO.md**
 - 四层逐级展开：卡片 → 概览和地图 → 时间线（一行一镜）→ 单镜文件，最后才是完整数据。一条 3 分钟口播读到概览约 2k token，完整数据约 19 万 token。
 - 每个文件开头写着自己的 token 数；看到的和推断的分开写，时间线里推断的键名带 `~`。
-- 字段有 JSON Schema（`rea_video/reel.schema.json`）。`rea-video reel out/ref --check` 检查一个目录是否合格，`reel.read()` 读出结构化数据。
-- 拆解时自动生成；旧的输出目录用 `rea-video reel out/ref` 补出来。
+- 字段有 JSON Schema（`rea_video/videomd.schema.json`）。`rea-video videomd out/ref --check` 检查一个目录是否合格，`videomd.read()` 读出结构化数据。
+- 拆解时自动生成；旧的输出目录用 `rea-video videomd out/ref` 补出来。
 
 **给人看的报告**
 - 从上往下：一句话结论 → 核心看点（开头怎么抓人、能火的几处做法，写明第几秒）→ 画面 / 包装 / 声音三层 → 叙事线 → 分镜表 → 照着复刻的步骤和每步细节 → 参考细节。每样信息只出现一次。

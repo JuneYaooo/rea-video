@@ -1,8 +1,8 @@
-"""Reel, the package a model reads: a small card, a map, one line per shot, one file per shot, all consistent."""
+"""VIDEO.md, the package a model reads: a small card, a map, one line per shot, one file per shot, all consistent."""
 import json
 import re
 
-from rea_video import reel
+from rea_video import videomd
 from rea_video.i18n import set_lang
 from rea_video.report import write_reports
 
@@ -13,33 +13,33 @@ def test_package_levels_and_map(breakdown, tmp_path):  # noqa: F811
     b, out = breakdown
     set_lang("zh")
     write_reports(_with_vlm(b), out)
-    card, body = reel.read_file(out / reel.ENTRY)
+    card, body = videomd.read_file(out / videomd.ENTRY)
     # L0: the card is small and says what the video is and how sure
-    assert card["reel"] == reel.VERSION and card["shots"] == len(b["shots"]) and card["description"]
-    assert reel.tokens(json.dumps(card, ensure_ascii=False)) < 300
+    assert card["videomd"] == videomd.VERSION and card["generator"]["name"] == "rea-video" and card["shots"] == len(b["shots"]) and card["description"]
+    assert videomd.tokens(json.dumps(card, ensure_ascii=False)) < 300
     assert abs(sum(card["made_mix"].values()) - 1) < 0.02
     # L1: every file the map names exists; sizes are given so a reader can choose
     rows = re.findall(r"^\| `([^`]+)` \|", body, re.M)
-    assert "reel/timeline.md" in rows and "breakdown.json" in rows
+    assert "video/timeline.md" in rows and "breakdown.json" in rows
     for p in rows:
         if "…" not in p and "," not in p:
             assert (out / p).exists(), p
-    for p in out.glob("reel/*.md"):
-        fm, text = reel.read_file(p)
-        assert fm["reel"] == reel.VERSION and fm["tokens"] > 0 and "<details>" not in text
-    assert len(list((out / "reel" / "shots").glob("*.md"))) == len(b["shots"])
+    for p in out.glob("video/*.md"):
+        fm, text = videomd.read_file(p)
+        assert fm["videomd"] == videomd.VERSION and fm["tokens"] > 0 and "<details>" not in text
+    assert len(list((out / "video" / "shots").glob("*.md"))) == len(b["shots"])
 
 
 def test_timeline_lines_parse_and_mark_inference(breakdown):  # noqa: F811
     b, out = breakdown
     set_lang("zh")
     write_reports(_with_vlm(b), out)
-    pkg = reel.read(out)
+    pkg = videomd.read(out)
     tl = pkg["timeline"]
     assert [x["shot"] for x in tl] == [r["index"] for r in b["shots"]]
     for x, r in zip(tl, b["shots"]):
         assert abs(x["start"] - r["start"]) < 0.06 and f"({r['base']['label']})" in x["made~"]
-        assert set(x) - {"shot", "start", "end"} <= set(reel.KEYS)
+        assert set(x) - {"shot", "start", "end"} <= set(videomd.KEYS)
     # the per-shot front matter is the machine view of the same verdict
     for r in b["shots"]:
         fm = pkg["shots"][r["index"]]
@@ -47,19 +47,29 @@ def test_timeline_lines_parse_and_mark_inference(breakdown):  # noqa: F811
 
 
 def test_shot_line_escapes_separators():
-    assert reel._one_line("a | b|c\nd") == "a / b/c d"
-    assert reel.parse_timeline_line("#07 16.2-18.5 | seen 红圈 | made~ 录屏(screen_capture) 44%") == {
+    assert videomd._one_line("a | b|c\nd") == "a / b/c d"
+    assert videomd.parse_timeline_line("#07 16.2-18.5 | seen 红圈 | made~ 录屏(screen_capture) 44%") == {
         "shot": 7, "start": 16.2, "end": 18.5, "seen": "红圈", "made~": "录屏(screen_capture) 44%"}
-    assert reel.parse_timeline_line("## heading") is None
+    assert videomd.parse_timeline_line("## heading") is None
 
 
 def test_rewrite_drops_stale_shot_files(breakdown, tmp_path):  # noqa: F811
     b, out = breakdown
     set_lang("zh")
-    (out / "reel" / "shots").mkdir(parents=True, exist_ok=True)
-    (out / "reel" / "shots" / "99.md").write_text("old", encoding="utf-8")
-    reel.write(b, out)
-    assert not (out / "reel" / "shots" / "99.md").exists()
+    (out / "video" / "shots").mkdir(parents=True, exist_ok=True)
+    (out / "video" / "shots" / "99.md").write_text("old", encoding="utf-8")
+    videomd.write(b, out)
+    assert not (out / "video" / "shots" / "99.md").exists()
+
+
+def test_neutral_ids_in_the_package(breakdown):  # noqa: F811
+    b, out = breakdown
+    set_lang("zh")
+    write_reports(_with_vlm(b), out)
+    pkg = videomd.read(out)
+    assert set(pkg["card"]["readers"]) <= {"tools", "model", "agent", "human"}
+    for fm in pkg["shots"].values():
+        assert fm["inferred"]["decided_by"] in {"tools", "model", "agent", "human"} and "huazi" not in fm.get("overlays", [])
 
 
 def test_english_package(breakdown, tmp_path):  # noqa: F811
@@ -68,10 +78,10 @@ def test_english_package(breakdown, tmp_path):  # noqa: F811
     out.mkdir()
     try:
         set_lang("en")
-        reel.write(b, out)
+        videomd.write(b, out)
     finally:
         set_lang("zh")
-    _, body = reel.read_file(out / reel.ENTRY)
+    _, body = videomd.read_file(out / videomd.ENTRY)
     # the package's own words follow the language (the verdict keeps the language the breakdown was made in)
     assert "## Map" in body and "## How to read" in body and "| File | What is in it |" in body
 
@@ -82,13 +92,13 @@ def test_check_accepts_a_written_package_and_names_what_breaks(breakdown, tmp_pa
     b, out = breakdown
     set_lang("zh")
     write_reports(_with_vlm(b), out)
-    assert reel.check(out) == []
+    assert videomd.check(out) == []
     bad = tmp_path / "bad"
     shutil.copytree(out, bad)
-    p = bad / "reel" / "shots" / "01.md"
+    p = bad / "video" / "shots" / "01.md"
     p.write_text(p.read_text(encoding="utf-8").replace("made: ", "made: not_a_label # ", 1), encoding="utf-8")
-    (bad / "reel" / "shots" / "02.md").unlink()
-    errs = reel.check(bad)
+    (bad / "video" / "shots" / "02.md").unlink()
+    errs = videomd.check(bad)
     assert any("01.md" in e and "made" in e for e in errs) and any("02.md missing" in e for e in errs)
 
 

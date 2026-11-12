@@ -1,11 +1,11 @@
-# Reel 拆片包：视频拆解的标准包
+# VIDEO.md 拆片包：视频拆解的标准包
 
 拆一条视频，会得到两样东西：
 
 - **给人看的报告**（`report.html` / `report.pdf`）：这条视频讲什么、为什么能火、怎么做的、照着怎么复刻。
-- **给模型和程序读的拆片包**（Reel）：同样的结论，按固定格式放进一个目录。agent 回答问题、下游项目（如 capsule-cinema）生成复刻任务，都读它。
+- **给模型和程序读的拆片包**（`VIDEO.md`）：同样的结论，按固定格式放进一个目录。agent 回答问题、下游项目生成复刻任务，都读它。每个技能有一个 `SKILL.md`，每条视频也有一个 `VIDEO.md`。
 
-这一页介绍拆片包是什么、为什么这样设计，后半部分是完整的格式规范。
+这一页介绍拆片包是什么、为什么这样设计，后半部分是完整的格式规范。设计上的考虑（借鉴了 Agent Skills 和 DSL 的哪些做法、每个决定的理由）见 [videomd-design.md](videomd-design.md)。
 
 ## 为什么要有拆片包
 
@@ -30,13 +30,13 @@
 
 ```bash
 rea-video decompose ref.mp4 -o out/ref      # 拆解时一起生成拆片包
-rea-video reel out/ref                      # 旧的输出目录，从 breakdown.json 补出拆片包
-rea-video reel out/ref --check              # 检查是否符合 Reel 格式
+rea-video videomd out/ref                      # 旧的输出目录，从 breakdown.json 补出拆片包
+rea-video videomd out/ref --check              # 检查是否符合 VIDEO.md 规范
 ```
 
 ```python
-from rea_video import reel
-pkg = reel.read("out/ref")   # 卡片、时间线、每个镜头的结构化数据
+from rea_video import videomd
+pkg = videomd.read("out/ref")   # 卡片、时间线、每个镜头的结构化数据
 ```
 
 ---
@@ -49,8 +49,8 @@ pkg = reel.read("out/ref")   # 卡片、时间线、每个镜头的结构化数�
 
 ```
 out/ref/
-  REEL.md              入口。L0 卡片（前置信息）+ L1 概览和地图（正文）
-  reel/
+  VIDEO.md              入口。L0 卡片（前置信息）+ L1 概览和地图（正文）
+  video/
     timeline.md        L2 时间线：一行一个镜头，整个包的主干
     content.md         L2 内容与结构、叙事线、台词
     cast.md            L2 角色、场景、道具
@@ -64,16 +64,16 @@ out/ref/
   report.html report.md                               给人看的报告
 ```
 
-没有内容的主题文件不生成（比如没有实拍镜头就没有 `look.md`）。**所有路径都相对包根目录**，包括写在 `reel/` 下文件里的路径。
+没有内容的主题文件不生成（比如没有实拍镜头就没有 `look.md`）。**所有路径都相对包根目录**，包括写在 `video/` 下文件里的路径。
 
 ## 四层
 
 | 层 | 在哪 | 大小 | 回答什么 |
 |---|---|---|---|
-| L0 卡片 | `REEL.md` 前置信息 | 约 150 token | 这是什么视频、怎么做的、有多确定，值不值得往下读 |
-| L1 概览 | `REEL.md` 正文 | 约 1–2k token | 结论、叙事线、复刻概要、不确定点，以及地图 |
-| L2 主题 | `reel/*.md` | 每个几百到几千 token | 某一方面的完整信息；`timeline.md` 一行一镜 |
-| L3 镜头 | `reel/shots/<编号>.md` | 每个约 500–1000 token | 某一镜看得到什么、推断是什么、依据、提示词、帧图 |
+| L0 卡片 | `VIDEO.md` 前置信息 | 约 150 token | 这是什么视频、怎么做的、有多确定，值不值得往下读 |
+| L1 概览 | `VIDEO.md` 正文 | 约 1–2k token | 结论、叙事线、复刻概要、不确定点，以及地图 |
+| L2 主题 | `video/*.md` | 每个几百到几千 token | 某一方面的完整信息；`timeline.md` 一行一镜 |
+| L3 镜头 | `video/shots/<编号>.md` | 每个约 500–1000 token | 某一镜看得到什么、推断是什么、依据、提示词、帧图 |
 | L4 原始 | `breakdown.json`、媒体文件 | 几十万 token | 程序用；模型一般不需要打开 |
 
 
@@ -82,24 +82,25 @@ out/ref/
 每个 `.md` 文件开头都是 YAML 前置信息，至少有：
 
 ```yaml
-reel: 1          # 格式版本
+videomd: 1          # 格式版本
 part: timeline   # 这是哪一部分：timeline / content / cast / sound / look / packaging / remake / shot
 tokens: 2275     # 正文大约多少 token，读之前就知道代价
 ```
 
-`REEL.md` 的前置信息就是卡片：
+`VIDEO.md` 的前置信息就是卡片：
 
 ```yaml
-reel: 1
+videomd: 1
 name: ref
 description: 混合制作：实拍 94% + 屏幕录制/截图 4% + AI 生成视频 2%
 source: {file: ref.mp4, duration: 174.067, size: 1080x1920, fps: 30.0, aspect: '9:16'}
 shots: 25
 confidence: 0.771          # 按时长加权的判断置信度
 made_mix: {live_action: 0.943, screen_capture: 0.039, ai_video: 0.019}   # 推断，按时长
-readers: [tools, vlm, agent]   # 谁参与了判断：工具测量 / 看图模型 / agent 看图 / 用户纠正（user）
+readers: [tools, model, agent]   # 谁参与了判断：工具测量 / 看图模型 / agent 看图 / 人工纠正（human）
 open_questions: 9
 lang: zh
+generator: {name: rea-video, version: 0.1.0}   # 谁生成的这个包
 ```
 
 ## 看到的和推断的
@@ -113,7 +114,7 @@ lang: zh
 
 ## 时间线语法
 
-`reel/timeline.md` 里，镜头行放在 ```` ```reel-timeline ```` 代码块中，一行一个镜头：
+`video/timeline.md` 里，镜头行放在 ```` ```videomd-timeline ```` 代码块中，一行一个镜头：
 
 ```
 #07 16.2-18.5 | seen 男子讲话，画面上弹出多张聊天截图 | cam 固定 | made~ 屏幕录制/截图(screen_capture) 41% · 次选 代码/模板渲染 29% | real~ 用户真实素材：录屏素材 | remake 录屏重建 · 段1 | flag 低置信
@@ -138,10 +139,10 @@ lang: zh
 
 ## 镜头文件
 
-`reel/shots/07.md` 的前置信息是这一镜的结构化数据，正文是给模型读的细节：
+`video/shots/07.md` 的前置信息是这一镜的结构化数据，正文是给模型读的细节：
 
 ```yaml
-reel: 1
+videomd: 1
 part: shot
 shot: 7
 time: [16.2, 18.467]
@@ -151,7 +152,7 @@ inferred:
   made: screen_capture        # 类别 id，见 skills/rea-video/references/taxonomy.md
   p: 0.408
   alternatives: {code_render: 0.294, live_action: 0.209}
-  decided_by: fused           # deterministic / fused / fused_agent / user
+  decided_by: model           # tools / model / agent / human：最后由谁定的
   real_material: true
 flags: [low_confidence]       # uncertain / disputed / low_confidence
 frames: {sheet: shots/shot_007.jpg, first: shots/shot_007_first.jpg, last: shots/shot_007_last.jpg}
@@ -164,16 +165,16 @@ tokens: 572
 
 模型：
 
-1. 读 `REEL.md`。大多数问题（怎么做的、要准备什么、哪里不确定）到这里就能回答。
-2. 要按镜头回答时读 `reel/timeline.md`，找到相关的行或带 `flag` 的行。
-3. 要核实某一镜时，打开 `reel/shots/<编号>.md` 和它 `frames` 里的截图。
+1. 读 `VIDEO.md`。大多数问题（怎么做的、要准备什么、哪里不确定）到这里就能回答。
+2. 要按镜头回答时读 `video/timeline.md`，找到相关的行或带 `flag` 的行。
+3. 要核实某一镜时，打开 `video/shots/<编号>.md` 和它 `frames` 里的截图。
 4. 不读 `breakdown.json`。
 
 程序：用前置信息和时间线行，不解析正文。rea-video 带了一个参考实现：
 
 ```python
-from rea_video import reel
-pkg = reel.read("out/ref")      # {"card": {...}, "timeline": [{"shot": 7, "start": 16.2, "made~": ...}], "shots": {7: {...}}}
+from rea_video import videomd
+pkg = videomd.read("out/ref")      # {"card": {...}, "timeline": [{"shot": 7, "start": 16.2, "made~": ...}], "shots": {7: {...}}}
 ```
 
 ## 取值
@@ -182,32 +183,34 @@ pkg = reel.read("out/ref")      # {"card": {...}, "timeline": [{"shot": 7, "star
 |---|---|
 | 制作方式 `made` / `made_mix` / `alternatives` 的键 | `live_action` 实拍、`ai_video` AI 生成视频、`avatar` 数字人、`cg_3d` 3D 渲染、`code_render` 代码/模板渲染、`screen_capture` 录屏/截图、`still_motion` 静图推拉、`static_hold` 静帧、`anim_2d` 2D 动画、`stop_motion` 定格动画、`film_footage` 影视片段 |
 | `camera` | `static` 固定、`static_with_subject_motion` 固定（主体在动）、`planar_zoom_pan` 整图推拉/平移、`handheld_like` 手持晃动、`smooth_move` 平滑运镜、`unknown` |
-| `overlays`（开放取值，可能增加） | `subtitle` 字幕、`title` 标题、`label` 标注、`huazi` 花字、`static_graphic` 图形贴片、`layout_template` 版式模板、`animated_sticker` 动图贴纸、`static_sticker` 静态贴纸、`pip` 画中画 |
-| `decided_by` | `deterministic` 只有工具、`fused` 工具 + 看图模型、`fused_agent` 工具 + agent 看图、`user` 用户纠正 |
+| `overlays`（开放取值，可能增加） | `subtitle` 字幕、`title` 标题、`label` 标注、`styled_text` 花字、`static_graphic` 图形贴片、`layout_template` 版式模板、`animated_sticker` 动图贴纸、`static_sticker` 静态贴纸、`pip` 画中画 |
+| `decided_by` | `tools` 只有工具测量、`model` 工具 + 看图模型、`agent` 工具 + agent 看图复核、`human` 人工纠正 |
 | `flags` | `uncertain` 待确认、`disputed` 有分歧、`low_confidence` 低置信 |
-| `readers` | `tools`、`vlm`、`agent`、`user` |
+| `readers` | `tools`、`model`、`agent`、`human` |
+
+取值表以外的类别，生成方可以用 `x-` 开头的 id 自己扩展（如 `x-game_capture`），读的一方不认识时当作未知处理。主题文件也一样：生成方自己的主题用 `x-<名字>.md`。
 
 时间线里的值是写给模型读的，跟着包的语言走（中文或英文）；程序要用稳定的 id，就读镜头文件的前置信息，或者取 `made~` 括号里的类别 id。
 
 ## 一致性要求
 
-一个目录是合格的 Reel 拆片包，当且仅当：
+一个目录是合格的 VIDEO.md 拆片包，当且仅当：
 
-1. 根目录有 `REEL.md`，前置信息符合 schema 里的 `card`。
-2. `REEL.md` 地图里列出的每个路径都存在。
-3. `reel/` 下每个 `.md` 都有前置信息，符合 `part`（镜头文件符合 `shot`）。
-4. `reel/timeline.md` 有 ```` ```reel-timeline ```` 代码块；块里每一行都符合时间线语法，编号严格递增，结束时间不早于开始时间，行数等于卡片里的 `shots`。
-5. 时间线每一行在 `reel/shots/` 下有同编号的镜头文件，两边的编号和时间一致（允许 0.06 秒误差），`made~` 括号里的 id 和 `inferred.made` 一致。
+1. 根目录有 `VIDEO.md`，前置信息符合 schema 里的 `card`。
+2. `VIDEO.md` 地图里列出的每个路径都存在。
+3. `video/` 下每个 `.md` 都有前置信息，符合 `part`（镜头文件符合 `shot`）。
+4. `video/timeline.md` 有 ```` ```videomd-timeline ```` 代码块；块里每一行都符合时间线语法，编号严格递增，结束时间不早于开始时间，行数等于卡片里的 `shots`。
+5. 时间线每一行在 `video/shots/` 下有同编号的镜头文件，两边的编号和时间一致（允许 0.06 秒误差），`made~` 括号里的 id 和 `inferred.made` 一致。
 6. 镜头文件 `frames` 里的路径都存在。
 
-schema 在 `rea_video/reel.schema.json`（JSON Schema 2020-12）。检查一个目录：
+schema 在 `rea_video/videomd.schema.json`（JSON Schema 2020-12）。检查一个目录：
 
 ```bash
-rea-video reel out/ref --check     # 合格时输出“符合 Reel 格式”，否则逐条列出问题，退出码 1
+rea-video videomd out/ref --check     # 合格时输出“符合 VIDEO.md 规范”，否则逐条列出问题，退出码 1
 ```
 
 写拆片包的一方必须满足上面全部规则；读的一方遇到不认识的字段、键、主题文件时忽略，不报错。
 
 ## 版本
 
-`reel: 1` 是当前版本。只加字段、加键、加主题文件时版本号不变，读的一方忽略不认识的内容；改了已有字段的含义或时间线语法时升版本号。
+`videomd: 1` 是当前版本。只加字段、加键、加主题文件时版本号不变，读的一方忽略不认识的内容；改了已有字段的含义或时间线语法时升版本号。

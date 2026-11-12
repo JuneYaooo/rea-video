@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/videomd/videomd/blob/main/schema/videomd-1.schema.json",
+  "title": "VIDEO.md front matter",
+  "description": "Front matter of the files in a VIDEO.md package, version 1. Unknown fields are allowed everywhere: readers ignore what they do not know. Ids starting with x- are producer extensions.",
+  "$defs": {
+    "version": {"const": 1},
+    "ext": {"type": "string", "pattern": "^x-[a-z0-9][a-z0-9_-]*$"},
+    "made": {
+      "description": "How the base picture was made",
+      "anyOf": [
+        {"enum": ["live_action", "ai_video", "avatar", "cg_3d", "code_render", "screen_capture", "still_motion", "static_hold", "anim_2d", "stop_motion", "film_footage"]},
+        {"$ref": "#/$defs/ext"}
+      ]
+    },
+    "camera": {
+      "anyOf": [
+        {"enum": ["static", "static_with_subject_motion", "planar_zoom_pan", "handheld_like", "smooth_move", "unknown"]},
+        {"$ref": "#/$defs/ext"}
+      ]
+    },
+    "reader": {"anyOf": [{"enum": ["tools", "model", "agent", "human"]}, {"$ref": "#/$defs/ext"}]},
+    "prob": {"type": "number", "minimum": 0, "maximum": 1},
+    "tokens": {"type": "integer", "minimum": 0},
+    "path": {"type": "string", "description": "Relative to the package root", "pattern": "^(?!/)(?!.*\\.\\./)"},
+
+    "card": {
+      "type": "object",
+      "required": ["videomd", "name", "description", "source", "shots", "made_mix", "lang"],
+      "properties": {
+        "videomd": {"$ref": "#/$defs/version"},
+        "name": {"type": "string", "minLength": 1},
+        "description": {"type": "string", "minLength": 1, "maxLength": 200},
+        "source": {
+          "type": "object",
+          "required": ["file", "duration"],
+          "properties": {
+            "file": {"type": "string"},
+            "url": {"type": "string"},
+            "duration": {"type": "number", "minimum": 0},
+            "size": {"type": "string", "pattern": "^\\d+x\\d+$"},
+            "fps": {"type": "number", "minimum": 0},
+            "aspect": {"type": "string"}
+          }
+        },
+        "shots": {"type": "integer", "minimum": 0},
+        "confidence": {"$ref": "#/$defs/prob"},
+        "made_mix": {"type": "object", "propertyNames": {"$ref": "#/$defs/made"}, "additionalProperties": {"$ref": "#/$defs/prob"}},
+        "readers": {"type": "array", "items": {"$ref": "#/$defs/reader"}, "uniqueItems": true},
+        "open_questions": {"type": "integer", "minimum": 0},
+        "lang": {"type": "string", "pattern": "^[a-z]{2}(-[A-Za-z]+)?$"},
+        "generator": {
+          "type": "object",
+          "required": ["name"],
+          "properties": {"name": {"type": "string", "minLength": 1}, "version": {"type": "string"}}
+        }
+      }
+    },
+
+    "part": {
+      "type": "object",
+      "required": ["videomd", "part", "tokens"],
+      "properties": {
+        "videomd": {"$ref": "#/$defs/version"},
+        "part": {"type": "string", "pattern": "^(x-)?[a-z][a-z0-9_]*$", "description": "timeline, content, cast, sound, look, packaging, remake; x-<name> for producer topics"},
+        "tokens": {"$ref": "#/$defs/tokens"},
+        "shots": {"type": "integer", "minimum": 0}
+      },
+      "if": {"properties": {"part": {"const": "timeline"}}},
+      "then": {"required": ["shots"]}
+    },
+
+    "shot": {
+      "type": "object",
+      "required": ["videomd", "part", "shot", "time", "inferred", "tokens"],
+      "properties": {
+        "videomd": {"$ref": "#/$defs/version"},
+        "part": {"const": "shot"},
+        "shot": {"type": "integer", "minimum": 1},
+        "time": {"type": "array", "items": {"type": "number", "minimum": 0}, "minItems": 2, "maxItems": 2},
+        "camera": {"$ref": "#/$defs/camera"},
+        "overlays": {"type": "array", "items": {"type": "string"}, "uniqueItems": true,
+                     "description": "subtitle, title, label, styled_text, static_graphic, layout_template, animated_sticker, static_sticker, pip; open: more may be added"},
+        "inferred": {
+          "type": "object",
+          "required": ["made", "p"],
+          "properties": {
+            "made": {"$ref": "#/$defs/made"},
+            "p": {"$ref": "#/$defs/prob"},
+            "alternatives": {"type": "object", "propertyNames": {"$ref": "#/$defs/made"}, "additionalProperties": {"$ref": "#/$defs/prob"}},
+            "decided_by": {"$ref": "#/$defs/reader"},
+            "real_material": {"type": "boolean"}
+          }
+        },
+        "flags": {"type": "array", "items": {"anyOf": [{"enum": ["uncertain", "disputed", "low_confidence"]}, {"$ref": "#/$defs/ext"}]}, "uniqueItems": true},
+        "frames": {
+          "type": "object",
+          "properties": {"sheet": {"$ref": "#/$defs/path"}, "first": {"$ref": "#/$defs/path"}, "last": {"$ref": "#/$defs/path"}}
+        },
+        "tokens": {"$ref": "#/$defs/tokens"}
+      }
+    }
+  }
+}

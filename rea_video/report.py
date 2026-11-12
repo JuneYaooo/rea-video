@@ -915,7 +915,7 @@ def _appendix_md(b: dict) -> list[str]:
           T("- 确定性取证对「是否在动、是否整图推拉、是否渲染纹理、是否 24→30 帧率转换」很可靠；对实拍 / AI / 3D 的区分要靠看图（看图模型或 AI 助手复核），最好再自己对照截图看一眼。",
             "- Deterministic forensics is reliable on motion, whole-frame pan/zoom, rendered texture and 24→30 fps conversion; telling live action from AI from 3D needs image reading (a VLM or an AI assistant's review), and a look at the frames yourself."),
           T("- 元数据经平台转码常被清除，缺失不代表没有。", "- Platform transcoding usually strips metadata; missing metadata proves nothing."),
-          T("- 完整数据在 `breakdown.json`；给模型读的拆片包从 `REEL.md` 开始。", "- The full data is in `breakdown.json`; the package for models starts at `REEL.md`."), ""]
+          T("- 完整数据在 `breakdown.json`；给模型读的拆片包从 `VIDEO.md` 开始。", "- The full data is in `breakdown.json`; the package for models starts at `VIDEO.md`."), ""]
     return L
 
 
@@ -1116,6 +1116,6 @@ def write_reports(b: dict, out: Path) -> None:
     set_lang(b.get("lang", "zh"))
     (out / "report.md").write_text(markdown(b), encoding="utf-8")
     (out / "report.html").write_text(html_report(b), encoding="utf-8")
-    from .reel import write as write_reel
+    from .videomd import write as write_videomd
 
-    write_reel(b, out)  # the same breakdown laid out for models: REEL.md + reel/
+    write_videomd(b, out)  # the same breakdown laid out for models: VIDEO.md + video/

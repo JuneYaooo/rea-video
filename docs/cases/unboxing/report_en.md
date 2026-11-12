@@ -2101,4 +2101,4 @@ Each shot has two parts: what is visible on screen, and how the tools infer it w
 
 - Deterministic forensics is reliable on motion, whole-frame pan/zoom, rendered texture and 24→30 fps conversion; telling live action from AI from 3D needs image reading (a VLM or an AI assistant's review), and a look at the frames yourself.
 - Platform transcoding usually strips metadata; missing metadata proves nothing.
-- The full data is in `breakdown.json`; the package for models starts at `REEL.md`.
+- The full data is in `breakdown.json`; the package for models starts at `VIDEO.md`.

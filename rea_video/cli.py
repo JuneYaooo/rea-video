@@ -156,15 +156,15 @@ def cmd_eval(args) -> int:
     return 0
 
 
-def cmd_reel(args) -> int:
-    from .reel import write
+def cmd_videomd(args) -> int:
+    from .videomd import write
 
     root = Path(args.out_dir)
     if args.check:
-        from .reel import check
+        from .videomd import check
 
         errs = check(root)
-        print("\n".join(errs) if errs else T("符合 Reel 格式", "conforms to the Reel format"))
+        print("\n".join(errs) if errs else T("符合 VIDEO.md 规范", "conforms to the VIDEO.md spec"))
         return 1 if errs else 0
     b = read_json(root / "breakdown.json")
     set_lang(b.get("lang", "zh"))
@@ -549,10 +549,10 @@ def main(argv: list[str] | None = None) -> int:
     sm.add_argument("breakdown")
     sm.set_defaults(func=cmd_summary)
 
-    rl = sub.add_parser("reel", help="从 breakdown.json 重新生成给模型读的拆片包（REEL.md + reel/）；decompose 和 apply-review 会自动生成")
+    rl = sub.add_parser("videomd", help="从 breakdown.json 重新生成给模型读的拆片包（VIDEO.md + video/）；decompose 和 apply-review 会自动生成")
     rl.add_argument("out_dir")
-    rl.add_argument("--check", action="store_true", help="只校验目录是否符合 Reel 规范（docs/reel.md），不重写")
-    rl.set_defaults(func=cmd_reel)
+    rl.add_argument("--check", action="store_true", help="只校验目录是否符合 VIDEO.md 规范（docs/videomd.md），不重写")
+    rl.set_defaults(func=cmd_videomd)
 
     pd = sub.add_parser("pdf", help="把 report.html 打印成 report.pdf（用本机的 Chrome / Chromium / Edge，折叠内容全部展开）")
     pd.add_argument("out_dir")

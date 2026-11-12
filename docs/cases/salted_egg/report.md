@@ -1475,4 +1475,4 @@ Close eye-level shot. Three plush monkeys smile and sway side to side as the cam
 
 - 确定性取证对「是否在动、是否整图推拉、是否渲染纹理、是否 24→30 帧率转换」很可靠；对实拍 / AI / 3D 的区分要靠看图（看图模型或 AI 助手复核），最好再自己对照截图看一眼。
 - 元数据经平台转码常被清除，缺失不代表没有。
-- 完整数据在 `breakdown.json`；给模型读的拆片包从 `REEL.md` 开始。
+- 完整数据在 `breakdown.json`；给模型读的拆片包从 `VIDEO.md` 开始。
