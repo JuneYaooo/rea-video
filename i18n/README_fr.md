@@ -42,7 +42,7 @@ L'agent installe la CLI, apprend le workflow et s'occupe du reste. Prérequis : 
 
 Les analyses ont été entièrement repensées. Chacune produit deux sorties :
 
-- **Rapport** (`report.html` / PDF), pour vous : une structure plus claire, pour apprendre et comprendre comment la vidéo a été faite et comment la refaire.
+- **Rapport** (`report.html` / PDF), pour vous : plus agréable à lire, avec une structure plus claire, pour apprendre et comprendre comment la vidéo a été faite et comment la refaire.
 - **[VIDEO.md](https://videomd.github.io/videomd/)**, pour votre IA : organisé par niveaux, l'IA ne lit que ce dont la question a besoin et consomme moins de tokens.
 
 Vous pouvez brancher un modèle qui comprend la vidéo — Gemini et Doubao marchent tous les deux : il suffit de donner l'endpoint et la clé à l'agent. Le tri réel / IA / 3D devient plus fiable, et chaque plan reçoit un prompt reconstitué. Sans modèle, ça marche aussi ; si votre agent sait lire les images, il revérifie lui-même les plans douteux.

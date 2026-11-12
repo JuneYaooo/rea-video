@@ -42,7 +42,7 @@ Der Agent installiert die CLI, liest sich in den Ablauf ein und erledigt den Res
 
 Die Analysen sind rundum erneuert. Jede liefert zwei Ergebnisse:
 
-- **Bericht** (`report.html` / PDF), für dich: klarer aufgebaut, damit du leichter lernst und verstehst, wie das Video gemacht wurde und wie du es nachbaust.
+- **Bericht** (`report.html` / PDF), für dich: leserfreundlicher und klarer aufgebaut, damit du leichter lernst und verstehst, wie das Video gemacht wurde und wie du es nachbaust.
 - **[VIDEO.md](https://videomd.github.io/videomd/)**, für deine KI: in Ebenen gegliedert, sodass die KI nur liest, was eine Frage braucht, und weniger Tokens verbraucht.
 
 Optional kannst du ein Modell anbinden, das Video versteht – Gemini oder Doubao, beides geht: Gib dem Agenten einfach Endpoint und Key. Dann wird die Einstufung echt/KI/3D genauer, und zu jedem Shot gibt es einen rekonstruierten Prompt. Ohne Modell geht es auch; kann dein Agent Bilder sehen, schaut er sich die unsicheren Shots selbst an.

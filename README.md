@@ -42,7 +42,7 @@ The agent installs the CLI, learns the workflow and runs the whole thing. You ne
 
 Breakdowns are fully upgraded. Each one gives you two outputs:
 
-- **Report** (`report.html` / PDF), for you: a clearer structure, easier to learn from and to understand how the video was made and how to remake it.
+- **Report** (`report.html` / PDF), for you: more reader-friendly, with a clearer structure, easier to learn from and to understand how the video was made and how to remake it.
 - **[VIDEO.md](https://videomd.github.io/videomd/)**, for your AI: layered, so the AI reads only what a question needs and uses fewer tokens.
 
 You can also hook up a video-capable model (Gemini or Doubao both work) by giving the agent its endpoint and key. That makes the live/AI/3D calls more accurate and adds a reverse-engineered prompt for every shot. It works fine without one; if your agent can see images, it checks the uncertain shots itself.

@@ -42,7 +42,7 @@ El agente instala la CLI, aprende el flujo de trabajo y se encarga del resto. So
 
 Los análisis se han renovado por completo. Cada uno te da dos resultados:
 
-- **Informe** (`report.html` / PDF), para ti: una estructura más clara, para aprender y entender cómo se hizo el vídeo y cómo rehacerlo.
+- **Informe** (`report.html` / PDF), para ti: más fácil de leer, con una estructura más clara, para aprender y entender cómo se hizo el vídeo y cómo rehacerlo.
 - **[VIDEO.md](https://videomd.github.io/videomd/)**, para tu IA: organizado por niveles, así la IA lee solo lo que necesita la pregunta y gasta menos tokens.
 
 Si añades un modelo que entienda vídeo (vale Gemini o Doubao), basta con pasarle al agente el endpoint y la clave. Con él acierta más al distinguir entre imagen real, IA y 3D, y reconstruye el prompt de cada plano. Sin él también funciona: si tu agente puede ver imágenes, revisa él mismo los planos dudosos.

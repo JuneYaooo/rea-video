@@ -42,7 +42,7 @@ Agent sẽ tự cài CLI, đọc quy trình làm việc và chạy trọn bộ t
 
 Kết quả phân tích được nâng cấp toàn diện. Mỗi lần phân tích cho ra hai thứ:
 
-- **Báo cáo** (`report.html` / PDF), cho bạn: cấu trúc rõ ràng hơn, dễ học và dễ hiểu video được làm thế nào, làm lại ra sao.
+- **Báo cáo** (`report.html` / PDF), cho bạn: dễ đọc hơn, cấu trúc rõ ràng hơn, dễ học và dễ hiểu video được làm thế nào, làm lại ra sao.
 - **[VIDEO.md](https://videomd.github.io/videomd/)**, cho AI của bạn: chia theo tầng, AI chỉ đọc phần câu hỏi cần nên tốn ít token hơn.
 
 Bạn cũng có thể đấu nối thêm một model hiểu video (cả Gemini lẫn Doubao đều dùng được) bằng cách đưa endpoint và API key cho agent. Khi có model này, kết quả phân loại quay thật / AI / 3D sẽ chính xác hơn và mỗi shot đều được suy ngược ra prompt gốc. Không gắn thêm vẫn chạy tốt — nếu agent của bạn xem được ảnh, nó sẽ tự kiểm tra lại những shot chưa chắc chắn.

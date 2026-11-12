@@ -42,7 +42,7 @@ O agente instala a CLI, aprende o fluxo e roda tudo. Você só precisa ter ffmpe
 
 As análises foram totalmente renovadas. Cada uma gera dois resultados:
 
-- **Relatório** (`report.html` / PDF), para você: uma estrutura mais clara, para aprender e entender como o vídeo foi feito e como refazê-lo.
+- **Relatório** (`report.html` / PDF), para você: mais fácil de ler, com uma estrutura mais clara, para aprender e entender como o vídeo foi feito e como refazê-lo.
 - **[VIDEO.md](https://videomd.github.io/videomd/)**, para a sua IA: organizado em níveis, então a IA lê só o que a pergunta precisa e gasta menos tokens.
 
 Dá para adicionar um modelo que entenda vídeo — Gemini ou Doubao servem: é só passar o endpoint e a chave para o agente. Com ele, a separação entre real, IA e 3D fica mais precisa, e cada plano ganha um prompt reconstruído. Sem ele, tudo continua funcionando; se o seu agente enxerga imagens, ele mesmo revisa os planos em que ficou na dúvida.
