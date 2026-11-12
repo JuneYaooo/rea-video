@@ -40,17 +40,6 @@ https://github.com/JuneYaooo/rea-video をインストールして、この動�
 
 CLI のインストールから使い方の把握、実行まで、エージェントが全部やってくれます。必要なのは ffmpeg と Python 3.10 以上です。
 
-<details><summary>手動でインストールする場合</summary>
-
-```bash
-brew install ffmpeg            # sudo apt install ffmpeg
-git clone https://github.com/JuneYaooo/rea-video && cd rea-video
-bash scripts/install_skill.sh  # CLI をインストール（pip、ダメなら pipx / ローカル .venv）し、skill をリンク → ~/.claude, ~/.codex, ~/.agents
-rea-video --help
-```
-
-</details>
-
 出てくるもの：
 
 - 1 行のサマリー。例："41% AI video + 59% code UI, 8 s of real screen recording, library music at 122 BPM"

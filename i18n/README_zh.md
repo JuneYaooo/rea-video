@@ -40,17 +40,6 @@ rea-video 是给 AI agent 用的。打开 Claude Code、Codex 这类能跑命令
 
 agent 会自己装好命令行工具、看懂拆解流程，然后一路跑完。电脑上需要有 ffmpeg 和 Python 3.10 以上。
 
-<details><summary>手动安装</summary>
-
-```bash
-brew install ffmpeg            # sudo apt install ffmpeg
-git clone https://github.com/JuneYaooo/rea-video && cd rea-video
-bash scripts/install_skill.sh  # 装命令行工具（pip 不让装时改用 pipx 或仓库内 .venv），并把 skill 链接到各 agent 目录
-rea-video --help
-```
-
-</details>
-
 跑完你会拿到：
 
 - 一句话结论，比如「AI 视频 41% + 代码界面 59%，有 8 秒真实录屏，曲库配乐 122 BPM」

@@ -40,17 +40,6 @@ rea-video рассчитан на работу через ИИ-агента. В 
 
 Агент сам поставит CLI, разберётся, как с ним работать, и всё прогонит. Понадобятся ffmpeg и Python 3.10+.
 
-<details><summary>Установка вручную</summary>
-
-```bash
-brew install ffmpeg            # sudo apt install ffmpeg
-git clone https://github.com/JuneYaooo/rea-video && cd rea-video
-bash scripts/install_skill.sh  # ставит CLI (pip, иначе pipx / локальный .venv) и подключает skill → ~/.claude, ~/.codex, ~/.agents
-rea-video --help
-```
-
-</details>
-
 На выходе:
 
 - сводка в одну строку, например: «41% ИИ-видео + 59% интерфейса на коде, 8 с настоящей записи экрана, библиотечная музыка, 122 BPM»

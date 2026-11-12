@@ -40,17 +40,6 @@ Installiere https://github.com/JuneYaooo/rea-video und nimm dann dieses Video au
 
 Der Agent installiert die CLI, liest sich in den Ablauf ein und erledigt den Rest. Voraussetzung sind ffmpeg und Python 3.10+.
 
-<details><summary>Manuell installieren</summary>
-
-```bash
-brew install ffmpeg            # sudo apt install ffmpeg
-git clone https://github.com/JuneYaooo/rea-video && cd rea-video
-bash scripts/install_skill.sh  # installiert die CLI (pip, sonst pipx / lokales .venv) und verlinkt den Skill → ~/.claude, ~/.codex, ~/.agents
-rea-video --help
-```
-
-</details>
-
 Am Ende hast du:
 
 - eine Zusammenfassung in einer Zeile, z. B. „41 % KI-Video + 59 % Code-UI, 8 s echte Bildschirmaufnahme, Stockmusik mit 122 BPM“

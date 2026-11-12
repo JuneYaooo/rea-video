@@ -40,17 +40,6 @@ Instala o https://github.com/JuneYaooo/rea-video e depois analisa este vídeo: /
 
 O agente instala a CLI, aprende o fluxo e roda tudo. Você só precisa ter ffmpeg e Python 3.10+.
 
-<details><summary>Instalação manual</summary>
-
-```bash
-brew install ffmpeg            # sudo apt install ffmpeg
-git clone https://github.com/JuneYaooo/rea-video && cd rea-video
-bash scripts/install_skill.sh  # instala a CLI (pip, ou pipx / .venv local) e liga o skill → ~/.claude, ~/.codex, ~/.agents
-rea-video --help
-```
-
-</details>
-
 O que você recebe:
 
 - um resumo em uma linha, tipo "41% vídeo de IA + 59% interface em código, 8 s de gravação de tela real, música de biblioteca a 122 BPM"

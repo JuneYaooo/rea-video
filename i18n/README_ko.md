@@ -40,17 +40,6 @@ https://github.com/JuneYaooo/rea-video 설치하고 이 영상 분석해 줘: /p
 
 CLI 설치부터 워크플로 파악, 전체 실행까지 에이전트가 알아서 합니다. ffmpeg와 Python 3.10 이상만 있으면 됩니다.
 
-<details><summary>직접 설치하기</summary>
-
-```bash
-brew install ffmpeg            # sudo apt install ffmpeg
-git clone https://github.com/JuneYaooo/rea-video && cd rea-video
-bash scripts/install_skill.sh  # CLI 설치(pip, 안 되면 pipx / 로컬 .venv) 후 skill 연결 → ~/.claude, ~/.codex, ~/.agents
-rea-video --help
-```
-
-</details>
-
 이런 결과를 받을 수 있습니다.
 
 - 한 줄 요약. 예를 들면 "AI 영상 41% + 코드 UI 59%, 실제 화면 녹화 8초, 122 BPM 라이브러리 음악"

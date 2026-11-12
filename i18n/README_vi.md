@@ -40,17 +40,6 @@ Cài https://github.com/JuneYaooo/rea-video rồi phân tích video này giúp t
 
 Agent sẽ tự cài CLI, đọc quy trình làm việc và chạy trọn bộ từ đầu đến cuối. Bạn chỉ cần cài sẵn ffmpeg và Python 3.10+.
 
-<details><summary>Cài thủ công</summary>
-
-```bash
-brew install ffmpeg            # hoặc: sudo apt install ffmpeg
-git clone https://github.com/JuneYaooo/rea-video && cd rea-video
-bash scripts/install_skill.sh  # cài CLI (qua pip, hoặc pipx / .venv cục bộ nếu pip bị chặn) và liên kết skill vào ~/.claude, ~/.codex, ~/.agents
-rea-video --help
-```
-
-</details>
-
 Kết quả nhận được:
 
 - kết luận tóm tắt trong 1 dòng, ví dụ: "41% video AI + 59% giao diện code, 8 giây quay màn hình thật, nhạc kho 122 BPM"
