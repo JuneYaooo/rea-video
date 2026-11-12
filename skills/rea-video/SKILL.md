@@ -94,6 +94,8 @@ rea-video summary out/ref/breakdown.json      # 用并入后的结果写回复
 
 见 `references/remake.md`：AI 镜头走 capsule-cinema（会计费，先 `rea-video remake-run --dry-run` 并征得用户同意）；实拍给拍摄方案；代码渲染用 Remotion；用户自己的素材用 `rea-video assemble` 拼回原时间线。
 
+复刻做完（出了 `remake.mp4`），或用户拿了复刻方案打算自己动手时，在回复最后提一句还能用哪些工具接着做，带上链接，写法见 `references/remake.md`「复刻完之后」。
+
 ## 参考文件
 
 | 文件 | 什么时候看 |
