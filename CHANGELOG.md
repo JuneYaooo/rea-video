@@ -2,12 +2,12 @@
 
 ## 视频拆解标准包 VIDEO.md，报告重写，音效单独分离
 
-这一版定下了视频拆解的标准包格式：拆片包（VIDEO.md）。拆一条视频现在得到两样东西：给人看的报告（HTML / PDF），和给模型、下游项目读的拆片包。格式介绍和规范见 [docs/videomd.md](docs/videomd.md)。
+这一版定下了视频拆解的标准包格式：拆片包（VIDEO.md）。拆一条视频现在得到两样东西：给人看的报告（HTML / PDF），和给模型、下游项目读的拆片包。VIDEO.md 是开放格式，规范在 [videomd/videomd](https://github.com/videomd/videomd)；rea-video 生成的内容见 [docs/videomd.md](docs/videomd.md)。
 
 **拆片包 VIDEO.md**
 - 四层逐级展开：卡片 → 概览和地图 → 时间线（一行一镜）→ 单镜文件，最后才是完整数据。一条 3 分钟口播读到概览约 2k token，完整数据约 19 万 token。
 - 每个文件开头写着自己的 token 数；看到的和推断的分开写，时间线里推断的键名带 `~`。
-- 字段有 JSON Schema（`rea_video/videomd.schema.json`）。`rea-video videomd out/ref --check` 检查一个目录是否合格，`videomd.read()` 读出结构化数据。
+- 字段有 JSON Schema。`rea-video videomd out/ref --check` 检查一个目录是否合格，`videomd.read()` 读出结构化数据（校验和读取用 `videomd` 包）。
 - 拆解时自动生成；旧的输出目录用 `rea-video videomd out/ref` 补出来。
 
 **给人看的报告**

@@ -2,6 +2,8 @@
 import json
 import re
 
+import videomd as spec
+
 from rea_video import videomd
 from rea_video.i18n import set_lang
 from rea_video.report import write_reports
@@ -13,19 +15,17 @@ def test_package_levels_and_map(breakdown, tmp_path):  # noqa: F811
     b, out = breakdown
     set_lang("zh")
     write_reports(_with_vlm(b), out)
-    card, body = videomd.read_file(out / videomd.ENTRY)
+    card, body = spec.read_file(out / videomd.ENTRY)
     # L0: the card is small and says what the video is and how sure
     assert card["videomd"] == videomd.VERSION and card["generator"]["name"] == "rea-video" and card["shots"] == len(b["shots"]) and card["description"]
     assert videomd.tokens(json.dumps(card, ensure_ascii=False)) < 300
     assert abs(sum(card["made_mix"].values()) - 1) < 0.02
     # L1: every file the map names exists; sizes are given so a reader can choose
-    rows = re.findall(r"^\| `([^`]+)` \|", body, re.M)
-    assert "video/timeline.md" in rows and "breakdown.json" in rows
-    for p in rows:
-        if "…" not in p and "," not in p:
-            assert (out / p).exists(), p
+    rows = [x["path"] for x in spec.read(out)["map"]]
+    assert "video/timeline.md" in rows and "video/shots/*.md" in rows and "breakdown.json" in rows
+    assert card["name"] == videomd.slug(card["name"]) and len(card["description"]) <= 1024
     for p in out.glob("video/*.md"):
-        fm, text = videomd.read_file(p)
+        fm, text = spec.read_file(p)
         assert fm["videomd"] == videomd.VERSION and fm["tokens"] > 0 and "<details>" not in text
     assert len(list((out / "video" / "shots").glob("*.md"))) == len(b["shots"])
 
@@ -38,7 +38,7 @@ def test_timeline_lines_parse_and_mark_inference(breakdown):  # noqa: F811
     tl = pkg["timeline"]
     assert [x["shot"] for x in tl] == [r["index"] for r in b["shots"]]
     for x, r in zip(tl, b["shots"]):
-        assert abs(x["start"] - r["start"]) < 0.06 and f"({r['base']['label']})" in x["made~"]
+        assert abs(x["start"] - r["start"]) < 0.06 and x["made~"].startswith(r["base"]["label_zh"])
         assert set(x) - {"shot", "start", "end"} <= set(videomd.KEYS)
     # the per-shot front matter is the machine view of the same verdict
     for r in b["shots"]:
@@ -48,9 +48,7 @@ def test_timeline_lines_parse_and_mark_inference(breakdown):  # noqa: F811
 
 def test_shot_line_escapes_separators():
     assert videomd._one_line("a | b|c\nd") == "a / b/c d"
-    assert videomd.parse_timeline_line("#07 16.2-18.5 | seen 红圈 | made~ 录屏(screen_capture) 44%") == {
-        "shot": 7, "start": 16.2, "end": 18.5, "seen": "红圈", "made~": "录屏(screen_capture) 44%"}
-    assert videomd.parse_timeline_line("## heading") is None
+    assert videomd.slug("Salted_Egg 最终版") == "salted-egg" and videomd.slug("最终版") == "video"
 
 
 def test_rewrite_drops_stale_shot_files(breakdown, tmp_path):  # noqa: F811
@@ -81,9 +79,9 @@ def test_english_package(breakdown, tmp_path):  # noqa: F811
         videomd.write(b, out)
     finally:
         set_lang("zh")
-    _, body = videomd.read_file(out / videomd.ENTRY)
+    _, body = spec.read_file(out / videomd.ENTRY)
     # the package's own words follow the language (the verdict keeps the language the breakdown was made in)
-    assert "## Map" in body and "## How to read" in body and "| File | What is in it |" in body
+    assert "## Map" in body and "## How to read" in body and "Each line is `path | ~tokens |" in body
 
 
 def test_check_accepts_a_written_package_and_names_what_breaks(breakdown, tmp_path):  # noqa: F811

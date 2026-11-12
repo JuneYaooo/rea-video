@@ -14,6 +14,7 @@ dependencies = [
   "opencv-python-headless>=4.8,<5",
   "Pillow>=9.0",
   "PyYAML>=6.0",
+  "videomd>=1.1",        # VIDEO.md 拆片包的校验和读取（https://github.com/videomd/videomd）
   "onnxruntime>=1.16",   # 人声/配乐/音效分离（UVR MDX-Net 约 67 MB + BandIt v2 约 149 MB，首次运行自动下载）
 ]
 
@@ -36,7 +37,7 @@ rea-video = "rea_video.cli:main"
 include = ["rea_video*"]
 
 [tool.setuptools.package-data]
-rea_video = ["capabilities/*.yaml", "capabilities/*.json", "capabilities/*.md", "capabilities/models/*.yaml", "videomd.schema.json"]
+rea_video = ["capabilities/*.yaml", "capabilities/*.json", "capabilities/*.md", "capabilities/models/*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

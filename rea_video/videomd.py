@@ -8,7 +8,7 @@ The output directory is the package. Levels, each cheaper than the next:
   L4  breakdown.json, shots/, stems/, sfx/, packaging/   raw data and media
 Every file opens with front matter saying what it covers and roughly how many tokens it holds, so a reader can decide
 before opening it. Paths are relative to the package root. In timeline lines a key ending in `~` is the tools'
-inference; keys without it are what is visible on screen or measured directly. The spec is docs/videomd.md.
+inference; keys without it are what is visible on screen or measured directly. The spec is https://github.com/videomd/videomd; reading and checking use the `videomd` package.
 """
 from __future__ import annotations
 
@@ -28,13 +28,14 @@ VERSION = 1
 ENTRY = "VIDEO.md"
 DIR = "video"
 BLOCK = "videomd-timeline"
+MAP_BLOCK = "videomd-map"
 
 # producer-side values -> the neutral ids in the spec
 DECIDED_BY = {"deterministic": "tools", "fused": "model", "fused_agent": "agent", "user": "human"}
 OVERLAY_ID = {"huazi": "styled_text"}
 
 # timeline keys, in line order; `~` = inferred by the tools
-KEYS = ("say", "seen", "cam", "over", "made~", "real~", "remake", "flag")
+KEYS = ("story", "seen", "camera", "overlay", "made~", "material~", "remake", "flag")
 
 
 # ------------------------------------------------------------------ helpers ---------------------------------------
@@ -88,19 +89,19 @@ def timeline_line(r: dict, roles: dict, units: dict) -> str:
     f = {}
     n = roles.get(r["index"]) or {}
     if n.get("role_zh") or n.get("point"):
-        f["say"] = _one_line(join(x for x in (n.get("role_zh"), n.get("point")) if x), 48)
+        f["story"] = _one_line(join(x for x in (n.get("role_zh"), n.get("point")) if x), 48)
     desc = (r.get("vlm") or r.get("review") or {}).get("description")
     if desc:
         f["seen"] = _one_line(desc, 60)
-    f["cam"] = CAMERA_ZH.get((r.get("features") or {}).get("camera", "unknown"), "—")
+    f["camera"] = CAMERA_ZH.get((r.get("features") or {}).get("camera", "unknown"), "—")
     if _layers(r) != "—":
-        f["over"] = _layers(r)
-    made = f"{base['label_zh']}({base['label']}) {base['confidence']:.0%}"
-    alt = next(((k, v) for k, v in sorted(base["probs"].items(), key=lambda kv: -kv[1]) if k != base["label"] and v > 0), None)
+        f["overlay"] = _layers(r)
+    made = f"{base['label_zh']} {base['confidence']:.0%}"
+    alt = next(((k, v) for k, v in sorted(base["probs"].items(), key=lambda kv: -kv[1]) if k != base["label"] and v >= 0.01), None)
     if alt and base["decided_by"] != "user":
         made += T(" · 次选 {l} {p:.0%}", " · runner-up {l} {p:.0%}", l=LABEL_ZH[alt[0]], p=alt[1])
     f["made~"] = made
-    f["real~"] = _one_line(_origin(r), 40)
+    f["material~"] = _one_line(_origin(r), 40)
     f["remake"] = _one_line(_route(r, units), 30)
     flags = []
     if base["decided_by"] == "user":
@@ -117,29 +118,13 @@ def timeline_line(r: dict, roles: dict, units: dict) -> str:
     return " | ".join([head] + [f"{k} {f[k]}" for k in KEYS if f.get(k)])
 
 
-_RE_HEAD = re.compile(r"^#(\d+) (\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)$")
-
-
-def parse_timeline_line(line: str) -> dict | None:
-    """`#07 16.2-18.5 | seen … | made~ …` -> {"shot": 7, "start": 16.2, "end": 18.5, "seen": "…", "made~": "…"}; None if not a shot line."""
-    parts = line.strip().split(" | ")
-    m = _RE_HEAD.match(parts[0])
-    if not m:
-        return None
-    out: dict = {"shot": int(m.group(1)), "start": float(m.group(2)), "end": float(m.group(3))}
-    for p in parts[1:]:
-        k, _, v = p.partition(" ")
-        out[k] = v
-    return out
-
-
 def _legend() -> list[str]:
     return [T("每行一个镜头：`#编号 起-止(秒) | 键 值 | …`。键后带 `~` 的是工具推断，不带的是画面里看得到或直接测得的。",
               "One shot per line: `#<n> start-end (s) | key value | …`. A key ending in `~` is the tools' inference; keys without it are visible on screen or measured directly."),
-            T("`say` 在叙事里的作用和讲的点 · `seen` 画面里看到的 · `cam` 运镜 · `over` 叠加层 · `made~` 制作方式（推断）· "
-              "`real~` 素材来源（推断）· `remake` 复刻路线 · `flag` 需要复核",
-              "`say` job in the story and the point · `seen` what is on screen · `cam` camera move · `over` overlays · `made~` how it was made (inferred) · "
-              "`real~` material origin (inferred) · `remake` remake route · `flag` needs a second look"),
+            T("`story` 在叙事里的作用和讲的点 · `seen` 画面里看到的 · `camera` 运镜 · `overlay` 叠加层 · `made~` 制作方式（推断）· "
+              "`material~` 素材来源（推断）· `remake` 复刻路线 · `flag` 需要复核",
+              "`story` job in the story and the point · `seen` what is on screen · `camera` camera move · `overlay` overlays · `made~` how it was made (inferred) · "
+              "`material~` where the material came from (inferred) · `remake` remake route · `flag` needs a second look"),
             T("某一镜的全部细节在 `{d}/shots/编号.md`（如 `{d}/shots/07.md`）。", "Full detail for a shot is in `{d}/shots/<n>.md` (e.g. `{d}/shots/07.md`).", d=DIR)]
 
 
@@ -194,15 +179,45 @@ def _card(b: dict) -> dict:
     readers = ["tools"] + (["model"] if b["analysis"]["vlm"].get("used") else []) + (["agent"] if (b["analysis"].get("review") or {}).get("shots") else [])
     if any(r["base"]["decided_by"] == "user" for r in b["shots"]):
         readers.append("human")
+    source = {"file": src["filename"]}
+    digest = _sha256(src.get("path"))
+    if digest:
+        source["sha256"] = digest
+    source.update({"duration": src["duration"], "size": f"{src['width']}x{src['height']}", "fps": src["fps"], "aspect": src["aspect_ratio"]})
     return {
-        FORMAT: VERSION, "name": Path(src["filename"]).stem,
-        "description": _one_line(s["verdict"].split(T("；", "; "))[0], 120),
-        "source": {"file": src["filename"], "duration": src["duration"], "size": f"{src['width']}x{src['height']}", "fps": src["fps"], "aspect": src["aspect_ratio"]},
-        "shots": len(b["shots"]), "confidence": s["confidence"],
-        "made_mix": {m["label"]: m["ratio"] for m in s["production_mix"]},
-        "readers": readers, "open_questions": len(entities.open_questions(b)), "lang": b.get("lang", "zh"),
+        FORMAT: VERSION, "name": slug(Path(src["filename"]).stem), "description": _description(b),
+        "source": source, "shots": len(b["shots"]), "lang": b.get("lang", "zh"),
+        "made_mix": {m["label"]: m["ratio"] for m in s["production_mix"]}, "confidence": s["confidence"],
+        "readers": readers, "open_questions": len(entities.open_questions(b)),
         "generator": {"name": "rea-video", "version": __version__},
     }
+
+
+def slug(stem: str) -> str:
+    """A card name: lowercase letters, digits and single hyphens, at most 64 characters."""
+    s = re.sub(r"[^a-z0-9]+", "-", stem.lower()).strip("-")[:64].strip("-")
+    return s or "video"
+
+
+def _description(b: dict) -> str:
+    """What the video is about first, then how it was made: an agent picks a package by this line."""
+    about = _one_line((b.get("whole_video_vlm") or {}).get("summary"), 600)
+    made = join(f"{m['label_zh']} {m['ratio']:.0%}" for m in b["summary"]["production_mix"])
+    made = T("制作方式（推断）：{m}", "Made with (inferred): {m}", m=made)
+    return _one_line(f"{about} {made}" if about else made, 1000)
+
+
+def _sha256(path) -> str | None:
+    """sha256 of the whole source file, when it is still where the breakdown found it."""
+    import hashlib
+
+    if not path or not Path(path).is_file():
+        return None
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
 
 def _overview(b: dict, files: list[tuple[str, str, str, int]]) -> str:
@@ -228,9 +243,10 @@ def _overview(b: dict, files: list[tuple[str, str, str, int]]) -> str:
     if len(qs) > 8:
         L.append(T("- 另有 {n} 处，见 `{d}/timeline.md` 里带 `flag` 的行", "- {n} more, see the `flag` lines in `{d}/timeline.md`", d=DIR, n=len(qs) - 8))
     L += ["", T("## 地图", "## Map"), "",
-          T("先读本页；要细节时按下表只打开需要的文件。路径相对本目录。", "Read this page first; for detail, open only the file you need. Paths are relative to this directory."), "",
-          T("| 文件 | 里面有什么 | 什么时候读 | 约 token |", "| File | What is in it | When to read it | ~tokens |"), "|---|---|---|---|"]
-    L += [f"| `{p}` | {title} | {when} | {n or '—'} |" for p, title, when, n in files]
+          T("先读本页；要细节时只打开需要的文件。每行是 `路径 | 约 token | 里面有什么 · 什么时候读`，路径相对本目录。",
+            "Read this page first; for detail, open only the file you need. Each line is `path | ~tokens | what is in it · when to read it`; paths are relative to this directory."), "",
+          f"```{MAP_BLOCK}"]
+    L += [f"{p} | {n if n else '-'} | {_one_line(title)} · {_one_line(when)}" for p, title, when, n in files] + ["```"]
     L += ["", T("## 读法", "## How to read"), ""] + [f"- {x}" for x in _legend()] + [
         T("- 「看到的」可以对着截图核实；「推断」是工具和看图模型的判断，依据写在每镜文件的「判断依据」里，两者对不上时以截图为准。",
           "- What is “seen” can be checked against the frames; what is “inferred” is the tools' and image readers' judgement, with the basis in each shot file. When they disagree, trust the frames.")]
@@ -267,115 +283,37 @@ def write(b: dict, out: Path) -> Path:
         text = _shot_file(r)
         (d / "shots" / f"{_shot_name(r['index'])}.md").write_text(text, encoding="utf-8")
         shot_tokens += tokens(text)
-    files.append((f"{DIR}/shots/01.md … {len(b['shots']):02d}.md", T("逐镜细节", "Per-shot detail"),
+    files.append((f"{DIR}/shots/*.md", T("逐镜细节，token 是每个文件的平均值", "Per-shot detail, tokens per file on average"),
                   T("核实某一镜：看得到的、推断和依据、提示词、帧图", "checking one shot: what is seen, the inference and its basis, prompts, frames"),
                   shot_tokens // max(1, len(b["shots"]))))
-    files.append(("breakdown.json", T("完整原始数据", "Full raw data"), T("程序读取；模型一般不用打开", "for programs; a model rarely needs it"),
-                  tokens((out / "breakdown.json").read_text(encoding="utf-8")) if (out / "breakdown.json").is_file() else 0))
-    media = [p for p in ("shots/", "stems/", "sfx/", "packaging/", "storyboard.jpg", "audio.png") if (out / p.rstrip("/")).exists()]
-    if media:
-        files.append((", ".join(media), T("截图、分轨音频、字幕文件", "frames, audio stems, subtitle files"),
-                      T("看图核实、复刻时当参考", "checking by eye, references for the remake"), 0))
+    if (out / "breakdown.json").is_file():
+        files.append(("breakdown.json", T("完整原始数据", "Full raw data"), T("程序读取；模型一般不用打开", "for programs; a model rarely needs it"),
+                      tokens((out / "breakdown.json").read_text(encoding="utf-8"))))
+    for rel, what, when in (
+            ("shots/", T("每镜的联系表和首尾帧", "contact sheet, first and last frame of each shot"), T("看图核实", "checking by eye")),
+            ("storyboard.jpg", T("全片故事板", "storyboard of the whole video"), T("一眼看全片", "the whole video at a glance")),
+            ("stems/", T("人声、配乐、音效分轨", "voice, music and effects stems"), T("听声音、复刻配音配乐", "listening, remaking the sound")),
+            ("sfx/", T("每处音效的试听片段", "a clip of each sound effect"), T("找同款音效", "finding matching effects")),
+            ("packaging/", T("字幕文件、包装时间轴、贴纸截图", "subtitle files, packaging timeline, sticker frames"), T("复刻字幕和包装", "remaking subtitles and packaging")),
+            ("audio.png", T("声音波形和节拍图", "waveform and beat chart"), T("看节奏", "seeing the rhythm"))):
+        if (out / rel.rstrip("/")).exists():
+            files.append((rel, what, when, 0))
     entry = out / ENTRY
     entry.write_text(_front(_card(b), _overview(b, files)), encoding="utf-8")
     return entry
 
 
-# ------------------------------------------------------------------ read (reference reader) ------------------------
-
-def read_file(path: Path) -> tuple[dict, str]:
-    """(front matter, body) of one file in the package."""
-    text = Path(path).read_text(encoding="utf-8")
-    if not text.startswith("---\n"):
-        return {}, text
-    fm, _, body = text[4:].partition("\n---\n")
-    return yaml.safe_load(fm) or {}, body.strip()
-
+# ------------------------------------------------------------------ read and check: the videomd reference library --
 
 def read(root: Path) -> dict:
-    """The package as data: {"card", "timeline": [shot dicts], "shots": {n: front matter}}. For programs that consume one."""
-    root = Path(root)
-    card, _ = read_file(root / ENTRY)
-    _, tl = read_file(root / DIR / "timeline.md")
-    shots = {}
-    for p in sorted((root / DIR / "shots").glob("*.md")):
-        fm, _ = read_file(p)
-        shots[fm.get("shot")] = fm
-    return {"card": card, "timeline": [x for x in map(parse_timeline_line, tl.splitlines()) if x], "shots": shots}
+    """The package as data: {"card", "map", "timeline": [shot dicts], "shots": {n: front matter}}."""
+    import videomd
 
-
-# ------------------------------------------------------------------ check (conformance) ----------------------------
-
-SCHEMA = Path(__file__).with_name("videomd.schema.json")
-_RE_LINE = re.compile(r"^#(\d+) (\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)((?: \| [a-z]+~? [^|]+?)*)$")
-_RE_ID = re.compile(r"\(([a-z_0-9]+)\)")
-
-
-def _schema_errors(data: dict, part: str, where: str) -> list[str]:
-    try:
-        import jsonschema
-    except ImportError:  # the structural checks below still run; the schema adds field-level detail when installed
-        return []
-    import json
-
-    schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
-    v = jsonschema.Draft202012Validator({**schema, "$ref": f"#/$defs/{part}"})
-    return [f"{where}: {'/'.join(map(str, e.absolute_path)) or '(root)'}: {e.message}" for e in v.iter_errors(data)]
+    return videomd.read(root)
 
 
 def check(root: Path) -> list[str]:
-    """Problems that make `root` a non-conforming package (empty list = conforms). See docs/videomd.md, “Conformance”."""
-    root = Path(root)
-    entry_name, D = ENTRY, DIR
-    errs: list[str] = []
-    entry = root / entry_name
-    if not entry.is_file():
-        return [f"{ENTRY} missing"]
-    card, body = read_file(entry)
-    errs += _schema_errors(card, "card", entry_name)
-    for p in re.findall(r"^\| `([^`]+)` \|", body, re.M):
-        if "…" not in p and "," not in p and not (root / p).exists():
-            errs.append(f"{entry_name}: map lists {p}, which does not exist")
-    for p in sorted((root / D).glob("*.md")):
-        fm, _ = read_file(p)
-        errs += _schema_errors(fm, "part", f"{D}/{p.name}")
-        if not fm:
-            errs.append(f"{D}/{p.name}: no front matter")
-    tl_path = root / D / "timeline.md"
-    if not tl_path.is_file():
-        return errs + [f"{D}/timeline.md missing"]
-    _, tl = read_file(tl_path)
-    m = re.search(rf"```{BLOCK}\n(.*?)\n?```", tl, re.S)
-    if not m:
-        return errs + [f"{D}/timeline.md: no ```{BLOCK} block"]
-    rows = []
-    for ln in [x for x in m.group(1).split("\n") if x.strip()]:
-        if not _RE_LINE.match(ln):
-            errs.append(f"{D}/timeline.md: not a timeline line: {ln[:80]}")
-            continue
-        rows.append(parse_timeline_line(ln))
-    if card.get("shots") is not None and len(rows) != card["shots"]:
-        errs.append(f"{D}/timeline.md: {len(rows)} lines, card says {card['shots']} shots")
-    last = 0
-    for x in rows:
-        if x["shot"] <= last:
-            errs.append(f"{D}/timeline.md: #{x['shot']:02d} out of order")
-        if x["end"] < x["start"]:
-            errs.append(f"{D}/timeline.md: #{x['shot']:02d} ends before it starts")
-        last = x["shot"]
-        sp = root / D / "shots" / f"{_shot_name(x['shot'])}.md"
-        if not sp.is_file():
-            errs.append(f"{D}/shots/{sp.name} missing")
-            continue
-        fm, _ = read_file(sp)
-        errs += _schema_errors(fm, "shot", f"{D}/shots/{sp.name}")
-        t = fm.get("time") or [None, None]
-        if fm.get("shot") != x["shot"] or t[0] is None or abs(t[0] - x["start"]) > 0.06 or abs(t[1] - x["end"]) > 0.06:
-            errs.append(f"{D}/shots/{sp.name}: shot number or time differs from the timeline")
-        made = _RE_ID.search(x.get("made~", ""))
-        if made and made.group(1) != (fm.get("inferred") or {}).get("made"):
-            errs.append(f"{D}/shots/{sp.name}: inferred.made differs from the timeline's made~")
-        for k, fp in (fm.get("frames") or {}).items():
-            if not (root / fp).is_file():
-                errs.append(f"{D}/shots/{sp.name}: frames.{k} {fp} does not exist")
-    return errs
+    """Problems that make `root` a non-conforming package (empty list = conforms), per the VIDEO.md spec."""
+    import videomd
+
+    return videomd.check(root)

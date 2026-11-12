@@ -551,7 +551,7 @@ def main(argv: list[str] | None = None) -> int:
 
     rl = sub.add_parser("videomd", help="从 breakdown.json 重新生成给模型读的拆片包（VIDEO.md + video/）；decompose 和 apply-review 会自动生成")
     rl.add_argument("out_dir")
-    rl.add_argument("--check", action="store_true", help="只校验目录是否符合 VIDEO.md 规范（docs/videomd.md），不重写")
+    rl.add_argument("--check", action="store_true", help="只校验目录是否符合 VIDEO.md 规范（https://github.com/videomd/videomd），不重写")
     rl.set_defaults(func=cmd_videomd)
 
     pd = sub.add_parser("pdf", help="把 report.html 打印成 report.pdf（用本机的 Chrome / Chromium / Edge，折叠内容全部展开）")
