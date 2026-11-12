@@ -30,13 +30,29 @@ def _b(shots):
     return {"shots": shots, "source": {"aspect_ratio": "9:16"}, "audio": {"voice": {"present": True}}}
 
 
-def test_engine_without_multishot_falls_back():
+def test_named_model_is_planned_for():
+    # a model the map knows is planned for as named, shot by shot when it cannot do multi-shot
     eng, model = pick_model(Planner(), "luma-ray3.2")
-    assert eng["id"] == "luma-ray3.2"
-    assert "video.multi_shot" in model["primitives"] and model["id"] != eng["id"]
-    # Seedance 2.0 writes several shots in one call (numbered shots in the prompt): plan for it directly
+    assert eng["id"] == model["id"] == "luma-ray3.2" and "video.multi_shot" not in model["primitives"]
+    # Seedance 2.0 writes several shots in one call (numbered shots in the prompt)
     eng, model = pick_model(Planner(), "seedance2.0")
     assert eng["id"] == model["id"] == "seedance-2.0"
+    # a name the map does not have falls back to a multi-shot model
+    eng, model = pick_model(Planner(), "no-such-model")
+    assert eng is None and "video.multi_shot" in model["primitives"]
+
+
+def test_plan_carries_the_models_prompt_notes(tmp_path):
+    from rea_video.production import report_md
+
+    shots = [_shot(1, 0.0, 3.0, "ai_video", KITCHEN, tmp_path), _shot(2, 3.0, 3.0, "ai_video", KITCHEN, tmp_path)]
+    plan = production_plan(_b(shots), tmp_path, engine="hailuo-2.3")
+    assert plan["model"] == "hailuo-2.3" and [u["shots"] for u in plan["units"]] == [[1], [2]]  # no multi-shot: one call per shot
+    assert "[Push in]" in plan["prompting"]["camera"]
+    plan["summary"] = ""
+    assert "[Push in]" in "\n".join(report_md(plan))
+    every = Planner()
+    assert set(every.prompting) <= set(every.models) and every.keyframe_notes
 
 
 def test_split_respects_hardcut_cap():
@@ -130,11 +146,11 @@ def test_framing_goes_into_capsule_prompt():
 def test_english_engine_note_has_no_chinese(tmp_path):
     set_lang("en")
     try:
-        plan = production_plan(_b([_shot(1, 0.0, 3.0, "ai_video", KITCHEN, tmp_path)]), tmp_path, engine="luma-ray3.2")
+        plan = production_plan(_b([_shot(1, 0.0, 3.0, "ai_video", KITCHEN, tmp_path)]), tmp_path, engine="no-such-model")
     finally:
         set_lang("zh")
     note = plan["engine_note"]
-    assert "shot by shot, 1 time." in note
+    assert "no-such-model" in note and "1 call in total" in note
     assert not re.search(r"[\u3000-\u303f\u4e00-\u9fff\uff00-\uffef]", note + plan["model_name"])
 
 

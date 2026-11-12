@@ -2,6 +2,13 @@
 
 复刻可以用的工具和方式单独列在 `remake-tools.md`，告诉用户有哪些可选时看那个文件。
 
+## 用哪个模型
+
+- 用户指定了视频模型：拆解时加 `--engine <id>`（`rea-video models` 列出可选的 id）；已经拆完的用 `rea-video models <id> --plan out/ref` 改按它重出方案。
+- 用户没指定：不用问，直接用默认的那个。
+- 把提示词交给用户之前，按 `rea-video models <id>` 打印的写法改写每个生成单元的提示词：时间和镜头怎么分、参考素材怎么指代、台词和不想要的内容怎么写；首帧 / 首尾帧模式下只留运动和运镜。要重画首帧时，图像提示词按所用图像模型的写法改（同一个命令）。
+- 选帧、擦字、首尾帧怎么配：`rea-video models keyframes`。
+
 ## 各类镜头怎么复刻
 
 - **AI 类镜头**：用原镜头首尾帧加 VLM 提示词，通过 [capsule-cinema](https://github.com/JuneYaooo/capsule-cinema) 生成（会计费，先 `--dry-run`，并征得用户同意）。

@@ -26,6 +26,10 @@ models（具体模型/工具，带边界、价格、许可、来源）
   - `threed`：3D 生成
   - `analysis`：拉片用的 VLM 和确定性工具
   - `render-post`：代码渲染、合成、超分、补帧
+- **prompting.yaml**：各模型的提示词写法和关键帧要求，按模型 id 索引：
+  - 结构、语言、长度、多镜头和时间怎么写、参考素材怎么指代、台词和声音、不想要的内容怎么写、运镜、首帧 / 首尾帧模式下写什么、对帧图的要求、自动改写开关、已知问题
+  - `basis` 标主要来源，`unverified` 列没核实或来源互相矛盾的地方；开头的 `keyframes` 是所有模型通用的关键帧做法
+  - 查看：`rea-video models <id>`；复刻方案按哪个模型规划，就带上哪个模型的写法
 - **routing.yaml**：包含以下几部分
   - 信号定义
   - 两级拆分规则（剪辑镜头 → 生成单元 → 分层）
@@ -49,7 +53,7 @@ models（具体模型/工具，带边界、价格、许可、来源）
 
 ## 维护流程
 
-1. **新增或更新模型**：编辑对应的 `models/*.yaml`，写明来源链接和 `verified.date`。
+1. **新增或更新模型**：编辑对应的 `models/*.yaml`，写明来源链接和 `verified.date`；视频模型同时在 `prompting.yaml` 里补它的提示词写法。
 2. **校验**：运行 `python3 scripts/validate_capabilities.py --matrix`。脚本检查 schema、引用完整性、"首选模型是否真的支持该原语"、原语空缺和过期条目（超过 90 天）。
 3. **用户实测结论**（例如"GPT Image 2.5 的中文字最好"）：写进 `strengths`，并把 `basis` 标为 `user`。
 4. **模型下线**：把 `status` 改成 `shutdown`，条目保留，同时从路由规则里移除。

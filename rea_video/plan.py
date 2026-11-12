@@ -253,6 +253,9 @@ class Planner:
         for f in sorted((CAP / "models").glob("*.yaml")):
             for m in (yaml.safe_load(f.read_text(encoding="utf-8")) or {}).get("models", []):
                 self.models[m["id"]] = m
+        notes = _load("prompting.yaml") or {}
+        self.prompting: dict[str, dict] = notes.get("models") or {}   # how to write prompts for each model
+        self.keyframe_notes: list[str] = notes.get("keyframes") or []  # frame-picking practice shared by all models
 
     def edit_steps(self, edits: list | None) -> list[dict]:
         """Image readers' list of AI edits on a filmed shot -> post-production steps with candidate models."""

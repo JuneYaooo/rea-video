@@ -12,6 +12,7 @@
   4. routing.yaml 中 signals/route/prefer/verify 引用都存在
   5. prefer 中的每个模型至少支持 route 链中的一个原语
   6. verified.date 超过 90 天给 warning（提示需要复核）
+  7. prompting.yaml（各模型的提示词写法）里的模型 id、字段和来源
 """
 from __future__ import annotations
 
@@ -133,6 +134,30 @@ def main() -> int:
             errors.append(f"routing.{key} 中存在重复 id")
         for r in routing.get(key, []):
             check_rule(r, key)
+
+    # ---------- 提示词写法 ----------
+    notes = load_yaml(CAP / "prompting.yaml") or {}
+    text_keys = {"structure", "language", "length", "multi_shot", "references", "dialogue", "negatives", "camera", "frame_mode", "frames", "rewriter"}
+    list_keys = {"pitfalls", "unverified", "sources"}
+    if not all(isinstance(x, str) for x in notes.get("keyframes", [])):
+        errors.append("prompting.yaml: keyframes 每一条都应是字符串")
+    for mid, n in (notes.get("models") or {}).items():
+        if mid not in models:
+            errors.append(f"prompting.yaml: 未知模型 {mid}")
+        if n.get("basis") not in ("probe", "user", "vendor", "third-party", "knowledge"):
+            errors.append(f"prompting.yaml:{mid}: basis 缺失或取值不对")
+        if not n.get("sources") or not all(str(u).startswith("http") for u in n["sources"]):
+            errors.append(f"prompting.yaml:{mid}: sources 至少一个 http(s) 链接")
+        for k, x in n.items():
+            if k == "basis":
+                continue
+            if k in text_keys and not isinstance(x, str) or k in list_keys and not (isinstance(x, list) and all(isinstance(i, str) for i in x)):
+                errors.append(f"prompting.yaml:{mid}: 字段 {k} 类型不对")
+            elif k not in text_keys | list_keys:
+                errors.append(f"prompting.yaml:{mid}: 未知字段 {k}")
+    for mid, m in live.items():
+        if m.get("category") == "video" and mid not in (notes.get("models") or {}):
+            warnings.append(f"{mid}: 还没有提示词写法（prompting.yaml）")
 
     # ---------- 输出 ----------
     print(f"原语 {len(primitives)} 个，指标 {len(metrics)} 个，模型 {len(models)} 个（可用 {len(live)}），"

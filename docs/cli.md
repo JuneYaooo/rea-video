@@ -106,6 +106,7 @@ rea-video capsule-draft out/ref/breakdown.json --capsule-root $CC --capsule-name
 | `tiles VIDEO --start --end --every` | 按时间抽帧拼图，近距离复核 |
 | `eval labels.yaml` | 在带标注的样本上评测准确率和切点 F1 |
 | `capsule breakdown.json` | 导出 capsule-cinema 的视频分析 JSON |
+| `models [ID] [--plan OUT_DIR]` | 列出能力地图里的生成模型；带 id 时打印这个模型的提示词写法和关键帧要求（`models keyframes` 是关键帧通用做法）；`--plan` 把已有拆解的复刻方案改按该模型重出 |
 | `remake-plan` / `assemble` | 生成复刻任务、拼回成片 |
 | `remake-run JOBS [--dry-run] [--only 2,5\|shot_002] [--capsule-root]` | 用 capsule-cinema 执行复刻任务（会计费）；有镜头没生成出视频时退出码非 0 |
 | `capsule-draft breakdown.json` | 生成 capsule-cinema 胶囊草稿 |

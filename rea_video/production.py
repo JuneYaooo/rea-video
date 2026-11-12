@@ -10,7 +10,7 @@ Edit shots (cut detection) are the facts; making them is organised differently:
 """
 from __future__ import annotations
 
-from .i18n import LangDict, T, join, model_name, semi, shot_ids
+from .i18n import LangDict, T, join, lang, model_name, semi, shot_ids
 
 import re
 from pathlib import Path
@@ -141,10 +141,11 @@ def code_motion_md(scenes: list[dict]) -> list[str]:
 # ---------------------------------------------------------------- model choice
 def pick_model(planner: Planner, engine: str) -> tuple[dict | None, dict | None]:
     """-> (the user's engine as a capability entry, the model the generation units are planned for).
-    Plan for the engine when it can do multi-shot; otherwise for the first live multi-shot model in R11."""
+    Plan for the named model when the capability map has it as a video generator (shot by shot if it cannot do
+    multi-shot); a name the map does not know falls back to the first live multi-shot model in R11."""
     live = {k: m for k, m in planner.models.items() if m.get("status") not in ("shutdown", "deprecated")}
     eng = next((m for m in live.values() if _norm(m["id"]) == _norm(engine)), None)
-    if eng and "video.multi_shot" in eng.get("primitives", []):
+    if eng and eng.get("category") == "video" and {"video.t2v", "video.i2v_first_frame"} & set(eng.get("primitives", [])):
         return eng, eng
     best = None
     for mid in (planner.rules.get("R11-recurring-character") or {}).get("prefer", []):
@@ -153,6 +154,20 @@ def pick_model(planner: Planner, engine: str) -> tuple[dict | None, dict | None]
             best = m
             break
     return eng, best or eng
+
+
+PROMPTING_FIELDS = (("structure", "结构"), ("language", "语言"), ("length", "长度"), ("multi_shot", "多镜头和时间"),
+                    ("references", "参考素材怎么指代"), ("dialogue", "台词和声音"), ("negatives", "不想要的内容"), ("camera", "运镜"),
+                    ("frame_mode", "首帧 / 首尾帧模式下写什么"), ("frames", "帧图和参考图"), ("rewriter", "自动改写"))
+
+
+def prompting_md(notes: dict, full: bool = False) -> list[str]:
+    """One model's prompt-writing notes as bullet lines; full adds what is unverified and the sources."""
+    L = [f"- **{zh}**：{notes[k]}" for k, zh in PROMPTING_FIELDS if notes.get(k)]
+    for k, zh in (("pitfalls", "注意"),) + ((("unverified", "待核实"), ("sources", "来源")) if full else ()):
+        if notes.get(k):
+            L += [f"- **{zh}**："] + [f"  - {x}" for x in notes[k]]
+    return L
 
 
 def _limits(m: dict | None) -> dict:
@@ -551,11 +566,13 @@ def production_plan(b: dict, out: Path, engine: str = "seedance2.0") -> dict:
         calls = sum(u["calls"] for u in units)
         plan["calls"] = calls
         plan["gen_shots"] = gen_shots
-        if eng and model and eng["id"] != model["id"]:
-            plan["engine_note"] = T("默认引擎 {e} 不支持一次多镜头，用它要逐镜生成 {n} 次；这里按 {m} 规划（单次 ≤{mx:.0f}s、可一次出多镜头），共 {c} 次",
-                                    "The default engine {e} cannot generate several shots in one call; with it you would generate shot by shot, {n} time{ns}. "
-                                    "This plan is for {m} (≤{mx:.0f}s per call, multi-shot in one call), {c} call{cs} in total",
-                                    e=model_name(eng["name"]), n=gen_shots, ns=_s(gen_shots), m=model_name(model["name"]), mx=lim["max"], c=calls, cs=_s(calls))
+        if model and (not eng or eng["id"] != model["id"]):
+            plan["engine_note"] = T("能力地图里没有可用来生成视频的 {e}，这里按 {m} 规划（单次 ≤{mx:.0f}s），共 {c} 次；可选的模型用 `rea-video models` 查看",
+                                    "The capability map has no video generator named {e}; this plan is for {m} (≤{mx:.0f}s per call), {c} call{cs} in total. "
+                                    "`rea-video models` lists the models to choose from",
+                                    e=model_name(eng["name"]) if eng else engine, m=model_name(model["name"]), mx=lim["max"], c=calls, cs=_s(calls))
+        if model and planner.prompting.get(model["id"]):
+            plan["prompting"] = planner.prompting[model["id"]]
         voice = ((b.get("audio") or {}).get("voice") or {}).get("present")
         vsrc = ((b.get("sound_sources") or {}).get("voice") or {}).get("source")
         if lim["native_audio"]:
@@ -691,6 +708,13 @@ def report_md(plan: dict) -> list[str]:
             L.append(T("- 声音：{a}", "- Audio: {a}", a=plan["audio_note"]))
         if plan.get("overlay_note"):
             L.append(T("- 包装层：{a}", "- Packaging: {a}", a=plan["overlay_note"]))
+        if plan.get("prompting"):
+            L.append(T("- 下面的提示词是通用写法；用 {m} 生成前，按它的写法改写（时间和镜头怎么分、参考素材怎么指代、台词和不想要的内容怎么写）：",
+                       "- The prompts below are written generically; before generating with {m}, rewrite them the way it expects "
+                       "(timing and shots, how references are addressed, dialogue, exclusions): `rea-video models {i}`",
+                       m=plan["model_name"], i=plan["model"]))
+            if lang() == "zh":
+                L += ["", "<details><summary>" + f"{plan['model_name']} 的提示词写法" + "</summary>", ""] + prompting_md(plan["prompting"]) + ["", "</details>"]
         L += ["", T("AI 视频模型能吃这几种输入，每个生成单元下面写了要喂哪些、从哪来：",
                     "A video model can take these inputs; each generation unit below lists which ones to feed and where they come from:"),
               T("- **文字提示词**：必需，描述画面、动作、运镜", "- **Text prompt**: always; describes the picture, action and camera"),

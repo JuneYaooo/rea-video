@@ -22,13 +22,13 @@
 | `image.tryon` | 虚拟试穿 | ◐ `fashn-v1.6`、◐ `kling-kolors-tryon` |
 | `video.t2v` | 文生视频 | ◐ `gemini-omni-flash`、◐ `hailuo-2.3`、◐ `hunyuanvideo-1.5`、◐ `kling-3.0`、◐ `kling-4.0`、◐ `kling-o3`、◐ `ltx-2.5`、○ `luma-ray3.2`、◐ `minimax-h3`、◐ `pixverse-v6`、◐ `runway-gen-4.5`、◐ `seedance-2.0`、● `seedance-2.5`、◐ `veo-3.1`、◐ `vidu-q3`、● `wan-2.2`、◐ `wan-3.0` |
 | `video.i2v_first_frame` | 图生视频（首帧） | ◐ `gemini-omni-flash`、◐ `hailuo-2.3`、◐ `hunyuanvideo-1.5`、◐ `kling-3.0`、◐ `kling-4.0`、◐ `kling-o3`、◐ `ltx-2.5`、○ `luma-ray3.2`、◐ `minimax-h3`、◐ `pixverse-v6`、◐ `runway-gen-4.5`、◐ `seedance-2.0`、● `seedance-2.5`、◐ `veo-3.1`、◐ `vidu-q3`、● `wan-2.2`、◐ `wan-3.0` |
-| `video.i2v_first_last` | 首尾帧生成 | ◐ `kling-3.0`、◐ `kling-4.0`、◐ `kling-o3`、◐ `minimax-h3`、◐ `pixverse-v6`、◐ `seedance-2.0`、● `seedance-2.5`、◐ `veo-3.1` |
+| `video.i2v_first_last` | 首尾帧生成 | ◐ `gemini-omni-flash`、◐ `kling-3.0`、◐ `kling-4.0`、◐ `kling-o3`、◐ `minimax-h3`、◐ `pixverse-v6`、◐ `seedance-2.0`、● `seedance-2.5`、◐ `veo-3.1`、◐ `wan-3.0` |
 | `video.keyframes` | 多关键帧控制 | ◐ `kling-4.0`、◐ `runway-gen-4.5` |
-| `video.multi_reference` | 多参考生视频（主体一致） | ◐ `gemini-omni-flash`、◐ `kling-3.0`、◐ `kling-4.0`、◐ `kling-o3`、◐ `minimax-h3`、◐ `pixverse-v6`、◐ `seedance-2.0`、● `seedance-2.5`、◐ `veo-3.1`、◐ `vidu-q3` |
-| `video.reference_video` | 参考视频生成（动作/运镜/特效迁移） | ◐ `gemini-omni-flash`、◐ `kling-4.0`、◐ `kling-o3`、◐ `pixverse-v6`、◐ `seedance-2.0`、● `seedance-2.5` |
-| `video.reference_audio` | 参考音频生成 | ◐ `gemini-omni-flash`、◐ `ltx-2.5`、◐ `seedance-2.0`、● `seedance-2.5` |
-| `video.multi_shot` | 单次多镜头 | ◐ `kling-3.0`、◐ `kling-o3`、◐ `ltx-2.5`、◐ `pixverse-v6`、◐ `seedance-2.0`、● `seedance-2.5` |
-| `video.extend` | 续写延长 | ● `seedance-2.5`、◐ `veo-3.1` |
+| `video.multi_reference` | 多参考生视频（主体一致） | ◐ `gemini-omni-flash`、◐ `kling-3.0`、◐ `kling-4.0`、◐ `kling-o3`、◐ `minimax-h3`、◐ `pixverse-v6`、◐ `seedance-2.0`、● `seedance-2.5`、◐ `veo-3.1`、◐ `vidu-q3`、◐ `wan-3.0` |
+| `video.reference_video` | 参考视频生成（动作/运镜/特效迁移） | ◐ `gemini-omni-flash`、◐ `kling-4.0`、◐ `kling-o3`、◐ `pixverse-v6`、◐ `seedance-2.0`、● `seedance-2.5`、◐ `wan-3.0` |
+| `video.reference_audio` | 参考音频生成 | ◐ `ltx-2.5`、◐ `seedance-2.0`、● `seedance-2.5`、◐ `wan-3.0` |
+| `video.multi_shot` | 单次多镜头 | ◐ `gemini-omni-flash`、◐ `kling-3.0`、◐ `kling-4.0`、◐ `kling-o3`、◐ `ltx-2.5`、◐ `minimax-h3`、◐ `pixverse-v6`、◐ `seedance-2.0`、● `seedance-2.5`、◐ `veo-3.1`、◐ `wan-3.0` |
+| `video.extend` | 续写延长 | ◐ `gemini-omni-flash`、● `seedance-2.5`、◐ `veo-3.1` |
 | `video.edit_v2v` | 视频编辑（保留运动） | ◐ `gemini-omni-flash`、◐ `kling-4.0`、◐ `kling-o3`、◐ `ltx-2.5`、○ `luma-ray3.2`、○ `runway-aleph-2`、◐ `runway-gen-4.5`、◐ `seedance-2.0`、● `seedance-2.5`、◐ `wan-2.2-animate`、○ `wan-2.7-edit` |
 | `video.camera_control` | 运镜与镜头参数控制 | ◐ `gemini-omni-flash`、◐ `kling-3.0`、◐ `kling-4.0`、◐ `pixverse-v6`、○ `runway-aleph-2`、◐ `runway-gen-4.5`、● `seedance-2.5` |
 | `video.native_audio` | 音画同出 | ◐ `gemini-omni-flash`、◐ `kling-3.0`、◐ `kling-4.0`、◐ `ltx-2.5`、○ `luma-ray3.2`、◐ `minimax-h3`、◐ `pixverse-v6`、◐ `runway-gen-4.5`、◐ `seedance-2.0`、● `seedance-2.5`、◐ `veo-3.1`、◐ `vidu-q3`、◐ `wan-3.0` |
@@ -109,7 +109,7 @@
 | Hunyuan 3D（3.x） | Tencent | threed | ga |  |  | 是 | third-party 2026-10-29 |
 | Rodin Gen-2.5 | Hyper3D / Deemos | threed | ga |  |  | 是 | third-party 2026-10-29 |
 | Tripo P1 | Tripo | threed | ga |  |  | 是 | third-party 2026-10-29 |
-| Gemini Omni Flash | Google | video | ga | 8 | 是 | 是 | third-party 2026-10-29 |
+| Gemini Omni Flash | Google | video | ga | 15 | 是 | 是 | vendor 2026-11-12 |
 | Hailuo 2.3 / 2.3 Fast（海螺） | MiniMax | video | ga | 10 | 是 | 是 | third-party 2026-10-29 |
 | HunyuanVideo 1.5（开源） | Tencent | video | ga |  |  | 有条件 | third-party 2026-10-29 |
 | Kling 3.0（含 Turbo） | Kuaishou | video | ga | 15 | 是 | 是 | third-party 2026-10-29 |

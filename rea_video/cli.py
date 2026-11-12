@@ -409,6 +409,56 @@ def cmd_correct(args) -> int:
     return 0
 
 
+def cmd_models(args) -> int:
+    """List the generation models the capability map knows, or print how to write prompts for one of them."""
+    from .plan import Planner
+    from .production import _norm, prompting_md
+
+    pl = Planner()
+    live = {k: m for k, m in pl.models.items() if m.get("status") not in ("shutdown", "deprecated")}
+    if not args.model:
+        for cat, title in (("video", "视频"), ("image", "图像（出首帧 / 关键帧）"), ("character", "人物驱动")):
+            print(f"{title}:")
+            for mid, m in live.items():
+                if m["category"] == cat:
+                    lim = (m.get("limits") or {}).get("duration_s") or {}
+                    extra = [f"≤{lim['max']:g}s" if lim.get("max") else "", "一次多镜头" if "video.multi_shot" in m["primitives"] else "",
+                             "有提示词写法" if mid in pl.prompting else ""]
+                    print(f"  {mid:22s} {m['name']}" + ("  · " + " · ".join(x for x in extra if x) if any(extra) else ""))
+        print("\n看某个模型的提示词写法：rea-video models <id>；关键帧通用做法：rea-video models keyframes")
+        return 0
+    if args.model == "keyframes":
+        print("关键帧通用做法：\n" + "\n".join(f"- {x}" for x in pl.keyframe_notes))
+        return 0
+    m = next((x for x in live.values() if _norm(x["id"]) == _norm(args.model)), None)
+    if not m:
+        print(f"rea-video: 能力地图里没有 {args.model}；rea-video models 列出全部", file=sys.stderr)
+        return 2
+    lim = m.get("limits") or {}
+    d = lim.get("duration_s") or {}
+    facts = [f"单次 {d.get('min', 0):g}–{d['max']:g}s" if d.get("max") else "", "可一次多镜头" if "video.multi_shot" in m["primitives"] else "",
+             "首帧" if "video.i2v_first_frame" in m["primitives"] else "", "首尾帧" if "video.i2v_first_last" in m["primitives"] else "",
+             "多参考" if "video.multi_reference" in m["primitives"] else "", "参考视频" if "video.reference_video" in m["primitives"] else "",
+             "原生音频" if (m.get("audio") or {}).get("native") else ""]
+    print(f"{m['id']} · {m['name']}" + (" · " + " · ".join(x for x in facts if x) if any(facts) else ""))
+    if args.plan:  # re-plan an existing breakdown for this model: units, inputs and report are rewritten, the measurements stay
+        from .pipeline import finalize
+
+        out = Path(args.plan)
+        b = read_json(out / "breakdown.json")
+        set_lang(b.get("lang", "zh"))
+        b = finalize(b, out, engine=m["id"])
+        print(T("已按 {m} 重出复刻方案：{p}", "Remake plan redone for {m}: {p}", m=m["id"], p=b["summary"].get("production", "")))
+    notes = pl.prompting.get(m["id"])
+    if not notes:
+        print("这个模型还没有记录提示词写法，按通用规则写。")
+        return 0
+    print("\n".join(prompting_md(notes, full=True)))
+    if m["category"] == "video":
+        print("\n关键帧通用做法：rea-video models keyframes")
+    return 0
+
+
 def cmd_prefs(args) -> int:
     from .memory import PREF_KEYS, add_note, load_prefs, remove_note, set_pref
 
@@ -469,7 +519,7 @@ def main(argv: list[str] | None = None) -> int:
     d.add_argument("--lang", choices=LANGS, help="报告、结论和 VLM 描述的语言：zh（默认）/ en；按用户提问的语言选，也可用 prefs lang 设成默认")
     d.add_argument("--workers", type=int, default=3)
     d.add_argument("--max-vlm-shots", type=int, default=60, help="最多发给 VLM 的调用数（默认 60；镜头更多时优先看最拿不准的，其余只靠确定性取证）")
-    d.add_argument("--engine", help="复刻计划使用的 capsule-cinema 视频引擎（默认 prefs 里的 engine，否则 seedance2.0）")
+    d.add_argument("--engine", help="复刻方案按哪个视频模型规划（rea-video models 列出的 id；默认 prefs 里的 engine，否则 seedance2.0）")
     d.add_argument("--meta", help='平台元数据 JSON，例如 {"music": {"title": "xx", "author": "yy", "is_original": false, "popular": true}}')
     d.add_argument("--no-asr", action="store_true", help="不做本地语音识别（装了 rea-video[asr] 才会做：在人声干声上识别台词和时间，首次使用下载约 160 MB 模型）")
     d.add_argument("--no-speakers", action="store_true", help="不区分说话人（装了 rea-video[asr] 才会做：在人声干声上分出谁在什么时候说话，多人时每人输出一条 stems/voice_S1.wav；首次使用下载约 35 MB 模型）")
@@ -581,6 +631,11 @@ def main(argv: list[str] | None = None) -> int:
     co.add_argument("--real", choices=["yes", "no"], help="是否用了用户真实素材")
     co.add_argument("--note", help="用户的原话或理由，例如「这是定格动画，不是 AI」")
     co.set_defaults(func=cmd_correct)
+
+    mo = sub.add_parser("models", help="列出能力地图里的生成模型；带模型 id 时打印这个模型的提示词写法和关键帧要求")
+    mo.add_argument("model", nargs="?", help="模型 id（如 seedance-2.5、kling-3.0）；keyframes 打印关键帧通用做法")
+    mo.add_argument("--plan", metavar="OUT_DIR", help="把这个拆解目录的复刻方案改按该模型重出（不重新拆解）")
+    mo.set_defaults(func=cmd_models)
 
     pf = sub.add_parser("prefs", help="查看 / 设置用户偏好（默认引擎、是否开 VLM、VLM 配置文件、复核者、自由文字说明）")
     pf.add_argument("key", nargs="?")

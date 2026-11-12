@@ -76,7 +76,7 @@ models:
     release: 2026-10
     status: preview
     access: [app, api, api-aggregator]
-    primitives: [video.t2v, video.i2v_first_frame, video.i2v_first_last, video.keyframes, video.multi_reference, video.reference_video, video.edit_v2v, video.camera_control, video.native_audio]
+    primitives: [video.t2v, video.i2v_first_frame, video.i2v_first_last, video.keyframes, video.multi_reference, video.reference_video, video.multi_shot, video.edit_v2v, video.camera_control, video.native_audio]
     limits:
       duration_s: {min: 3, max: 30}
       resolutions: [720p, 1080p, 4K]
@@ -90,12 +90,14 @@ models:
       - 视频编辑：表情、肢体、机位、风格、背景、角色均可改（最多 5 段输入、合计 30 秒）
       - 立体声，多语种对白与口音；屏幕文字支持多语种和 emoji
       - 画幅 21:9 / 16:9 / 1:1 / 9:16
+      - 默认自动分镜，镜头按时间直接写在提示词里
     weaknesses:
       - Flash 版 3–20 秒、仅 720p、8-bit SDR；10-bit HDR 与续写（最长 2 分钟）为 coming soon
       - 音频参考只能当声音参考
     license: {commercial: true, note: 以平台条款为准}
     sources:
       - https://fal.ai/learn/tools/what-is-kling-4-0
+      - https://kling.ai/quickstart/kling-4-model-user-guide
     verified: {date: 2026-10-29, basis: third-party}
     confidence: medium
     notes: Flash 于 2026-09-28 开放有限早期访问；正式版预计 2026-10 上线，需上线后复核
@@ -158,9 +160,9 @@ models:
     release: 2025-10
     status: ga
     access: [app, api]
-    primitives: [video.t2v, video.i2v_first_frame, video.i2v_first_last, video.multi_reference, video.extend, video.native_audio]
+    primitives: [video.t2v, video.i2v_first_frame, video.i2v_first_last, video.multi_reference, video.multi_shot, video.extend, video.native_audio]
     limits:
-      duration_s: {max: 8}
+      duration_s: {min: 4, max: 8}
       resolutions: [720p, 1080p, 4K]
       refs: {image: 4}
     audio: {native: true}
@@ -177,8 +179,11 @@ models:
       - https://tech-insider.org/best-ai-video-generator-2026/
       - https://templix.app/blogs/best-ai-motion-control-and-animation-models-in-2026
       - https://help.artlist.io/hc/en-us/articles/33139656414877-Veo-3-1
+      - https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/veo/3-1-generate
+      - https://cloud.google.com/blog/products/ai-machine-learning/ultimate-prompting-guide-for-veo-3-1
     verified: {date: 2026-10-29, basis: third-party}
     confidence: medium
+    notes: 预览版已从 Gemini API 下线，API 走 Vertex AI 上的正式版；一段里可以按时间戳写多个镜头
 
   - id: gemini-omni-flash
     name: Gemini Omni Flash
@@ -187,17 +192,20 @@ models:
     release: 2026-05
     status: ga
     access: [app, api]
-    primitives: [video.t2v, video.i2v_first_frame, video.multi_reference, video.reference_video, video.reference_audio, video.edit_v2v, video.camera_control, video.native_audio]
+    primitives: [video.t2v, video.i2v_first_frame, video.i2v_first_last, video.multi_reference, video.reference_video, video.multi_shot, video.extend, video.edit_v2v, video.camera_control, video.native_audio]
     limits:
-      duration_s: {max: 8}
-      resolutions: [1080p]
+      duration_s: {min: 3, max: 15}
+      resolutions: [720p, 1080p, 4K]
+      refs: {image: 6}
     audio: {native: true}
     strengths:
       - 文本、图像、音频、视频任意组合输入；草图可作为动作引导
       - 对话式多轮编辑，场景状态延续不重置
       - 第三方榜单中文生视频（含音频）排名第一（Elo 约 1233）
     weaknesses:
-      - 单段 8 秒
+      - 单段 3–15 秒，首尾帧和续写每次 3–10 秒
+      - 默认会自己切镜，要单镜头得在提示词里写明
+      - 不收音频参考
       - 物理一致性仍有瑕疵
       - 输出带 SynthID 和 C2PA 标记
     cost: {usd_per_s: 0.10}
@@ -205,9 +213,10 @@ models:
     sources:
       - https://www.datacamp.com/blog/gemini-omni
       - https://tech-insider.org/best-ai-video-generator-2026/
-    verified: {date: 2026-10-29, basis: third-party}
+      - https://aistudio.google.com/docs/omni
+    verified: {date: 2026-11-12, basis: vendor}
     confidence: medium
-    notes: API ID 为 gemini-omni-1.1-flash；Omni Pro 尚未发布
+    notes: API ID 为 gemini-omni-1.2-flash；Omni Pro 尚未发布
 
   - id: vidu-q3
     name: Vidu Q3
@@ -262,15 +271,18 @@ models:
     release: 2026-06
     status: ga
     access: [api, api-aggregator, open-weights]
-    primitives: [video.t2v, video.i2v_first_frame, video.i2v_first_last, video.multi_reference, video.native_audio]
+    primitives: [video.t2v, video.i2v_first_frame, video.i2v_first_last, video.multi_reference, video.multi_shot, video.native_audio]
     limits:
       duration_s: {min: 4, max: 15}
       resolutions: [768p, 1080p, 2K]
+      # 首帧 / 首尾帧 和 参考素材 不能放在同一个请求里
+      exclusive_inputs: [[video.i2v_first_frame, video.i2v_first_last], [video.multi_reference]]
     audio: {native: true}
     strengths:
       - 第三方榜单前三（H3 Max Elo 约 1227），且列价最低
       - 权重开放（H3-Base 可在本地跑 768p）
       - Hypit 与 video-replicate-studio 均已接入
+      - 一次可出多个镜头：提示词里按 [Shot N] 加切镜时间点写
     weaknesses:
       - 企业配套弱；1080p 下时长受限
       - 2K 需要托管模块
@@ -279,6 +291,8 @@ models:
     sources:
       - https://tech-insider.org/best-ai-video-generator-2026/
       - https://www.turingpost.com/p/6-opensource-video-generation-models
+      - https://huggingface.co/MiniMaxAI/MiniMax-H3/raw/main/docs/VIDEO_PROMPT_WRITING_GUIDE_base_en.md
+      - https://platform.minimax.io/docs/api-reference/video-generation-v2-create
     verified: {date: 2026-10-29, basis: third-party}
     confidence: medium
     notes: 发布月份为估计值
@@ -314,19 +328,26 @@ models:
     release: 2026-07
     status: ga
     access: [api]
-    primitives: [video.t2v, video.i2v_first_frame, video.native_audio]
+    primitives: [video.t2v, video.i2v_first_frame, video.i2v_first_last, video.multi_reference, video.reference_video, video.reference_audio, video.multi_shot, video.native_audio]
     limits:
       duration_s: {max: 10}
       resolutions: [1080p]
+      refs: {image: 10, video: 5, audio: 5}
+      # 首帧 / 首尾帧 和 参考素材 不能放在同一个请求里
+      exclusive_inputs: [[video.i2v_first_frame, video.i2v_first_last], [video.multi_reference, video.reference_video, video.reference_audio]]
     audio: {native: true}
     strengths:
       - 第三方榜单第二（Elo 约 1229）
+      - 一次可出多个镜头：按「第 N 个镜头[起-止秒]」写，每段 2–5 秒
+      - 参考图、参考视频、参考音频（音色）都可以用
     weaknesses:
       - 只有 API，不开源
     cost: {usd_per_s: 0.20, note: 约 12 美元/分钟}
     license: {commercial: true}
     sources:
       - https://tech-insider.org/best-ai-video-generator-2026/
+      - https://help.aliyun.com/zh/model-studio/wan3-video-generation-guide
+      - https://help.aliyun.com/zh/model-studio/wan3-video-generation-prompt-guide
     verified: {date: 2026-10-29, basis: third-party}
     confidence: medium
 
