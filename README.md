@@ -238,7 +238,7 @@ No. rea-video is for learning a video's structure, pacing and techniques, then r
 - [docs/cases.md](docs/cases.md): details on each example
 - [docs/decompose.md](docs/decompose.md): detection rules
 - [docs/cli.md](docs/cli.md): CLI usage and capsule-cinema integration
-- [docs/videomd.md](docs/videomd.md): VIDEO.md, the standard breakdown package that agents and downstream tools read
+- [docs/videomd.md](docs/videomd.md): VIDEO.md, the standard breakdown package that agents and downstream tools read (open format: [videomd/videomd](https://github.com/videomd/videomd))
 - [rea_video/capabilities/](rea_video/capabilities/README.md): capability tables for video / image / audio models, used to pick models for the remake plan
 - [eval/RESULTS.md](eval/RESULTS.md): eval results
 
