@@ -40,11 +40,10 @@ Installe https://github.com/JuneYaooo/rea-video, puis décortique cette vidéo :
 
 L'agent installe la CLI, apprend le workflow et s'occupe du reste. Prérequis : ffmpeg et Python 3.10+.
 
-Ce que vous obtenez :
+**Une analyse, deux lecteurs : vous et votre IA.** Les deux disent la même chose, chacun sous la forme dont son lecteur a besoin.
 
-- un résumé en une ligne, par ex. « 41 % de vidéo IA + 59 % d'interface codée, 8 s de vrai enregistrement d'écran, musique de librairie à 122 BPM »
-- un plan de remake qui sépare ce qu'il faut tourner, ce qu'il faut générer et ce qu'il faut coder
-- un `report.html` complet : images de chaque plan, indices, prompts, notes sur la caméra et l'éclairage, analyse du son
+- **Un rapport pour vous** (`report.html`, ou en PDF) : comment la vidéo a été faite, en une ligne, par exemple « 41 % vidéo IA + 59 % interface codée, 8 s d'enregistrement d'écran réel, musique de banque à 122 BPM » ; ce qui la fait marcher ; et un plan pour la refaire, réparti entre ce qu'il faut tourner, générer et coder, avec images, indices et prompts pour chaque plan. Prêt à envoyer à votre équipe.
+- **Un [VIDEO.md](https://videomd.github.io/videomd/) pour votre IA** : les mêmes conclusions, écrites pour qu'une IA les lise vite et sans erreur : une fiche, une ligne par plan, un fichier par plan. Continuez à poser vos questions (« quels plans sont en IA ? », « qu'est-ce que je dois tourner moi-même ? ») : elle répond avec environ 2k tokens, sans revoir la vidéo.
 
 Vous pouvez brancher un modèle qui comprend la vidéo — Gemini et Doubao marchent tous les deux : il suffit de donner l'endpoint et la clé à l'agent. Le tri réel / IA / 3D devient plus fiable, et chaque plan reçoit un prompt reconstitué. Sans modèle, ça marche aussi ; si votre agent sait lire les images, il revérifie lui-même les plans douteux.
 
@@ -69,8 +68,6 @@ Au-delà de la façon dont l'image a été produite, chaque vidéo est aussi ana
 - Montage : où tombent les coupes, à quel rythme, et si elles sont calées sur le tempo
 - Son : voix humaine ou IA, musique IA ou de librairie et son BPM, position de chaque effet sonore
 - Matériel à fournir vous-même : enregistrements d'écran, captures d'écran, photos produit
-
-Chaque analyse sort aussi sous forme de paquet [VIDEO.md](https://github.com/videomd/videomd) pour les agents et les programmes. Chaque skill a son `SKILL.md` ; chaque vidéo, son `VIDEO.md` : une fiche courte, une ligne par plan, un fichier par plan. Un agent répond à la plupart des questions avec environ 2k tokens au lieu de lire toutes les données.
 
 ## Exemples
 

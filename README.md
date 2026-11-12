@@ -40,11 +40,10 @@ Install https://github.com/JuneYaooo/rea-video, then break down this video: /pat
 
 The agent installs the CLI, learns the workflow and runs the whole thing. You need ffmpeg and Python 3.10+.
 
-You get:
+**One breakdown, two readers: you and your AI.** Both say the same thing, each in the form its reader needs.
 
-- a one-line summary, e.g. "41% AI video + 59% code UI, 8 s of real screen recording, library music at 122 BPM"
-- a remake plan, split into what to film, what to generate and what to code
-- a full `report.html` with per-shot frames, evidence, prompts, camera and lighting notes, and the audio breakdown
+- **A report for you** (`report.html`, or a PDF): how the video was made in one line, e.g. "41% AI video + 59% code UI, 8 s of real screen recording, library music at 122 BPM"; what makes it work; and a remake plan split into what to film, what to generate and what to code, with frames, evidence and prompts for every shot. Ready to send to your team.
+- **A [VIDEO.md](https://videomd.github.io/videomd/) for your AI**: the same findings, written so an AI reads them fast and gets them right: a card, one line per shot, one file per shot. Keep asking ("which shots are AI?", "what do I have to film myself?") and it answers from about 2k tokens, without watching the video again.
 
 You can also hook up a video-capable model (Gemini or Doubao both work) by giving the agent its endpoint and key. That makes the live/AI/3D calls more accurate and adds a reverse-engineered prompt for every shot. It works fine without one; if your agent can see images, it checks the uncertain shots itself.
 
@@ -69,8 +68,6 @@ Besides how the visuals were made, every breakdown also covers:
 - Editing: where the cuts are, how fast, whether they hit the beat
 - Audio: human or AI voice, AI or library music and its BPM, where each sound effect lands
 - Material you'll need to supply yourself: screen recordings, screenshots, product photos
-
-Every breakdown also comes as a [VIDEO.md](https://github.com/videomd/videomd) package for agents and programs. Every skill has a `SKILL.md`; every video gets a `VIDEO.md`: a small card, one line per shot, one file per shot. An agent answers most questions from about 2k tokens instead of the full data.
 
 ## Examples
 

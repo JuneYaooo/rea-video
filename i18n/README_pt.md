@@ -40,11 +40,10 @@ Instala o https://github.com/JuneYaooo/rea-video e depois analisa este vídeo: /
 
 O agente instala a CLI, aprende o fluxo e roda tudo. Você só precisa ter ffmpeg e Python 3.10+.
 
-O que você recebe:
+**Uma análise, dois leitores: você e a sua IA.** Os dois dizem a mesma coisa, cada um no formato de que o seu leitor precisa.
 
-- um resumo em uma linha, tipo "41% vídeo de IA + 59% interface em código, 8 s de gravação de tela real, música de biblioteca a 122 BPM"
-- um plano de remake, separando o que filmar, o que gerar e o que programar
-- um `report.html` completo, com quadros de cada plano, evidências, prompts, anotações de câmera e iluminação e a análise do áudio
+- **Um relatório para você** (`report.html`, ou em PDF): como o vídeo foi feito em uma linha, por exemplo "41% vídeo de IA + 59% interface em código, 8 s de gravação de tela real, música de biblioteca a 122 BPM"; por que ele funciona; e um plano para refazê-lo dividido em o que filmar, o que gerar e o que programar, com quadros, evidências e prompts de cada plano. Pronto para mandar para a equipe.
+- **Um [VIDEO.md](https://videomd.github.io/videomd/) para a sua IA**: as mesmas conclusões, escritas para uma IA ler rápido e sem errar: uma ficha, uma linha por plano, um arquivo por plano. Continue perguntando ("quais planos são de IA?", "o que eu preciso filmar?") e ela responde com cerca de 2k tokens, sem rever o vídeo.
 
 Dá para adicionar um modelo que entenda vídeo — Gemini ou Doubao servem: é só passar o endpoint e a chave para o agente. Com ele, a separação entre real, IA e 3D fica mais precisa, e cada plano ganha um prompt reconstruído. Sem ele, tudo continua funcionando; se o seu agente enxerga imagens, ele mesmo revisa os planos em que ficou na dúvida.
 
@@ -69,8 +68,6 @@ Além de como a imagem foi feita, a análise de qualquer vídeo também traz:
 - Edição: onde estão os cortes, qual o ritmo, se batem com a música
 - Áudio: voz humana ou de IA, música de IA ou de biblioteca (com o BPM), onde entra cada efeito sonoro
 - Material que você vai ter que providenciar: gravações de tela, capturas de tela, fotos de produto
-
-Toda análise também sai como um pacote [VIDEO.md](https://github.com/videomd/videomd) para agentes e programas. Cada skill tem seu `SKILL.md`; cada vídeo, seu `VIDEO.md`: uma ficha curta, uma linha por plano, um arquivo por plano. Um agente responde à maioria das perguntas com cerca de 2k tokens, sem ler os dados completos.
 
 ## Exemplos
 

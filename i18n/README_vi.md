@@ -40,11 +40,10 @@ Cài https://github.com/JuneYaooo/rea-video rồi phân tích video này giúp t
 
 Agent sẽ tự cài CLI, đọc quy trình làm việc và chạy trọn bộ từ đầu đến cuối. Bạn chỉ cần cài sẵn ffmpeg và Python 3.10+.
 
-Kết quả nhận được:
+**Một lần phân tích, hai người đọc: bạn và AI của bạn.** Cả hai nói cùng một điều, mỗi bản theo cách người đọc của nó cần.
 
-- kết luận tóm tắt trong 1 dòng, ví dụ: "41% video AI + 59% giao diện code, 8 giây quay màn hình thật, nhạc kho 122 BPM"
-- kế hoạch làm lại (remake), tách rõ phần nào cần tự quay, phần nào tạo bằng AI và phần nào viết code
-- file báo cáo đầy đủ `report.html` gồm ảnh từng shot, bằng chứng nhận định, prompt, ghi chú góc máy & ánh sáng cùng phần bóc tách âm thanh
+- **Báo cáo cho bạn** (`report.html`, hoặc PDF): video được làm thế nào, gói trong một dòng, ví dụ "41% video AI + 59% giao diện bằng code, 8 giây quay màn hình thật, nhạc thư viện 122 BPM"; vì sao nó hút người xem; và kế hoạch làm lại, chia thành phần cần quay, cần tạo bằng AI và cần viết code, kèm khung hình, căn cứ và prompt cho từng cảnh quay. Gửi thẳng cho cả nhóm được.
+- **[VIDEO.md](https://videomd.github.io/videomd/) cho AI của bạn**: cùng kết luận đó, viết theo cách AI đọc nhanh và đúng: một thẻ, mỗi cảnh quay một dòng, mỗi cảnh quay một tệp. Cứ hỏi tiếp ("cảnh nào là AI?", "mình phải tự quay những gì?"), nó trả lời chỉ với khoảng 2k token, không cần xem lại video.
 
 Bạn cũng có thể đấu nối thêm một model hiểu video (cả Gemini lẫn Doubao đều dùng được) bằng cách đưa endpoint và API key cho agent. Khi có model này, kết quả phân loại quay thật / AI / 3D sẽ chính xác hơn và mỗi shot đều được suy ngược ra prompt gốc. Không gắn thêm vẫn chạy tốt — nếu agent của bạn xem được ảnh, nó sẽ tự kiểm tra lại những shot chưa chắc chắn.
 
@@ -69,8 +68,6 @@ Ngoài cách tạo phần hình ảnh, mỗi lượt phân tích còn bóc tách
 - Dựng phim: vị trí các điểm cắt, nhịp cắt nhanh hay chậm, cắt có khớp nhịp nhạc không
 - Âm thanh: giọng người thật hay AI, nhạc nền do AI tạo hay lấy từ kho nhạc kèm BPM, vị trí từng hiệu ứng âm thanh (SFX)
 - Tư liệu bạn cần tự chuẩn bị: đoạn quay màn hình, ảnh chụp màn hình, ảnh sản phẩm
-
-Mỗi lần phân tích còn xuất ra một gói [VIDEO.md](https://github.com/videomd/videomd) cho agent và chương trình đọc. Mỗi skill có một `SKILL.md`, mỗi video có một `VIDEO.md`: một thẻ ngắn, mỗi cảnh quay một dòng, mỗi cảnh quay một tệp. Agent trả lời phần lớn câu hỏi với khoảng 2k token thay vì đọc toàn bộ dữ liệu.
 
 ## Các ví dụ
 
