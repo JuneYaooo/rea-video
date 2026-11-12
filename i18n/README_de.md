@@ -78,6 +78,8 @@ Unabhängig davon, wie das Bild entstanden ist, schaut sich rea-video bei jedem 
 - Audio: echte oder KI-Stimme, KI- oder Stockmusik samt BPM, wo welcher Soundeffekt sitzt
 - Material, das du selbst beisteuern musst: Bildschirmaufnahmen, Screenshots, Produktfotos
 
+Jede Analyse gibt es außerdem als [VIDEO.md](https://github.com/videomd/videomd)-Paket für Agenten und Programme. Jeder Skill hat seine `SKILL.md`, jedes Video seine `VIDEO.md`: eine kurze Karte, eine Zeile pro Einstellung, eine Datei pro Einstellung. Ein Agent beantwortet die meisten Fragen mit rund 2k Tokens statt mit den vollständigen Daten.
+
 ## Beispiele
 
 Die Beispielvideos in `docs/cases/videos/` sind neu komprimiert, damit das Repo klein bleibt – dabei gehen die TikTok-/Douyin-Plattformtags verloren. Wenn du sie selbst durchlaufen lässt, kommt deshalb etwas anderes heraus als in den Berichten unten, vor allem ohne Vision-Modell. Zum Nachvollziehen nimm den Original-Download von der Plattform.
@@ -221,6 +223,15 @@ Nein. Der reine Tool-Modus läuft offline, kostet nichts und ist bei Originaldat
 <summary>Baut es das ganze Video automatisch nach?</summary>
 
 Teilweise. Mit installiertem [capsule-cinema](https://github.com/JuneYaooo/capsule-cinema) werden KI-Shots automatisch generiert und wieder an ihre Stelle in der Original-Timeline gesetzt. Realfilm-Shots drehst du selbst nach Drehplan, Code-Shots schreibt der Agent als Remotion-Projekt. Mehr dazu in [docs/replicate.md](../docs/replicate.md).
+
+</details>
+
+<details>
+<summary>Was ist VIDEO.md, und warum schreibt rea-video eine?</summary>
+
+Jeder Skill hat seine `SKILL.md`, jedes Video seine `VIDEO.md`. Es ist ein offenes Format für Videoanalysen, gemacht, damit ein Modell nur liest, was eine Frage braucht. Eine vollständige Analyse umfasst Hunderttausende Tokens; VIDEO.md ordnet sie in Ebenen: eine Karte mit einigen hundert Tokens, eine Übersicht mit Karte aller Dateien, eine Timeline mit einer Zeile pro Einstellung, dann eine Datei pro Einstellung. Jede Datei nennt ihre Größe, und was im Bild zu sehen ist, bleibt getrennt von dem, was die Werkzeuge ableiten.
+
+rea-video schreibt in jeden Ausgabeordner eine (`out/ref/VIDEO.md`), und sein Agent-Skill liest sie statt der Rohdaten. Andere Agenten und Werkzeuge können sie lesen, ohne rea-video zu kennen: `pip install videomd`, dann `videomd check out/ref`. Spezifikation und Leitfäden gibt es unter [videomd.github.io/videomd](https://videomd.github.io/videomd/).
 
 </details>
 

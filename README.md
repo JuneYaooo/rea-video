@@ -78,6 +78,8 @@ Besides how the visuals were made, every breakdown also covers:
 - Audio: human or AI voice, AI or library music and its BPM, where each sound effect lands
 - Material you'll need to supply yourself: screen recordings, screenshots, product photos
 
+Every breakdown also comes as a [VIDEO.md](https://github.com/videomd/videomd) package for agents and programs. Every skill has a `SKILL.md`; every video gets a `VIDEO.md`: a small card, one line per shot, one file per shot. An agent answers most questions from about 2k tokens instead of the full data.
+
 ## Examples
 
 The sample videos in `docs/cases/videos/` are re-compressed to keep the repo small, which strips the TikTok / Douyin platform tags. So if you run them yourself, you'll get different results from the reports below, especially without a vision model. To reproduce them, use the original downloads from the platform.
@@ -221,6 +223,15 @@ No. Tools-only mode is offline and free, and already accurate on original files.
 <summary>Can it remake the whole video automatically?</summary>
 
 Partly. With [capsule-cinema](https://github.com/JuneYaooo/capsule-cinema) installed, AI shots are generated and placed back on the original timeline automatically. You film the live shots from the shooting plan, and the agent writes the code shots as a Remotion project. See [docs/replicate.md](docs/replicate.md).
+
+</details>
+
+<details>
+<summary>What is VIDEO.md, and why does rea-video write one?</summary>
+
+Every skill has a `SKILL.md`; every video gets a `VIDEO.md`. It is an open format for video breakdowns, made so that models read only what a question needs. A full breakdown runs to hundreds of thousands of tokens; VIDEO.md lays it out in levels: a card of a few hundred tokens, an overview and map, a timeline with one line per shot, then one file per shot. Every file states its size, and what is seen on screen is kept apart from what the tools infer.
+
+rea-video writes one into every output folder (`out/ref/VIDEO.md`), and its agent skill reads it instead of the raw data. Other agents and tools can read it without knowing rea-video: `pip install videomd`, then `videomd check out/ref`. The spec and guides are at [videomd.github.io/videomd](https://videomd.github.io/videomd/).
 
 </details>
 

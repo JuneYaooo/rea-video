@@ -76,6 +76,8 @@ rea-video --help
 - 声音：真人还是 AI 配音，配乐是 AI 做的还是曲库的、多少 BPM，音效落在哪一下
 - 要你自己准备的素材：录屏、截图、产品图
 
+每次拆解还会生成一个给 agent 和程序读的 [VIDEO.md](https://github.com/videomd/videomd) 拆片包。每个技能有一个 `SKILL.md`，每条视频也有一个 `VIDEO.md`：一张小卡片、一行一个镜头、一镜一个文件。agent 读约 2k token 就能回答大多数问题，不用读完整数据。
+
 ## 案例
 
 `docs/cases/videos/` 里的样片为了减小仓库体积重新压缩过，抹掉了抖音 / TikTok 的平台标记。自己拿它们跑，结果会和下面的报告不一样，不开看图模型时尤其明显。要复现请用平台下载的原文件。
@@ -222,6 +224,15 @@ rea-video 不直接出片。它先逐个镜头判断是拍的、AI 生成的还�
 
 可以做「换元素复刻」：用 [capsule-cinema](https://github.com/JuneYaooo/capsule-cinema) 的复刻配方，原片的运镜、动作、节奏和声音不变，把人物、产品、服装、场景换掉，整条自动生成并拼回原时间线（见上面的「复刻效果」）。
 想按原样重做：AI 镜头可以自动生成；实拍镜头要你按拍摄方案去拍；代码镜头要 agent 写 Remotion 工程。详见 [docs/replicate.md](../docs/replicate.md)。
+
+</details>
+
+<details>
+<summary>VIDEO.md 是什么？rea-video 为什么要生成它？</summary>
+
+每个技能有一个 `SKILL.md`，每条视频也有一个 `VIDEO.md`。它是一个开放的视频拆解格式，目的是让模型只读问题需要的那部分。一条视频的完整拆解动辄几十万 token；VIDEO.md 把它分成几层：几百 token 的卡片、概览和地图、一行一个镜头的时间线，再到一镜一个文件。每个文件都写明自己有多大，画面里看得到的和工具推断的分开写。
+
+rea-video 每次拆解都会在输出目录里写一个（`out/ref/VIDEO.md`），它的 agent skill 读的就是这个，而不是原始数据。别的 agent 和工具不用了解 rea-video 也能读：`pip install videomd`，然后 `videomd check out/ref`。规范和指南见 [videomd.github.io/videomd/zh](https://videomd.github.io/videomd/zh/)。
 
 </details>
 

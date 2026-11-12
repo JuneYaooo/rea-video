@@ -78,6 +78,8 @@ rea-video --help
 - 오디오: 사람 목소리인지 AI 음성인지, 음악이 AI인지 라이브러리 음원인지와 BPM, 효과음이 들어가는 위치
 - 직접 준비해야 할 소재: 화면 녹화, 스크린샷, 제품 사진
 
+모든 분석 결과는 에이전트와 프로그램을 위한 [VIDEO.md](https://github.com/videomd/videomd) 패키지로도 나옵니다. 스킬마다 `SKILL.md`가 있듯이, 영상마다 `VIDEO.md`가 있습니다. 작은 카드, 샷당 한 줄의 타임라인, 샷당 한 파일. 대부분의 질문은 전체 데이터 대신 약 2k 토큰으로 답할 수 있습니다.
+
 ## 예시
 
 `docs/cases/videos/`에 있는 샘플 영상은 저장소 용량을 줄이려고 다시 압축해서 TikTok / Douyin 플랫폼 태그가 지워져 있습니다. 그래서 직접 돌려 보면 아래 리포트와 결과가 달라지고, 비전 모델 없이 돌리면 차이가 더 큽니다. 똑같이 재현하려면 플랫폼에서 받은 원본 파일을 쓰세요.
@@ -221,6 +223,15 @@ rea-video는 영상을 렌더링하지 않습니다. 샷마다 찍은 건지, AI
 <summary>영상 전체를 자동으로 리메이크할 수 있나요?</summary>
 
 일부는 됩니다. [capsule-cinema](https://github.com/JuneYaooo/capsule-cinema)를 설치하면 AI 샷은 자동으로 생성해서 원본 타임라인에 다시 넣어 줍니다. 실사 샷은 촬영 계획을 보고 직접 찍고, 코드 샷은 에이전트가 Remotion 프로젝트로 짭니다. 자세한 건 [docs/replicate.md](../docs/replicate.md)를 보세요.
+
+</details>
+
+<details>
+<summary>VIDEO.md는 무엇이고, rea-video는 왜 이것을 만드나요?</summary>
+
+스킬마다 `SKILL.md`가 있듯이, 영상마다 `VIDEO.md`가 있습니다. 모델이 질문에 필요한 부분만 읽도록 만든 영상 분석용 오픈 포맷입니다. 영상 하나의 전체 분석 데이터는 수십만 토큰에 이르지만, VIDEO.md는 이를 단계로 나눕니다: 수백 토큰의 카드, 개요와 지도, 샷당 한 줄의 타임라인, 그리고 샷당 한 파일. 각 파일은 자기 크기를 밝히고, 화면에 보이는 것과 도구가 추정한 것은 따로 적습니다.
+
+rea-video는 출력 폴더마다 하나씩 만들고(`out/ref/VIDEO.md`), 에이전트 스킬은 원본 데이터 대신 이것을 읽습니다. 다른 에이전트와 도구도 rea-video를 몰라도 읽을 수 있습니다: `pip install videomd` 후 `videomd check out/ref`. 사양과 가이드는 [videomd.github.io/videomd](https://videomd.github.io/videomd/)에 있습니다.
 
 </details>
 

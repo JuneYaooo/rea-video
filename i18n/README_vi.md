@@ -78,6 +78,8 @@ Ngoài cách tạo phần hình ảnh, mỗi lượt phân tích còn bóc tách
 - Âm thanh: giọng người thật hay AI, nhạc nền do AI tạo hay lấy từ kho nhạc kèm BPM, vị trí từng hiệu ứng âm thanh (SFX)
 - Tư liệu bạn cần tự chuẩn bị: đoạn quay màn hình, ảnh chụp màn hình, ảnh sản phẩm
 
+Mỗi lần phân tích còn xuất ra một gói [VIDEO.md](https://github.com/videomd/videomd) cho agent và chương trình đọc. Mỗi skill có một `SKILL.md`, mỗi video có một `VIDEO.md`: một thẻ ngắn, mỗi cảnh quay một dòng, mỗi cảnh quay một tệp. Agent trả lời phần lớn câu hỏi với khoảng 2k token thay vì đọc toàn bộ dữ liệu.
+
 ## Các ví dụ
 
 Các video mẫu trong `docs/cases/videos/` đã được nén lại để giữ repo gọn nhẹ, nên các thẻ metadata của TikTok / Douyin không còn nữa. Vì vậy nếu bạn tự chạy lại trên các file này, kết quả sẽ khác với báo cáo bên dưới, nhất là khi không bật vision model. Muốn tái hiện đúng kết quả, hãy dùng file gốc tải trực tiếp từ nền tảng.
@@ -221,6 +223,15 @@ Không. Chế độ chỉ dùng công cụ chạy hoàn toàn offline, miễn ph
 <summary>Nó có tự động remake toàn bộ video được không?</summary>
 
 Một phần. Khi cài thêm [capsule-cinema](https://github.com/JuneYaooo/capsule-cinema), các shot AI sẽ được tạo và đặt lại đúng vị trí trên timeline gốc một cách tự động. Các shot quay thật bạn sẽ tự quay theo kế hoạch quay, còn các shot dựng bằng code sẽ do agent viết thành project Remotion. Xem thêm [docs/replicate.md](../docs/replicate.md).
+
+</details>
+
+<details>
+<summary>VIDEO.md là gì, và vì sao rea-video tạo ra nó?</summary>
+
+Mỗi skill có một `SKILL.md`, mỗi video có một `VIDEO.md`. Đây là định dạng mở cho kết quả phân tích video, làm ra để mô hình chỉ đọc phần câu hỏi cần. Một bản phân tích đầy đủ lên tới hàng trăm nghìn token; VIDEO.md chia nó thành nhiều tầng: một thẻ vài trăm token, phần tổng quan kèm bản đồ tệp, dòng thời gian mỗi cảnh quay một dòng, rồi mỗi cảnh quay một tệp. Mỗi tệp ghi rõ kích thước của nó, và những gì thấy trên màn hình được tách khỏi những gì công cụ suy ra.
+
+rea-video ghi một gói vào mỗi thư mục kết quả (`out/ref/VIDEO.md`), và skill cho agent đọc gói này thay vì dữ liệu thô. Agent và công cụ khác có thể đọc mà không cần biết rea-video: `pip install videomd`, rồi `videomd check out/ref`. Đặc tả và hướng dẫn có tại [videomd.github.io/videomd](https://videomd.github.io/videomd/).
 
 </details>
 
