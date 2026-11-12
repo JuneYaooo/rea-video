@@ -226,3 +226,15 @@ def test_silent_stems_mean_no_effects_and_no_music(breakdown, tmp_path):  # noqa
     b = finalize(b, out)
     assert not b["audio"]["music"]["present"]
     assert not [e for e in b["audio_plan"]["sfx_merged"] if not e.get("in_scene")]
+
+
+def test_transitions_are_written_with_spec_ids(breakdown):  # noqa: F811
+    b, out = breakdown
+    set_lang("zh")
+    b["shots"][1]["transition_in"] = "dissolve"
+    write_reports(_with_vlm(b), out)
+    pkg = spec.read(out)
+    assert pkg["shots"][b["shots"][1]["index"]]["transition_in"] == {"type": "dissolve"}
+    assert pkg["timeline"][1]["transition"] == "叠化"
+    assert "transition_in" not in pkg["shots"][b["shots"][0]["index"]] or b["shots"][0].get("transition_in") not in (None, "cut")
+    assert videomd.check(out) == []

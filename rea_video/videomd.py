@@ -33,9 +33,11 @@ MAP_BLOCK = "videomd-map"
 # producer-side values -> the neutral ids in the spec
 DECIDED_BY = {"deterministic": "tools", "fused": "model", "fused_agent": "agent", "user": "human"}
 OVERLAY_ID = {"huazi": "styled_text"}
+# shot-boundary kinds from the cut detector -> transition ids in the spec; plain cuts are not written
+TRANSITION_ID = {"jump": "jump_cut", "fade": "fade_through", "dissolve": "dissolve", "wipe": "wipe", "flash": "flash"}
 
 # timeline keys, in line order; `~` = inferred by the tools
-KEYS = ("story", "seen", "camera", "overlay", "made~", "material~", "remake", "flag")
+KEYS = ("story", "seen", "layers", "camera", "transition", "overlay", "made~", "material~", "remake", "flag")
 
 
 # ------------------------------------------------------------------ helpers ---------------------------------------
@@ -82,6 +84,10 @@ def _shot_name(i: int) -> str:
 
 # ------------------------------------------------------------------ timeline (the spine) --------------------------
 
+_TRANSITION_WORDS = {"jump_cut": ("跳切", "jump cut"), "fade_through": ("黑场/白场过渡", "fade through"), "dissolve": ("叠化", "dissolve"),
+                     "wipe": ("划像", "wipe"), "flash": ("闪白", "flash")}
+
+
 def timeline_line(r: dict, roles: dict, units: dict) -> str:
     from .report import CAMERA_ZH, _layers, _origin, _route
 
@@ -94,6 +100,9 @@ def timeline_line(r: dict, roles: dict, units: dict) -> str:
     if desc:
         f["seen"] = _one_line(desc, 60)
     f["camera"] = CAMERA_ZH.get((r.get("features") or {}).get("camera", "unknown"), "—")
+    trans = TRANSITION_ID.get(r.get("transition_in") or "cut")
+    if trans:
+        f["transition"] = T(*_TRANSITION_WORDS[trans])
     if _layers(r) != "—":
         f["overlay"] = _layers(r)
     made = f"{base['label_zh']} {base['confidence']:.0%}"
@@ -144,6 +153,7 @@ def _shot_file(r: dict) -> str:
                      "alternatives": dict([(k, v) for k, v in probs if k != base["label"] and v > 0][:2]),
                      "decided_by": DECIDED_BY.get(base["decided_by"], base["decided_by"]), "real_material": bool((r.get("material") or {}).get("has_real_material"))},
         "flags": [k for k in ("uncertain", "disputed") if base.get(k)] + (["low_confidence"] if base["confidence"] < 0.6 and base["decided_by"] != "user" else []),
+        **({"transition_in": {"type": TRANSITION_ID[r["transition_in"]]}} if TRANSITION_ID.get(r.get("transition_in") or "cut") else {}),
         "frames": {k: v for k, v in (("sheet", assets.get("sheet")), ("first", assets.get("first_frame")), ("last", assets.get("last_frame"))) if v},
     }
     title = T("# 镜头 {i} · {a}–{z}s · {v}", "# Shot {i} · {a}–{z}s · {v}", i=r["index"], a=f"{r['start']:.1f}", z=f"{r['end']:.1f}", v=r.get("verdict", ""))
