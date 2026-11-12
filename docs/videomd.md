@@ -5,7 +5,7 @@
 - **给人看的报告**（`report.html` / `report.pdf`）：这条视频讲什么、为什么能火、怎么做的、照着怎么复刻。
 - **给模型和程序读的拆片包**（`VIDEO.md` + `video/`）：同样的结论，按固定格式放进一个目录。agent 回答问题、下游项目生成复刻任务，都读它。
 
-每个技能有一个 `SKILL.md`，每条视频也有一个 `VIDEO.md`。VIDEO.md 是一个开放格式，规范、设计思路、接入和生成指南、校验器都在 [videomd/videomd](https://github.com/videomd/videomd)（[中文](https://github.com/videomd/videomd/blob/main/i18n/README_zh.md)），以那边为准。这一页只讲 rea-video 生成的拆片包里有什么。
+每个技能有一个 `SKILL.md`，每条视频也有一个 `VIDEO.md`。VIDEO.md 是一个开放格式，规范、设计思路、接入和生成指南、校验器都在 [videomd/videomd](https://github.com/videomd/videomd)（[中文](https://videomd.github.io/videomd/zh/)），以那边为准。这一页只讲 rea-video 生成的拆片包里有什么。
 
 ## 逐层读
 
