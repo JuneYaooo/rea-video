@@ -27,6 +27,7 @@ ocr = [
   "rapidocr>=3.4,<4; python_version >= '3.13'",
 ]
 # 本地语音识别（SenseVoice，中英日韩粤）：没有字幕、没开 VLM 时也能拿到带时间的台词；首次使用下载约 160 MB 模型
+# 同一个包也用来分说话人（pyannote 分段 + 3D-Speaker 音色向量，另下约 35 MB）
 asr = ["sherpa-onnx>=1.12"]
 dev = ["pytest>=7", "jsonschema>=4"]
 

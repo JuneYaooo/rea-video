@@ -33,6 +33,12 @@ SIZE_ORDER = {"远景": 0, "全景": 1, "中景": 2, "近景": 3, "特写": 4,  
 PRODUCT_KINDS = ("product_photo", "logo")
 
 
+
+# how a scene is entered, for the motion timeline headings
+_TRANSITION_IN = {"dissolve": ("叠化", "dissolve"), "fade": ("淡入", "fade"), "wipe": ("划像", "wipe"), "slide": ("推移", "slide"),
+                  "whip": ("甩镜", "whip pan"), "zoom": ("缩放", "zoom"), "spin": ("旋转", "spin"), "blur": ("模糊", "blur"),
+                  "glitch": ("故障", "glitch"), "shake": ("抖动", "shake")}
+
 def _norm(s: str) -> str:
     return s.replace("-", "").replace("_", "").replace(" ", "").lower()
 
@@ -101,8 +107,8 @@ def code_motion_md(scenes: list[dict]) -> list[str]:
         if sc.get("transition_in") == "flash":
             head += T("（闪亮切入：切进来时整幅画面先变亮，{s:.1f}s 内回落）", " (flash cut: the picture opens bright and settles in {s:.1f}s)",
                       s=sc.get("flash_s") or 0)
-        elif sc.get("transition_in") in ("dissolve", "fade"):
-            head += T("（{t}切入）", " ({t} in)", t=T("叠化", "dissolve") if sc["transition_in"] == "dissolve" else T("淡入", "fade"))
+        elif sc.get("transition_in") in _TRANSITION_IN:
+            head += T("（{t}切入）", " ({t} in)", t=T(*_TRANSITION_IN[sc["transition_in"]]))
         n_ev = len(sc.get("events") or [])
         L.append('<details class="ref"><summary>' + T("动效 {h} · {n} 个", "Motion {h} · {n} events", h=head, n=n_ev) + "</summary>")
         L.append("")

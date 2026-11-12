@@ -178,7 +178,7 @@ def code_scene(shot: dict) -> dict:
             "events": motion.get("events", []), "sequences": motion.get("sequences", []), "layer": motion.get("layer"),
             "static": motion.get("static", []), "elements_sheet": motion.get("elements_sheet"),
             "strip": (shot.get("assets") or {}).get("strip"), "transition_in": shot.get("transition_in"),
-            "flash_s": shot.get("flash_s")}
+            "flash_s": shot.get("flash_s"), **({"transition": shot["transition"]} if shot.get("transition") else {})}
 
 
 # how a code-rendered picture is built, from the measured look; keys of CODE_STYLES

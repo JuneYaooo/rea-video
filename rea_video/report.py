@@ -152,8 +152,31 @@ def _span(a, z) -> str:
 
 # ------------------------------------------------------------------ sections --------------------------------------
 
-TRANS_ZH = LangDict({"cut": "硬切", "jump": "跳剪", "flash": "闪亮切", "fade": "淡入淡出", "dissolve": "叠化", "wipe": "划像/转场特效", "mg_transition": "版式切换"},
-                    en={"cut": "cut", "jump": "jump cut", "flash": "flash cut", "fade": "fade", "dissolve": "dissolve", "wipe": "wipe / transition effect", "mg_transition": "layout change"})
+TRANS_ZH = LangDict({"cut": "硬切", "jump": "跳剪", "flash": "闪亮切", "fade": "淡入淡出", "dissolve": "叠化", "wipe": "划像",
+                     "slide": "推移", "whip": "甩镜", "zoom": "缩放转场", "spin": "旋转转场", "blur": "模糊转场", "glitch": "故障转场",
+                     "shake": "抖动转场", "effect": "转场特效", "mg_transition": "版式切换"},
+                    en={"cut": "cut", "jump": "jump cut", "flash": "flash cut", "fade": "fade", "dissolve": "dissolve", "wipe": "wipe",
+                        "slide": "slide", "whip": "whip pan", "zoom": "zoom transition", "spin": "spin transition",
+                        "blur": "blur transition", "glitch": "glitch transition", "shake": "shake transition",
+                        "effect": "transition effect", "mg_transition": "layout change"})
+# which way a transition moves: the direction the edge or the picture travels
+TRANS_DIR_ZH = LangDict({"left": "向左", "right": "向右", "up": "向上", "down": "向下", "diagonal": "斜向", "center_out": "从中心展开",
+                         "edges_in": "向中心收拢"},
+                        en={"left": "leftwards", "right": "rightwards", "up": "upwards", "down": "downwards", "diagonal": "diagonal",
+                            "center_out": "opening from the centre", "edges_in": "closing in to the centre"})
+TRANS_MODE_ZH = LangDict({"push": "新旧画面一起移动", "cover": "新画面滑入盖住旧画面", "reveal": "旧画面滑走露出新画面"},
+                         en={"push": "both pictures move", "cover": "the new picture slides in over the old one",
+                             "reveal": "the old picture slides away"})
+TRANS_VIA_ZH = LangDict({"black": "经黑场", "white": "经白场"}, en={"black": "through black", "white": "through white"})
+
+
+def transition_text(tr: dict) -> str:
+    """One transition in words: kind, direction / mode, length."""
+    bits = [TRANS_ZH[tr["type"]] if tr["type"] in TRANS_ZH else tr["type"]]
+    bits += [d[tr[k]] for k, d in (("via", TRANS_VIA_ZH), ("direction", TRANS_DIR_ZH), ("mode", TRANS_MODE_ZH)) if tr.get(k) in d]
+    if tr.get("duration"):
+        bits.append(T("{d:.1f} 秒", "{d:.1f}s", d=tr["duration"]) if tr["duration"] >= 0.1 else T("几帧", "a few frames"))
+    return T("，", ", ").join(bits)
 
 
 _AGENTS = ("agent", "claude", "claude code", "codex", "gpt", "chatgpt", "gemini", "cursor", "copilot", "dsh", "zcode", "deepseek", "kimi", "qwen")
@@ -352,6 +375,37 @@ def _materials_md(b: dict) -> list[str]:
     return L
 
 
+def _speakers_md(b: dict) -> list[str]:
+    """Who speaks: one line per separated voice, with its share, pitch and track."""
+    who = b.get("speakers") or {}
+    people = who.get("speakers") or []
+    if not who.get("ok") or len(people) < 2:
+        return []
+    from .entities import speaker_label
+
+    main = [p for p in people if not p.get("minor")]
+    tracks = who.get("tracks") or {}
+    L = [T("- 说话人：按音色分出 {n} 个声音", "- Speakers: {n} voices told apart by timbre", n=len(main) or len(people))
+         + (T("，另有 {m} 个只出现几秒", ", plus {m} heard for a few seconds only", m=len(people) - len(main)) if main and len(main) < len(people) else "")]
+    for p in people:
+        bits = [T("{s:.0f} 秒（{r:.0%}）", "{s:.0f}s ({r:.0%})", s=p["seconds"], r=p["share"]),
+                T("{n} 段", "{n} turns", n=p["turns"]), T("第一次出现 {t:.1f}s", "first heard at {t:.1f}s", t=p["first"])]
+        if p.get("f0_median_hz"):
+            bits.append(T("基频约 {f:.0f}Hz（{g}）", "pitch about {f:.0f}Hz ({g})", f=p["f0_median_hz"],
+                          g=GENDER_ZH.get(p.get("gender_hint"), T("性别不确定", "gender unclear"))))
+        if tracks.get(p["id"]):
+            bits.append(f"`stems/{tracks[p['id']]}`")
+        L.append(f"  - {speaker_label(b, p['id'])}{_colon()}" + T("，", ", ").join(bits))
+    ov = who.get("overlaps") or []
+    if ov:
+        L.append(T("  - 有 {n} 处两人同时说话（{t}），这几处在两人的音轨里都保留着",
+                   "  - Two people talk at once in {n} places ({t}); those stay in both speakers' tracks",
+                   n=len(ov), t=T("、", ", ").join(_span(a, z) for a, z in ov[:4]) + ("…" if len(ov) > 4 else "")))
+    L.append(T("  - 音色相近的两个人可能被并成一个，同一个人换语气也可能被拆成两个；人数要紧时听各人的音轨确认",
+               "  - Two people with similar voices may be merged, and one person changing tone may be split; listen to the tracks when the head count matters"))
+    return L
+
+
 def _edit_md(b: dict) -> list[str]:
     s = b["summary"]
     edit = next((x for x in s.get("aspects") or [] if x.startswith(T("剪辑", "Edit"))), "")
@@ -362,6 +416,13 @@ def _edit_md(b: dict) -> list[str]:
         L.append(T("- 手法：{h}", "- Approach: {h}", h=how))
     L.append(T("- 节奏：{e}", "- Rhythm: {e}", e=edit.split(T("：", ": "), 1)[-1] if edit else T("平均 {a} 秒一刀", "{a}s per shot", a=f"{float(s['avg_shot_s']):.1f}"))
              + (T("；转场 {t}", "; transitions {t}", t=trans) if trans else ""))
+    # every transition that is more than a cut: where, what kind, which way, how long
+    fx = [(r, r["transition"]) for r in b.get("shots", []) if (r.get("transition") or {}).get("type") not in (None, "cut", "jump")]
+    if fx:
+        L += ["", T("**转场**", "**Transitions**")]
+        L += _table([T("时间", "Time"), T("进入镜头", "Into shot"), T("转场", "Transition")],
+                    [[_span(tr.get("start"), tr.get("end")), f"#{r['index']}", transition_text(tr)] for r, tr in fx],
+                    fold_title=T("全部 {n} 处", "all {n}", n=len(fx)))
     return L
 
 
@@ -461,6 +522,9 @@ def _content_md(b: dict, user: bool = False) -> list[str]:
         L += ["", head]
         L += _table([T("时间", "Time"), T("谁", "Who"), T("台词 / 旁白", "Line")],
                     [[_span(ln["start"], ln["end"]), ln["speaker"] or T("旁白", "narration"), ln["text"]] for ln in lines], fold_title=T("全部 {n} 句", "all {n} lines", n=len(lines)))
+        if any(ln.get("voice") for ln in lines) and lines[0].get("source") == "asr":
+            L.append(T("- 「谁」这一列按音色分出来的说话人填写，对应的单人音轨见「声音」",
+                       "- The “Who” column is filled from the voices separated by timbre; each one's own track is under “Sound”"))
     return L
 
 
@@ -554,6 +618,7 @@ def _audio_md(b: dict) -> list[str]:
         if v.get("sung"):
             bits.append(T("是唱的", "sung"))
         L.append("- " + semi().join(bits))
+        L += _speakers_md(b)
         L += _source_lines("voice")
         vs = (src.get("voice") or {}).get("source")
         if vs in _USER_VOICE_HOW:
@@ -563,7 +628,16 @@ def _audio_md(b: dict) -> list[str]:
         if entities.script(b):
             L.append(T("- 台词见「内容与结构」的脚本表", "- Lines are in the script table under “Content and structure”"))
     else:
-        L.append(T("- 无 / 很少", "- None / very little"))
+        who = _speakers_md(b)
+        if who or (b.get("speech") or {}).get("lines"):
+            # the mix is mostly music, so the voice measure says "little"; the separated voice track still has lines on it
+            L.append(T("- 占时长很少（混音里以配乐为主），在分离出的人声干声上能听到台词",
+                       "- A small share of the duration (the mix is mostly music); lines can be heard on the separated voice track"))
+            L += who
+            if entities.script(b):
+                L.append(T("- 台词见「内容与结构」的脚本表", "- Lines are in the script table under “Content and structure”"))
+        else:
+            L.append(T("- 无 / 很少", "- None / very little"))
 
     # music
     mu = a.get("music", {})
@@ -1078,7 +1152,14 @@ def _stems_html(b: dict) -> str:
     return "<div class='stems'>" + "".join(
         f"<div>{name}{_colon()}<audio controls preload='none' src='stems/{f}'></audio></div>"
         for f, name in (("original.wav", T("原声", "original")), ("vocals.wav", T("人声干声", "dry voice")), ("music.wav", T("配乐 + 环境声", "music + ambience")),
-                        *((("effects.wav", T("音效", "effects")),) if (b.get("stems") or {}).get("effects") else ()))) + "</div>"
+                        *((("effects.wav", T("音效", "effects")),) if (b.get("stems") or {}).get("effects") else ()),
+                        *_speaker_tracks(b))) + "</div>"
+
+
+def _speaker_tracks(b: dict) -> list[tuple[str, str]]:
+    from .entities import speaker_label
+
+    return [(f, speaker_label(b, sid)) for sid, f in ((b.get("speakers") or {}).get("tracks") or {}).items()]
 
 
 _CSS = """

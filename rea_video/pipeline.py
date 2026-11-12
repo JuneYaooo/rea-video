@@ -87,7 +87,7 @@ def decode_fingerprint() -> str:
 def decompose(video: str | Path, out_dir: str | Path, *, use_vlm: bool = False, whole_vlm: bool = True,
               ocr: bool = True, workers: int = 3, engine: str = "seedance2.0", max_shots_vlm: int = 60,
               platform_meta: dict | None = None, stems: bool = True, memory: bool = True, packaging: bool = True, asr: bool = True,
-              lang: str = "zh") -> dict:
+              lang: str = "zh", speakers: bool = True) -> dict:
     lang = set_lang(lang)
     require_tools()
     t0 = time.time()
@@ -299,13 +299,28 @@ def decompose(video: str | Path, out_dir: str | Path, *, use_vlm: bool = False, 
 
     stem_info: dict = stems_job.result() if stems_job else {}
     heard: dict = {}
+    who: dict = {}
+    on_stem = bool(stem_info.get("ok"))
+    voice_src = stem_info["vocals"] if on_stem else video  # music under the voice confuses speaker and speech models alike
+    if speakers and info.has_audio and (audio.get("voice") or {}).get("style") != "singing":  # a song: nothing to tell apart
+        from . import speakers as spk
+
+        if spk.available():
+            LOG.info("separating speakers (%s)", "vocal stem" if on_stem else "full mix")
+            who = dict(spk.diarize(voice_src), source="vocals_stem" if on_stem else "mix")
+            if who.get("ok"):
+                spk.name_speakers(who, [ln for ln in (((whole or {}).get("narration") or {}).get("lines") or []) if isinstance(ln, dict)])
+                if on_stem and who.get("count", 0) >= 2:  # one track per speaker; with a single voice that is vocals.wav itself
+                    who["tracks"] = spk.write_tracks(stem_info["vocals"], who["turns"], out)
+        else:
+            who = {"ok": False, "reason": "not_installed"}
     if asr and info.has_audio:
         from . import speech
 
         if speech.available():  # optional extra; on the vocal stem when there is one, music makes a recognizer invent words
-            on_stem = bool(stem_info.get("ok"))
             LOG.info("transcribing speech (%s)", "vocal stem" if on_stem else "full mix")
-            heard = dict(speech.transcribe(stem_info["vocals"] if on_stem else video), source="vocals_stem" if on_stem else "mix")
+            heard = dict(speech.transcribe(voice_src, turns=who.get("turns") if who.get("count", 0) >= 2 else None),
+                         source="vocals_stem" if on_stem else "mix")
         else:
             heard = {"ok": False, "reason": "not_installed"}
     breakdown = {
@@ -320,6 +335,7 @@ def decompose(video: str | Path, out_dir: str | Path, *, use_vlm: bool = False, 
         "platform_meta": platform_meta or {},
         "stems": {k: (Path(v).name if k in ("original", "vocals", "music") else v) for k, v in stem_info.items()},
         "speech": heard,
+        "speakers": who,
         "per_clip_audio": per_clip_audio(str(video), [s.start for s in shots[1:]], info.duration) if info.has_audio else {},
     }
     if pack is not None:

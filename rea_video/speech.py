@@ -113,6 +113,23 @@ def _stretches(x: np.ndarray, vad_model: Path) -> list[tuple[float, np.ndarray]]
     return out
 
 
+def _by_speaker(stretches: list[tuple[float, np.ndarray]], turns: list[dict] | None) -> list[tuple[float, np.ndarray]]:
+    """Cut each spoken stretch where the speaker changes inside it."""
+    if not turns:
+        return stretches
+    from .speakers import change_points
+
+    out: list[tuple[float, np.ndarray]] = []
+    for start, samples in stretches:
+        t = start
+        for c in change_points(turns, start, start + len(samples) / SR) + [start + len(samples) / SR]:
+            piece = samples[int(round((t - start) * SR)):int(round((c - start) * SR))]
+            if len(piece):
+                out.append((t, piece))
+            t = c
+    return out
+
+
 def _sentences(start: float, end: float, text: str) -> list[dict]:
     """One spoken stretch as lines. A long stretch is split at sentence ends, each sentence given its share of
     the time by length: inside a stretch the times are an estimate, the stretch's own start and end are measured."""
@@ -140,8 +157,10 @@ def _sentences(start: float, end: float, text: str) -> list[dict]:
     return out
 
 
-def transcribe(audio: str | Path, language: str = "auto", threads: int = 2) -> dict:
-    """{"ok", "engine", "language", "lines": [{"start", "end", "text"}]}; ok=False with a reason when it cannot run."""
+def transcribe(audio: str | Path, language: str = "auto", threads: int = 2, turns: list[dict] | None = None) -> dict:
+    """{"ok", "engine", "language", "lines": [{"start", "end", "text"}]}; ok=False with a reason when it cannot run.
+    turns: who speaks when (speakers.diarize). A stretch of speech is then cut where the speaker changes, so two
+    people answering each other without a pause become two lines, and every line carries its "speaker"."""
     if not available():
         return {"ok": False, "reason": "not_installed"}
     x = extract_audio(audio, SR)
@@ -154,14 +173,20 @@ def transcribe(audio: str | Path, language: str = "auto", threads: int = 2) -> d
         rec = sherpa_onnx.OfflineRecognizer.from_sense_voice(model=str(model), tokens=str(tokens), num_threads=threads, use_itn=True,
                                                              language=language if language in LANGS else "")
         lines, langs = [], []
-        for start, samples in _stretches(x, vad_model):
+        for start, samples in _by_speaker(_stretches(x, vad_model), turns):
             st = rec.create_stream()
             st.accept_waveform(SR, samples)
             rec.decode_stream(st)
             text = (st.result.text or "").strip()
             if len(text.strip("。，、！？.,!? ")) < 1:
                 continue
-            lines += _sentences(start, start + len(samples) / SR, text)
+            got = _sentences(start, start + len(samples) / SR, text)
+            if turns:
+                from .speakers import speaker_at
+
+                who = speaker_at(turns, start, start + len(samples) / SR)
+                got = [dict(ln, speaker=who) for ln in got] if who else got
+            lines += got
             lang = str(getattr(st.result, "lang", "") or "").strip("<|>")
             if lang:
                 langs.append(lang)

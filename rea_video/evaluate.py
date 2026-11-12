@@ -167,18 +167,23 @@ def packaging_check(truth_path: str | Path, pack: dict, sfx: list[dict] | None =
     return out
 
 
-def boundary_f1(pred: list[float], gt: list[float], tol: float = 0.1, ignore: list[float] | None = None) -> dict:
+def boundary_f1(pred: list[float], gt: list[float], tol: float = 0.1, ignore: list[float] | None = None,
+                spans: list[tuple[float, float] | None] | None = None) -> dict:
     """Cut precision / recall. `ignore`: boundaries the labeller could not decide; a predicted cut there is
-    neither right nor wrong."""
+    neither right nor wrong. `spans`: for each predicted boundary, the (start, end) of its transition when it is
+    more than a cut; a labelled cut anywhere inside that transition is the same boundary (a labeller marks one
+    frame of a half-second wipe, the detector another)."""
     used = set()
     tp = fp = 0
-    for p in pred:
-        near = [i for i, g in enumerate(gt) if i not in used and abs(p - g) <= tol]
+    for k, p in enumerate(pred):
+        a, z = (spans[k] if spans and spans[k] else (p, p))
+        a, z = min(a, p) - tol, max(z, p) + tol
+        near = [i for i, g in enumerate(gt) if i not in used and a <= g <= z]
         hit = min(near, key=lambda i: abs(p - gt[i])) if near else None  # the closest true cut, not the first in range
         if hit is not None:
             used.add(hit)
             tp += 1
-        elif not any(abs(p - u) <= tol for u in ignore or []):
+        elif not any(a <= u <= z for u in ignore or []):
             fp += 1
     prec = tp / (tp + fp) if tp + fp else 1.0
     rec = tp / len(gt) if gt else 1.0
@@ -333,7 +338,9 @@ def evaluate(labels_path: Path, out: Path, use_vlm: bool = False, ocr: bool = Tr
             row["packaging"] = packaging_check(entry["packaging_truth"], b["packaging"], (b.get("audio_plan") or {}).get("sfx_merged", []), sfx_truth)
         if "cuts" in entry:
             row["cut_f1"] = boundary_f1([s["start"] for s in b["shots"][1:]], entry["cuts"], tol=float(entry.get("cut_tolerance", 0.1)),
-                                         ignore=entry.get("cuts_uncertain"))
+                                         ignore=entry.get("cuts_uncertain"),
+                                         spans=[(s["transition"]["start"], s["transition"]["end"]) if s.get("transition") else None
+                                                for s in b["shots"][1:]])
         if entry.get("image_source"):
             srcs = {s["base"].get("image_source") for s in b["shots"]}
             row["image_source_ok"] = entry["image_source"] in srcs

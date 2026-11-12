@@ -91,18 +91,37 @@ def cast(b: dict) -> dict:
     return out
 
 
+def speaker_label(b: dict, sid: str) -> str:
+    """How a separated voice (S1, S2 ...) is called in the report: the name a viewer gave it, else "说话人 N"."""
+    for sp in (b.get("speakers") or {}).get("speakers") or []:
+        if sp.get("id") == sid:
+            return sp.get("name") or T("说话人 {n}", "Speaker {n}", n=sid[1:])
+    return ""
+
+
 def script(b: dict) -> list[dict]:
-    """Lines of dialogue / narration with time and speaker, from the whole-video VLM; falls back to segment copy."""
+    """Lines of dialogue / narration with time and speaker, from the whole-video VLM; falls back to segment copy.
+    With more than one separated voice, each line also says which voice it is ("voice": S1 ...)."""
     w = b.get("whole_video_vlm") or {}
+    who = b.get("speakers") or {}
+    turns = who.get("turns") or [] if who.get("count", 0) >= 2 else []
     rows = []
     for ln in ((w.get("narration") or {}).get("lines") or []):
         if isinstance(ln, dict) and _s(ln, "text"):
             rows.append({"start": ln.get("start"), "end": ln.get("end"), "speaker": _s(ln, "speaker", 20), "text": _s(ln, "text", 200)})
+            if turns and isinstance(ln.get("start"), (int, float)) and isinstance(ln.get("end"), (int, float)):
+                from .speakers import speaker_at
+
+                voice = speaker_at(turns, float(ln["start"]), float(ln["end"]))
+                if voice:
+                    rows[-1]["voice"] = voice
     if rows:
         return rows
     for ln in ((b.get("speech") or {}).get("lines") or []):  # machine transcript: below the VLM's, above segment copy
         if isinstance(ln, dict) and _s(ln, "text"):
-            rows.append({"start": ln.get("start"), "end": ln.get("end"), "speaker": "", "text": _s(ln, "text", 200), "source": "asr"})
+            voice = _s(ln, "speaker", 8) if turns else ""
+            rows.append({"start": ln.get("start"), "end": ln.get("end"), "speaker": speaker_label(b, voice) if voice else "",
+                         "text": _s(ln, "text", 200), "source": "asr", **({"voice": voice} if voice else {})})
     if rows:
         return rows
     for seg in w.get("segments") or []:

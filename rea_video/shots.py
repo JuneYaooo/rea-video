@@ -11,6 +11,7 @@ import cv2
 import numpy as np
 
 from .media import VideoInfo, frame_times, iter_frames
+from .transitions import block_diff as _block_diff, crop_box, find_gradual, motion_explains as _motion_explains, resolve, same_structure
 
 THUMB_W = 96
 # jump cuts (same camera, subject jumps): share of the frame that changes, how far above the frames on both
@@ -46,6 +47,8 @@ class Shot:
     beats: list[int] = field(default_factory=list)  # frame indices of MG/slide beat changes inside the shot
     flash_s: float = 0.0  # "flash" transitions: how long the white / grey flash takes to decay
     times: np.ndarray | None = field(repr=False, default=None)  # FrameTrack.times
+    # how this shot is entered: {"type", "start_frame", "end_frame", "direction"?, "via"?, "mode"?} (transitions.py)
+    transition: dict = field(default_factory=dict)
 
     def t(self, frame: int) -> float:
         """Time of a frame index. Variable-frame-rate video uses the real pts; past the last frame,
@@ -69,11 +72,24 @@ class Shot:
     def duration(self) -> float:
         return self.end - self.start
 
+    def transition_dict(self) -> dict:
+        """The transition into this shot with times, or {} for a plain cut."""
+        tr = self.transition
+        if not tr or self.transition_in in ("start", "cut", "jump"):
+            return {}
+        a, z = self.t(tr["start_frame"] + 1), self.t(tr["end_frame"])
+        if self.flash_s:  # a cut that opens bright and settles
+            a, z = self.start, self.start + self.flash_s
+        return {"type": self.transition_in, "start": round(a, 3), "end": round(max(a, z), 3), "duration": round(max(0.0, z - a), 3),
+                **{k: tr[k] for k in ("direction", "via", "mode") if tr.get(k)}}
+
     def to_dict(self) -> dict:
+        tr = self.transition_dict()
         return {"index": self.index, "start": round(self.start, 3), "end": round(self.end, 3),
                 "duration": round(self.duration, 3), "start_frame": self.start_frame, "end_frame": self.end_frame,
                 "transition_in": self.transition_in, "boundary_score": round(self.boundary_score, 3),
-                "beats": [round(self.t(b), 3) for b in self.beats]} | ({"flash_s": round(self.flash_s, 2)} if self.flash_s else {})
+                "beats": [round(self.t(b), 3) for b in self.beats]} | ({"flash_s": round(self.flash_s, 2)} if self.flash_s else {}) \
+            | ({"transition": tr} if tr else {})
 
 
 def _hist(bgr: np.ndarray) -> np.ndarray:
@@ -177,11 +193,13 @@ def detect_shots(track: FrameTrack, min_shot_s: float = 0.35, cut_threshold: flo
     # 3) dissolves / cross-fades: frame i is a linear blend of frames i-k and i+k.
     #    (camera or subject motion also changes the picture over 2k frames, but the middle
     #    frame of a move is not a blend of its endpoints, so the blend residual separates them)
+    y0, y1, x0, x1 = crop_box(track.thumbs, cuts=sum(1 for k, _ in boundaries.values() if k == "cut"))
+    T = track.thumbs if (y0, x0, y1, x1) == (0, 0) + track.thumbs[0].shape else [t[y0:y1, x0:x1] for t in track.thumbs]
     if dissolve and n > 2 * fps:
         for k in sorted({max(2, int(round(fps * 0.12))), max(3, int(round(fps * 0.2))), max(5, int(round(fps * 0.45)))}):
             cand = []
             for i in range(k, n - k):
-                A, B, M = (track.thumbs[j].astype(np.float32) for j in (i - k, i + k, i))
+                A, B, M = (T[j].astype(np.float32) for j in (i - k, i + k, i))
                 D = B - A
                 thr = max(6.0, 0.35 * float(min(A.std(), B.std())))
                 far = float((np.abs(D) > thr).mean())
@@ -196,7 +214,7 @@ def detect_shots(track: FrameTrack, min_shot_s: float = 0.35, cut_threshold: flo
                 resid = float(np.abs(M - (A + alpha * D)).mean() / (np.abs(D).mean() + 1e-6))
                 # a cross-fade is a burst of change; an animated gradient / colour morph is a blend of its
                 # neighbours at every frame, at a steady rate, so require more change than in the windows around it
-                if resid < 0.20 and not _steady_morph(track.thumbs, i, k) and not _motion_explains(A, B):
+                if resid < 0.20 and not _steady_morph(T, i, k) and not _motion_explains(A, B) and not same_structure(A, B):
                     cand.append((i, resid, far))
             cand.sort(key=lambda t: t[1])
             for i, resid, far in cand:
@@ -206,8 +224,21 @@ def detect_shots(track: FrameTrack, min_shot_s: float = 0.35, cut_threshold: flo
     # 4) wipes and other editor transitions (wipe / radial / clock / pixelate ...): the new shot replaces the old one
     #    region by region, so every in-between frame is old picture in some places and new picture in the others
     if dissolve and n > 2 * fps:
-        for i, strength in _wipes(track, score, cut_threshold, boundaries):
+        for i, strength in _wipes(track, T, score, cut_threshold, boundaries):
             boundaries[i] = ("wipe", strength)
+
+    # 5) any other transition without a hard cut inside (slides, shaped wipes, long or partial blends): a steady
+    #    picture, a ramp, another steady picture. Then every boundary gets its span, kind and direction, and
+    #    boundaries that are parts of one transition are joined
+    spans: dict[int, tuple[int, int]] = {}
+    if dissolve and n > 2 * fps:
+        for a, z, mid in find_gradual(T, fps, sorted(boundaries)):
+            if float(score[a + 1:z + 1].max()) < cut_threshold or z - a > 2:
+                boundaries[mid] = ("gradual", 0.5)
+                spans[mid] = (a, z)
+    described = resolve(T, fps, boundaries, spans) if dissolve else {b: ({"type": k, "start_frame": b - 1, "end_frame": b}, v)
+                                                                      for b, (k, v) in boundaries.items()}
+    boundaries = {b: (d["type"], strength) for b, (d, strength) in described.items()}
 
     beat_marks = [b for b, _ in _mg_beats(track, boundaries, fps)]
 
@@ -233,12 +264,13 @@ def detect_shots(track: FrameTrack, min_shot_s: float = 0.35, cut_threshold: flo
     for b in kept + [n]:
         shots.append(Shot(index=len(shots) + 1, start_frame=start, end_frame=b, fps=fps, transition_in=trans, boundary_score=bscore,
                           times=track.times))
+        shots[-1].transition = described[start][0] if start in described else {}
         if b < n:
             trans, bscore = boundaries[b]
         start = b
     for shot in shots:
         shot.beats = [b for b in beat_marks if shot.start_frame + min_len <= b <= shot.end_frame - min_len]
-        if shot.transition_in == "cut":
+        if shot.transition_in in ("cut", "flash"):
             shot.flash_s = _flash(track.luma, shot.start_frame, shot.end_frame, fps)
             if shot.flash_s:
                 shot.transition_in = "flash"
@@ -373,27 +405,13 @@ def _texture(g: np.ndarray) -> float:
     return float(np.abs(cv2.Laplacian(g.astype(np.float32), cv2.CV_32F)).mean())
 
 
-def _block_diff(a: np.ndarray, b: np.ndarray, shift: int = 2) -> np.ndarray:
-    """Per-block mean |a - b|, taking the best of a few small shifts so that ordinary motion in the
-    shot does not count as a different picture."""
-    a = a.astype(np.float32)
-    b = b.astype(np.float32)
-    h, w = a.shape
-    best = None
-    for dx, dy in ((0, 0), (shift, 0), (-shift, 0), (0, shift), (0, -shift)):
-        bs = np.roll(b, (dy, dx), axis=(0, 1))
-        d = cv2.resize(np.abs(a - bs)[shift:h - shift, shift:w - shift], WIPE_GRID, interpolation=cv2.INTER_AREA)
-        best = d if best is None else np.minimum(best, d)
-    return best
-
-
-def _wipes(track: FrameTrack, score: np.ndarray, cut_threshold: float,
+def _wipes(track: FrameTrack, thumbs: list[np.ndarray], score: np.ndarray, cut_threshold: float,
            boundaries: dict[int, tuple[str, float]]) -> list[tuple[int, float]]:
     """Gradual transitions where the new shot takes over the frame region by region. For a window [s, e]
     whose two ends are different pictures, each block of the frames inside matches one end or the other
     or sits between them (camera / subject motion inside one shot gives blocks that match neither), and the share of blocks
     already showing the new picture grows from ~0 to ~1 across the window."""
-    n, fps, thumbs = track.n, track.fps, track.thumbs
+    n, fps = track.n, track.fps
     tiny = [cv2.resize(t, WIPE_GRID, interpolation=cv2.INTER_AREA).astype(np.float32) for t in thumbs]
     taken = sorted(boundaries)
     found: list[tuple[int, float]] = []
@@ -461,18 +479,3 @@ def _steady_morph(thumbs: list[np.ndarray], i: int, k: int) -> bool:
     mid = rate(i - k, i + k)
     around = [r for r in (rate(i - 3 * k, i - k), rate(i + k, i + 3 * k)) if r is not None]
     return bool(mid and around and mid < 1.3 * max(around))
-
-
-def _motion_explains(a: np.ndarray, b: np.ndarray) -> bool:
-    """True when b is (mostly) a warped copy of a (zoom/pan/subject motion), i.e. the change
-    between them is movement rather than new content fading in."""
-    a8 = np.clip(a, 0, 255).astype(np.uint8)
-    b8 = np.clip(b, 0, 255).astype(np.uint8)
-    flow = cv2.calcOpticalFlowFarneback(a8, b8, None, 0.5, 3, 9, 3, 5, 1.1, 0)
-    h, w = a8.shape
-    gx, gy = np.meshgrid(np.arange(w, dtype=np.float32), np.arange(h, dtype=np.float32))
-    warped = cv2.remap(b8, gx + flow[..., 0], gy + flow[..., 1], cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT)
-    m = 4  # ignore borders
-    before = float(np.abs(b8.astype(np.float32) - a8.astype(np.float32))[m:-m, m:-m].mean())
-    after = float(np.abs(warped.astype(np.float32) - a8.astype(np.float32))[m:-m, m:-m].mean())
-    return after < 0.45 * before
