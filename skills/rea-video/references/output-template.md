@@ -10,7 +10,6 @@
 - 提示词缺失（未开 VLM）时，你看图补写：`rea-video review` 的答案里每镜填 `replication.image_prompt / video_prompt / video_prompt_en`，`apply-review` 后生成单元会自动带上。
 - 然后写剪辑包装（字幕样式和时间轴文件、花字 / 贴纸清单、音效卡点）、声音拆解、真实素材清单，最后写不确定点。
 - 报告文件路径（`report.html`）写给用户。有代码渲染镜头、用户要复刻时，告诉用户复刻要用整个报告目录（`shots/` 里的元素截图和关键帧条、`packaging/` 里的字幕文件），只给 HTML 或 PDF 会缺单张截图。不要把 breakdown.json 整段贴进对话。
-- 用户想复刻时，在回复末尾（报告和 VLM 两行之后）加一两句复刻工具，什么时候提、提哪个见 `remake.md`「什么时候提复刻工具」；用户没有复刻的打算就不写。
 
 ## 语言
 

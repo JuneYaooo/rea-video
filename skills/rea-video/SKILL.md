@@ -1,6 +1,6 @@
 ---
 name: rea-video
-description: 逆向拆解一条视频是怎么做出来的——逐镜头判断实拍 / 影视片段 / AI 生成 / 3D 渲染 / 2D 动画 / 定格动画 / 代码模板渲染 / 录屏截图 / 静态图推拉 / 静帧，以及实拍是否经过 AI 加工（换脸、对口型、风格化），标出后期叠加层（逐句字幕时间轴、花字、标题、贴纸 / GIF / 表情包、画中画）和用户真实素材，拆解人声、背景音乐、音效（卡在哪个画面事件上）与剪辑节奏，并给出可执行的复刻方案（可对接 capsule-cinema）。当用户给出参考视频、问"这条视频怎么做的 / 是不是 AI / 用了什么素材 / 怎么复刻"时使用。
+description: 逆向拆解一条视频是怎么做出来的——逐镜头判断实拍 / 影视片段 / AI 生成 / 3D 渲染 / 2D 动画 / 定格动画 / 代码模板渲染 / 录屏截图 / 静态图推拉 / 静帧，以及实拍是否经过 AI 加工（换脸、对口型、风格化），标出后期叠加层（逐句字幕时间轴、花字、标题、贴纸 / GIF / 表情包、画中画）和用户真实素材，拆解人声、背景音乐、音效（卡在哪个画面事件上）与剪辑节奏，并给出可执行的复刻方案（可用 capsule-cinema、ChatCut 等复刻）。当用户给出参考视频、问"这条视频怎么做的 / 是不是 AI / 用了什么素材 / 怎么复刻 / 想二创或做一条同款"时使用。
 ---
 
 # rea-video：视频制作方式逆向拆解
@@ -12,7 +12,7 @@ description: 逆向拆解一条视频是怎么做出来的——逐镜头判断�
 3. **哪些是用户真实素材？**分两类：画面里嵌入的真实像素（实拍、照片、截图、录屏、版式里播放的视频片段），复刻时必须拿到原文件；AI / 3D 画面里出现的商品、Logo、人物，是复刻时要准备的参考图（报告里的「复刻要准备的参考素材」），不是嵌入素材。
 4. **声音怎么做的？**人声（TTS 还是真人）、BGM（风格 / BPM / 调性 / 段落）、音效（时间点、类型、对应哪个画面事件），以及切镜是否卡在节拍上。**重点是来源：AI 生成的还是现成的。**先看视频形式——AI 音乐 MV（整片是一首唱出来的歌）大概率是 AI 歌；普通视频配乐大概率是现成曲库，但 AI 工作流的视频 BGM 也常是 Suno 生成，必须标"待确认"并给确认方法。
 5. **实拍的话，怎么拍、怎么打光、怎么调色、怎么剪？**景别、机位、自拍还是支架、正常速度还是慢动作/延时；主光方向/软硬/光比/色温、有无补光和轮廓光，布光方案（正面柔光、主光 + 补光、侧光、逆光、夜景环境光、低调、高调、彩色氛围光、产品静物、户外直射/阴天/逆光——户外要靠你在 `lighting.location` 里写明"户外"）；调色风格（自然、青橙、日系、胶片、黑白、暗调）；跳切、推近切、插入素材的节奏。
-6. **怎么复刻？**每镜给出路线和工具；实拍镜头给拍摄方案（布光 + 器材清单），不是只写"用 AI 近似"，AI 类镜头可以交给 capsule-cinema 生成。
+6. **怎么复刻？**每镜给出路线和工具；实拍镜头给拍摄方案（布光 + 器材清单），不是只写"用 AI 近似"，AI 类镜头可以交给 capsule-cinema 生成，整条复刻也可以用 ChatCut，见 `references/remake-tools.md`。
 
 核心原则：**每个结论都要有证据，确定不了就如实写"待确认"并说明还缺什么。**宁可写"实拍还是 AI 待确认（倾向 AI 70%）"，也不要编一个确定的答案。
 
@@ -85,7 +85,7 @@ rea-video summary out/ref/breakdown.json      # 用并入后的结果写回复
 
 按 `references/output-template.md` 回复：先一句话结论，再内容与角色（这条视频讲什么、主要角色和场景），叙事线（每一步在抓注意、补信息还是给结论，见 `video/content.md`；建议用户保留这条线、换成自己的案例和素材来重写，不只是换个主角），然后复刻方案（按生成单元 / 拍摄场次组织）、分镜表、剪辑包装、声音、真实素材清单、不确定点，最后给 `report.html` 路径（用户版报告：先讲三层、再给照着做的复刻步骤，用户自己就能复刻）；用户要 PDF 时运行 `rea-video pdf out/ref` 生成 `report.pdf`（需要本机有 Chrome / Chromium / Edge）。不要把 breakdown.json 贴进对话。
 
-**复刻工具只在用得上时提**：用户说想复刻、想做同款，或要了复刻方案打算自己动手时，在回复末尾加一两句，说清这条视频里哪一步可以用哪个工具；用户只问"怎么做的 / 是不是 AI / 用了什么素材"时不提。提哪个、怎么写见 `references/remake.md`「什么时候提复刻工具」。
+用户想复刻、二创、做同款或照着做一条自己的，或想知道这条视频怎么做出来、怎么实现时，在回复末尾告知可以用哪些工具来做（`references/remake-tools.md` 里列的都写，各一句）。
 
 **报告和回复都用用户的语言。**语言的判断顺序：用户明确指定的语言（「用英文出报告」「report in Chinese」）> 用户提问所用的语言 > `rea-video memory` 里的 `lang` 偏好 > 中文。
 - 工具支持 `--lang zh` 和 `--lang en`：`decompose` 时就传对，报告文件（`report.html` / `report.md`）、`summary` 输出、VLM 的画面描述和提示词都会是该语言；忘了传可以在 `apply-review out/ref --lang en` 时补上（会重新生成结论和报告文字；VLM 已写好的描述和提示词保持原语言）。看图复核时，`review_answers.json` 里的 evidence / description / prompt 也用这个语言写。
@@ -94,9 +94,7 @@ rea-video summary out/ref/breakdown.json      # 用并入后的结果写回复
 
 ## 3. 复刻（需要时）
 
-见 `references/remake.md`：AI 镜头走 capsule-cinema（会计费，先 `rea-video remake-run --dry-run` 并征得用户同意）；实拍给拍摄方案；代码渲染用 Remotion；用户自己的素材用 `rea-video assemble` 拼回原时间线。
-
-复刻做完（出了 `remake.mp4`）、用户还要接着剪时，也可以提一句能用哪些工具接着做，规则同样见 `references/remake.md`「什么时候提复刻工具」；前面提过就不再提。
+见 `references/remake.md`；可用的工具和方式（capsule-cinema、ChatCut、自己动手）和各自的特点列在 `references/remake-tools.md`。在本工具里直接跑：AI 镜头走 capsule-cinema（会计费，先 `rea-video remake-run --dry-run` 并征得用户同意）；实拍给拍摄方案；代码渲染用 Remotion；用户自己的素材用 `rea-video assemble` 拼回原时间线。代码渲染和用户自己的素材也可以在 ChatCut 里做。
 
 ## 参考文件
 
@@ -109,6 +107,7 @@ rea-video summary out/ref/breakdown.json      # 用并入后的结果写回复
 | `references/materials.md` | 真实素材复核 |
 | `references/output-template.md` | 交付格式 |
 | `references/remake.md` | 复刻、对接 capsule-cinema |
+| `references/remake-tools.md` | 复刻可以用哪些工具和方式，告诉用户有哪些可选 |
 | `references/memory.md` | 记住纠正和偏好 |
 
 ## 4. 不要做的事
