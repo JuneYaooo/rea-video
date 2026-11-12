@@ -9,11 +9,14 @@ Phân tích ngược mọi video.
 
 Soi từng shot xem cảnh đó quay thật, tạo bằng AI hay render từ code — và chỉ cách làm lại.
 
+Mỗi bản phân tích được ghi theo định dạng **[VIDEO.md](https://videomd.github.io/videomd/)**, một định dạng mở mà agent đọc theo từng tầng.
+
 [Trang web](https://www.reavideo.ai) | [中文](README_zh.md) | [English](../README.md) | [Русский](README_ru.md) | [日本語](README_ja.md) | [한국어](README_ko.md) | [Español](README_es.md) | [Português](README_pt.md) | [Français](README_fr.md) | [Deutsch](README_de.md) | Tiếng Việt
 
 [![Stars](https://img.shields.io/github/stars/JuneYaooo/rea-video?style=flat)](https://github.com/JuneYaooo/rea-video/stargazers)
 ![Python](https://img.shields.io/badge/python-%E2%89%A53.10-blue)
 ![Agent](https://img.shields.io/badge/runs%20in-Claude%20Code%20%7C%20Codex-8A2BE2)
+[![Output: VIDEO.md](https://img.shields.io/badge/output-VIDEO.md-3d4fd6)](https://videomd.github.io/videomd/)
 
 <a href="https://trendshift.io/repositories/334878" target="_blank"><img src="https://trendshift.io/api/badge/trendshift/repositories/334878/daily" alt="JuneYaooo/rea-video | Trendshift" width="250" height="55"></a>
 

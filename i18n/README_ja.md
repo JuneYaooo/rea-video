@@ -9,11 +9,14 @@
 
 ショット単位で「実写か、AI 生成か、コードで作ったか」を見分けて、作り直し方まで出します。
 
+分解結果は **[VIDEO.md](https://videomd.github.io/videomd/)** 形式で出力します。エージェントが階層ごとに読める、動画分解のオープンフォーマットです。
+
 [公式サイト](https://www.reavideo.ai) | [中文](README_zh.md) | [English](../README.md) | [Русский](README_ru.md) | 日本語 | [한국어](README_ko.md) | [Español](README_es.md) | [Português](README_pt.md) | [Français](README_fr.md) | [Deutsch](README_de.md) | [Tiếng Việt](README_vi.md)
 
 [![Stars](https://img.shields.io/github/stars/JuneYaooo/rea-video?style=flat)](https://github.com/JuneYaooo/rea-video/stargazers)
 ![Python](https://img.shields.io/badge/python-%E2%89%A53.10-blue)
 ![Agent](https://img.shields.io/badge/runs%20in-Claude%20Code%20%7C%20Codex-8A2BE2)
+[![Output: VIDEO.md](https://img.shields.io/badge/output-VIDEO.md-3d4fd6)](https://videomd.github.io/videomd/)
 
 <a href="https://trendshift.io/repositories/334878" target="_blank"><img src="https://trendshift.io/api/badge/trendshift/repositories/334878/daily" alt="JuneYaooo/rea-video | Trendshift" width="250" height="55"></a>
 

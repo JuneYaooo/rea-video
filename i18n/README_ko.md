@@ -9,11 +9,14 @@
 
 샷 하나하나가 직접 찍은 건지, AI로 만든 건지, 코드로 짠 건지 가려내고 다시 만드는 방법까지 알려 줍니다.
 
+분석 결과는 **[VIDEO.md](https://videomd.github.io/videomd/)** 형식으로 출력됩니다. 에이전트가 단계별로 읽는 영상 분석용 오픈 포맷입니다.
+
 [웹사이트](https://www.reavideo.ai) | [中文](README_zh.md) | [English](../README.md) | [Русский](README_ru.md) | [日本語](README_ja.md) | 한국어 | [Español](README_es.md) | [Português](README_pt.md) | [Français](README_fr.md) | [Deutsch](README_de.md) | [Tiếng Việt](README_vi.md)
 
 [![Stars](https://img.shields.io/github/stars/JuneYaooo/rea-video?style=flat)](https://github.com/JuneYaooo/rea-video/stargazers)
 ![Python](https://img.shields.io/badge/python-%E2%89%A53.10-blue)
 ![Agent](https://img.shields.io/badge/runs%20in-Claude%20Code%20%7C%20Codex-8A2BE2)
+[![Output: VIDEO.md](https://img.shields.io/badge/output-VIDEO.md-3d4fd6)](https://videomd.github.io/videomd/)
 
 <a href="https://trendshift.io/repositories/334878" target="_blank"><img src="https://trendshift.io/api/badge/trendshift/repositories/334878/daily" alt="JuneYaooo/rea-video | Trendshift" width="250" height="55"></a>
 
