@@ -40,10 +40,10 @@ Installe https://github.com/JuneYaooo/rea-video, puis décortique cette vidéo :
 
 L'agent installe la CLI, apprend le workflow et s'occupe du reste. Prérequis : ffmpeg et Python 3.10+.
 
-**Une analyse, deux lecteurs : vous et votre IA.** Les deux disent la même chose, chacun sous la forme dont son lecteur a besoin.
+Les analyses ont été entièrement repensées. Chacune produit deux sorties :
 
-- **Un rapport pour vous** (`report.html`, ou en PDF) : comment la vidéo a été faite, en une ligne, par exemple « 41 % vidéo IA + 59 % interface codée, 8 s d'enregistrement d'écran réel, musique de banque à 122 BPM » ; ce qui la fait marcher ; et un plan pour la refaire, réparti entre ce qu'il faut tourner, générer et coder, avec images, indices et prompts pour chaque plan. Prêt à envoyer à votre équipe.
-- **Un [VIDEO.md](https://videomd.github.io/videomd/) pour votre IA** : les mêmes conclusions, écrites pour qu'une IA les lise vite et sans erreur : une fiche, une ligne par plan, un fichier par plan. Continuez à poser vos questions (« quels plans sont en IA ? », « qu'est-ce que je dois tourner moi-même ? ») : elle répond avec environ 2k tokens, sans revoir la vidéo.
+- **Rapport** (`report.html` / PDF), pour vous : une structure plus claire, pour apprendre et comprendre comment la vidéo a été faite et comment la refaire.
+- **[VIDEO.md](https://videomd.github.io/videomd/)**, pour votre IA : organisé par niveaux, l'IA ne lit que ce dont la question a besoin et consomme moins de tokens.
 
 Vous pouvez brancher un modèle qui comprend la vidéo — Gemini et Doubao marchent tous les deux : il suffit de donner l'endpoint et la clé à l'agent. Le tri réel / IA / 3D devient plus fiable, et chaque plan reçoit un prompt reconstitué. Sans modèle, ça marche aussi ; si votre agent sait lire les images, il revérifie lui-même les plans douteux.
 

@@ -40,10 +40,10 @@ Cài https://github.com/JuneYaooo/rea-video rồi phân tích video này giúp t
 
 Agent sẽ tự cài CLI, đọc quy trình làm việc và chạy trọn bộ từ đầu đến cuối. Bạn chỉ cần cài sẵn ffmpeg và Python 3.10+.
 
-**Một lần phân tích, hai người đọc: bạn và AI của bạn.** Cả hai nói cùng một điều, mỗi bản theo cách người đọc của nó cần.
+Kết quả phân tích được nâng cấp toàn diện. Mỗi lần phân tích cho ra hai thứ:
 
-- **Báo cáo cho bạn** (`report.html`, hoặc PDF): video được làm thế nào, gói trong một dòng, ví dụ "41% video AI + 59% giao diện bằng code, 8 giây quay màn hình thật, nhạc thư viện 122 BPM"; vì sao nó hút người xem; và kế hoạch làm lại, chia thành phần cần quay, cần tạo bằng AI và cần viết code, kèm khung hình, căn cứ và prompt cho từng cảnh quay. Gửi thẳng cho cả nhóm được.
-- **[VIDEO.md](https://videomd.github.io/videomd/) cho AI của bạn**: cùng kết luận đó, viết theo cách AI đọc nhanh và đúng: một thẻ, mỗi cảnh quay một dòng, mỗi cảnh quay một tệp. Cứ hỏi tiếp ("cảnh nào là AI?", "mình phải tự quay những gì?"), nó trả lời chỉ với khoảng 2k token, không cần xem lại video.
+- **Báo cáo** (`report.html` / PDF), cho bạn: cấu trúc rõ ràng hơn, dễ học và dễ hiểu video được làm thế nào, làm lại ra sao.
+- **[VIDEO.md](https://videomd.github.io/videomd/)**, cho AI của bạn: chia theo tầng, AI chỉ đọc phần câu hỏi cần nên tốn ít token hơn.
 
 Bạn cũng có thể đấu nối thêm một model hiểu video (cả Gemini lẫn Doubao đều dùng được) bằng cách đưa endpoint và API key cho agent. Khi có model này, kết quả phân loại quay thật / AI / 3D sẽ chính xác hơn và mỗi shot đều được suy ngược ra prompt gốc. Không gắn thêm vẫn chạy tốt — nếu agent của bạn xem được ảnh, nó sẽ tự kiểm tra lại những shot chưa chắc chắn.
 

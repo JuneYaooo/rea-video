@@ -40,10 +40,10 @@ Instala https://github.com/JuneYaooo/rea-video y luego analiza este vídeo: /pat
 
 El agente instala la CLI, aprende el flujo de trabajo y se encarga del resto. Solo necesitas ffmpeg y Python 3.10+.
 
-**Un análisis, dos lectores: tú y tu IA.** Los dos dicen lo mismo, cada uno en la forma que necesita su lector.
+Los análisis se han renovado por completo. Cada uno te da dos resultados:
 
-- **Un informe para ti** (`report.html`, o en PDF): cómo se hizo el vídeo en una línea, por ejemplo "41 % vídeo IA + 59 % interfaz en código, 8 s de grabación de pantalla real, música de biblioteca a 122 BPM"; por qué funciona; y un plan para rehacerlo dividido en qué grabar, qué generar y qué programar, con fotogramas, pruebas y prompts de cada plano. Listo para pasárselo a tu equipo.
-- **Un [VIDEO.md](https://videomd.github.io/videomd/) para tu IA**: las mismas conclusiones, escritas para que una IA las lea rápido y sin equivocarse: una ficha, una línea por plano, un archivo por plano. Sigue preguntando ("¿qué planos son IA?", "¿qué tengo que grabar yo?") y responde con unos 2k tokens, sin volver a ver el vídeo.
+- **Informe** (`report.html` / PDF), para ti: una estructura más clara, para aprender y entender cómo se hizo el vídeo y cómo rehacerlo.
+- **[VIDEO.md](https://videomd.github.io/videomd/)**, para tu IA: organizado por niveles, así la IA lee solo lo que necesita la pregunta y gasta menos tokens.
 
 Si añades un modelo que entienda vídeo (vale Gemini o Doubao), basta con pasarle al agente el endpoint y la clave. Con él acierta más al distinguir entre imagen real, IA y 3D, y reconstruye el prompt de cada plano. Sin él también funciona: si tu agente puede ver imágenes, revisa él mismo los planos dudosos.
 

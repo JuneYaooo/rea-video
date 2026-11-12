@@ -40,10 +40,10 @@ Installiere https://github.com/JuneYaooo/rea-video und nimm dann dieses Video au
 
 Der Agent installiert die CLI, liest sich in den Ablauf ein und erledigt den Rest. Voraussetzung sind ffmpeg und Python 3.10+.
 
-**Eine Analyse, zwei Leser: du und deine KI.** Beide sagen dasselbe, jeweils in der Form, die ihr Leser braucht.
+Die Analysen sind rundum erneuert. Jede liefert zwei Ergebnisse:
 
-- **Ein Bericht für dich** (`report.html`, oder als PDF): wie das Video gemacht wurde, in einer Zeile, etwa „41 % KI-Video + 59 % Code-UI, 8 s echte Bildschirmaufnahme, Archivmusik mit 122 BPM“; warum es funktioniert; und ein Plan zum Nachbauen, aufgeteilt in Drehen, Generieren und Programmieren, mit Frames, Belegen und Prompts für jede Einstellung. Fertig zum Weitergeben ans Team.
-- **Eine [VIDEO.md](https://videomd.github.io/videomd/) für deine KI**: dieselben Ergebnisse, so geschrieben, dass eine KI sie schnell und richtig liest: eine Karte, eine Zeile pro Einstellung, eine Datei pro Einstellung. Frag einfach weiter („Welche Einstellungen sind KI?“, „Was muss ich selbst drehen?“), und sie antwortet aus rund 2k Tokens, ohne das Video noch einmal anzusehen.
+- **Bericht** (`report.html` / PDF), für dich: klarer aufgebaut, damit du leichter lernst und verstehst, wie das Video gemacht wurde und wie du es nachbaust.
+- **[VIDEO.md](https://videomd.github.io/videomd/)**, für deine KI: in Ebenen gegliedert, sodass die KI nur liest, was eine Frage braucht, und weniger Tokens verbraucht.
 
 Optional kannst du ein Modell anbinden, das Video versteht – Gemini oder Doubao, beides geht: Gib dem Agenten einfach Endpoint und Key. Dann wird die Einstufung echt/KI/3D genauer, und zu jedem Shot gibt es einen rekonstruierten Prompt. Ohne Modell geht es auch; kann dein Agent Bilder sehen, schaut er sich die unsicheren Shots selbst an.
 

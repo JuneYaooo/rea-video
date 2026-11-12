@@ -40,10 +40,10 @@ Install https://github.com/JuneYaooo/rea-video, then break down this video: /pat
 
 The agent installs the CLI, learns the workflow and runs the whole thing. You need ffmpeg and Python 3.10+.
 
-**One breakdown, two readers: you and your AI.** Both say the same thing, each in the form its reader needs.
+Breakdowns are fully upgraded. Each one gives you two outputs:
 
-- **A report for you** (`report.html`, or a PDF): how the video was made in one line, e.g. "41% AI video + 59% code UI, 8 s of real screen recording, library music at 122 BPM"; what makes it work; and a remake plan split into what to film, what to generate and what to code, with frames, evidence and prompts for every shot. Ready to send to your team.
-- **A [VIDEO.md](https://videomd.github.io/videomd/) for your AI**: the same findings, written so an AI reads them fast and gets them right: a card, one line per shot, one file per shot. Keep asking ("which shots are AI?", "what do I have to film myself?") and it answers from about 2k tokens, without watching the video again.
+- **Report** (`report.html` / PDF), for you: a clearer structure, easier to learn from and to understand how the video was made and how to remake it.
+- **[VIDEO.md](https://videomd.github.io/videomd/)**, for your AI: layered, so the AI reads only what a question needs and uses fewer tokens.
 
 You can also hook up a video-capable model (Gemini or Doubao both work) by giving the agent its endpoint and key. That makes the live/AI/3D calls more accurate and adds a reverse-engineered prompt for every shot. It works fine without one; if your agent can see images, it checks the uncertain shots itself.
 
