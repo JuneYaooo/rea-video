@@ -97,6 +97,32 @@ def test_tiles_cmd_quotes_paths():
     assert "'/a/my video.mp4'" in _tiles_cmd("/a/my video.mp4", 1, 2, 0.2, "out/c.jpg")
 
 
+def test_tiles_rejects_bad_numbers(fps10, tmp_path, capsys):
+    import argparse
+    import json
+
+    from rea_video.cli import cmd_tiles
+
+    def args(**kw):
+        base = {"video": str(fps10), "start": 0.0, "end": None, "every": 0.5,
+                "cols": 6, "cell": 320, "max": 48, "out": str(tmp_path / "t.jpg")}
+        base.update(kw)
+        return argparse.Namespace(**base)
+
+    # --every 0 used to raise ZeroDivisionError, --cols 0 ValueError, --cell 0 a PIL error,
+    # and --max 0 / --end <= --start silently printed an empty result with exit 0
+    for bad in ({"every": 0}, {"every": -0.5}, {"start": -1}, {"cols": 0}, {"max": 0},
+                {"cell": 0}, {"end": 0.0}, {"start": 1.0, "end": 1.0}, {"start": 5.0}):
+        with pytest.raises(SystemExit) as exc:
+            cmd_tiles(args(**bad))
+        assert "rea-video: --" in str(exc.value)
+    assert capsys.readouterr().out == ""  # a clean one-line error, not a traceback
+    assert cmd_tiles(args()) == 0
+    printed = json.loads(capsys.readouterr().out)
+    assert len(printed["tiles"]) == 1 and len(printed["times"]) == 4
+    assert Path(printed["tiles"][0]).is_file()
+
+
 def test_relocalize_rewrites_stored_labels():
     from rea_video.i18n import set_lang
     from rea_video.packaging import relocalize
