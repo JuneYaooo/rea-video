@@ -199,10 +199,10 @@ def decompose(video: str | Path, out_dir: str | Path, *, use_vlm: bool = False, 
                 shot_sheet(sframes, stimes, out / "shots" / f"{sid}_strip.jpg", n=len(sframes), cell_w=200)
                 motion["palette"] = palette(sframes[-1])
                 motion["palette_start"] = palette(sframes[0])
-                if facts.get("fine_dark", 0.0) > 0.5:  # particles: the frame average is the black ground, keep the dots' own colours
-                    from .particles import lit_palette
+                from .layers import drawn_colours
 
-                    motion["dots"] = lit_palette(sframes)
+                # the drawn layer's own colours: a frame average is mostly ground when the drawing is thin or small
+                motion["drawn"] = drawn_colours(sframes)
             sheet = element_crops(video, info, s.start, s.end, motion, out / "shots", sid, min(1080, info.display_size[0] or 1080))
             if sheet:
                 motion["elements_sheet"] = sheet
@@ -350,15 +350,15 @@ def decompose(video: str | Path, out_dir: str | Path, *, use_vlm: bool = False, 
         n = reapply(breakdown)
         if n:
             LOG.info("re-applied %d earlier user correction(s) for this file", n)
-    if any(((r.get("deterministic") or {}).get("facts") or {}).get("fine_dark", 0.0) > 0.5 for r in shot_records):
-        from .particles import scene_frames
+    from .layers import scene_frames, shot_label
 
-        LOG.info("particle shots: scenes, full-size frames and target points (frames/)")
+    if any(shot_label(r) == "code_render" for r in shot_records):
+        LOG.info("rendered shots: scenes, full-size frames and the drawn layer (frames/)")
         try:  # an extra for the remake: a failure here must not lose the breakdown and report
             sc = scene_frames(out, breakdown=breakdown)
-            breakdown["particle_scenes"] = {"file": "frames/scenes.json", "count": len(sc["scenes"])}
+            breakdown["layer_scenes"] = {"file": "frames/scenes.json", "count": len(sc["scenes"])}
         except Exception as exc:  # noqa: BLE001
-            LOG.warning("particle scenes skipped (%s: %s); rerun with `rea-video frames %s`", type(exc).__name__, exc, out)
+            LOG.warning("scene frames skipped (%s: %s); rerun with `rea-video frames %s`", type(exc).__name__, exc, out)
     finalize(breakdown, out, engine=engine)
     LOG.info("done in %.1fs -> %s", time.time() - t0, out)
     return breakdown

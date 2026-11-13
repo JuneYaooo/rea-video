@@ -49,16 +49,18 @@ def noise_sigma(gray: np.ndarray) -> float:
     return float(math.sqrt(math.pi / 2.0) * conv[mask].mean() / 6.0)
 
 
-SPARK = 25  # how far a pixel must stand out above the halo to count as a dot / line
+DETAIL = 25  # how far a pixel must stand out from its smooth background to count as drawn detail
 
 
 def halo_blur(gf: np.ndarray) -> np.ndarray:
-    """The soft glow of a gray picture (float32): a Gaussian blur with a radius of 1/40 of the long side, done at a
-    quarter size since nothing that wide needs full resolution."""
+    """The smooth background of a gray picture (float32): what is left on the scale of the frame rather than of the
+    things in it, a Gaussian blur with a radius of 1/20 of the long side (smaller radii also take away the shading of
+    faces and surfaces, which is what tells a filmed picture from drawn graphics). Done at a quarter size, since
+    nothing that wide needs full resolution."""
     h, w = gf.shape
     sh, sw = max(1, h // 4), max(1, w // 4)
     small = cv2.resize(gf, (sw, sh), interpolation=cv2.INTER_AREA)
-    return cv2.resize(cv2.GaussianBlur(small, (0, 0), max(h, w) / 160.0), (w, h), interpolation=cv2.INTER_LINEAR)
+    return cv2.resize(cv2.GaussianBlur(small, (0, 0), max(h, w) / 80.0), (w, h), interpolation=cv2.INTER_LINEAR)
 
 
 def spatial_features(bgr: np.ndarray) -> dict:
@@ -103,17 +105,10 @@ def spatial_features(bgr: np.ndarray) -> dict:
     gf = gray.astype(np.float32)
     bumps = (gf >= cv2.dilate(gf, np.ones((3, 3), np.uint8))) & (gf - cv2.blur(gf, (7, 7)) > 18)
     peaks = bumps & lit_mask
-    # the same with the soft glow behind the graphics taken out: particle explainers often light a large radial
-    # halo behind the dots, which is smooth and lit and hides the dots from lit_smooth / lit_peaks. "spark" = what
-    # stands out above the heavily blurred picture. Only dark pictures can be particles on black, so the rest skip it
-    glow_ratio, n_spark, spark_smooth, spark_peaks = 0.0, 0, 1.0, 0
-    if dark_ratio > 0.3:
-        glow = halo_blur(gf)
-        spark = (gf - glow) > SPARK
-        n_spark = int(spark.sum())
-        glow_ratio = float((glow > 28).mean())
-        spark_smooth = float(((mag < 40) & spark).sum()) / n_spark if n_spark else 1.0
-        spark_peaks = int((bumps & spark).sum())
+    # the lit detail layer: what stands out above the picture's smooth background (a glow, vignette or gradient behind
+    # the graphics), measured like the lit part above, so a soft background does not hide fine graphics drawn on it
+    detail = (gf - halo_blur(gf)) > DETAIL
+    n_detail = int(detail.sum())
     # the same on the inverted picture: thin dark lines / dots / small text on a light ground (line art, documents)
     inv = 255 - gray
     ink_mask = inv > 50
@@ -144,10 +139,9 @@ def spatial_features(bgr: np.ndarray) -> dict:
         "lit_ratio": n_lit / float(h * w),
         "lit_smooth": float(((mag < 40) & lit_mask).sum()) / n_lit if n_lit else 1.0,
         "lit_peaks": 100.0 * float(peaks.sum()) / n_lit if n_lit else 0.0,
-        "glow_ratio": glow_ratio,
-        "spark_ratio": n_spark / float(h * w),
-        "spark_smooth": spark_smooth,
-        "spark_peaks": 100.0 * spark_peaks / n_spark if n_spark else 0.0,
+        "detail_ratio": n_detail / float(h * w),
+        "detail_smooth": float(((mag < 40) & detail).sum()) / n_detail if n_detail else 1.0,
+        "detail_peaks": 100.0 * float((bumps & detail).sum()) / n_detail if n_detail else 0.0,
         "light_ratio": float((bmean > 227).mean()),
         "ink_ratio": n_ink / float(h * w),
         "ink_smooth": float(((mag < 40) & ink_mask).sum()) / n_ink if n_ink else 1.0,

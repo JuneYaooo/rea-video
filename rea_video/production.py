@@ -115,11 +115,10 @@ def code_motion_md(scenes: list[dict]) -> list[str]:
         L.append("")
         if sc.get("strip"):
             L += [f"![{head}]({sc['strip']})", ""]
-        if sc.get("background") and sc.get("dots"):
-            L.append(T("- 背景 {bg}；粒子颜色 {c}", "- Ground {bg}; dot colours {c}", bg=sc["background"], c=" ".join(sc["dots"])))
-        elif sc.get("background"):
+        if sc.get("background"):
             L.append(T("- 背景 {bg}；其他主色 {c}", "- Ground {bg}; other main colours {c}", bg=sc["background"],
-                       c=" ".join(c for c in sc.get("palette") or [] if c != sc["background"]) or "—"))
+                       c=" ".join(c for c in sc.get("palette") or [] if c != sc["background"]) or "—")
+                     + (T("；前景（画上去的那层）{d}", "; drawn layer {d}", d=" ".join(sc["drawn"])) if sc.get("drawn") else ""))
         if sc.get("elements_sheet"):
             L += [T("元素截图（编号对应下面的动效；L 是持续运动层的镜头中段和结尾，S 是整镜不动的元素），原分辨率单张在 `shots/` 里：",
                     "Element crops (numbers match the motion list below; L = the continuously moving layer mid-shot and at the end, "
@@ -609,13 +608,13 @@ def production_plan(b: dict, out: Path, engine: str = "seedance2.0") -> dict:
             cur = []
     plan["code"] = code
     ps = out / "frames" / "scenes.json"
-    # only shots still built as particles: a review that relabels a shot drops its scenes from the plan
-    particle_shots = {sc["shot"] for c in code for sc in c["scenes"] if sc.get("style") == "particles"}
-    if particle_shots and ps.exists():
+    # only shots still in the code build: a review that relabels a shot drops its scenes from the plan
+    code_shots = {sh for c in code for sh in c["shots"]}
+    if code_shots and ps.exists():
         try:
-            plan["particle_scenes"] = [{k: sc.get(k) for k in ("id", "shot", "start", "end", "points", "frames")} | {"measure": {
-                k: (sc.get("measure") or {}).get(k) for k in ("ground", "halo", "colours", "dots", "dot_px", "box")}}
-                for sc in json.loads(ps.read_text(encoding="utf-8")).get("scenes", []) if sc.get("shot") in particle_shots]
+            plan["layer_scenes"] = [{k: sc.get(k) for k in ("id", "shot", "start", "end", "points", "frames")} | {"measure": {
+                k: (sc.get("measure") or {}).get(k) for k in ("ground", "glow", "colours", "pieces", "box")}}
+                for sc in json.loads(ps.read_text(encoding="utf-8")).get("scenes", []) if sc.get("shot") in code_shots]
         except (OSError, ValueError, TypeError):
             pass
     plan["local"] = [{"shot": r["index"], "label_zh": r["base"]["label_zh"], "duration": r["duration"]}
@@ -705,31 +704,37 @@ def report_parts(plan: dict) -> dict[str, list[str]]:
     return {k: v for k, v in parts.items() if any(x.strip() for x in v)}
 
 
-def particle_scenes_md(scenes: list[dict]) -> list[str]:
-    """Particle shots split into scenes (the dots regroup without a cut), with the measured look and the target points."""
+def layer_scenes_md(scenes: list[dict]) -> list[str]:
+    """Rendered shots split into scenes (the drawing rearranges without a cut), with the measured look and where to
+    find the drawn layer of each."""
     if not scenes:
         return []
-    L = ["", T("**粒子场景**（镜头内粒子重组成新形状就算一个新场景；`frames/` 里每个场景有首 / 中 / 尾原尺寸帧，"
-               "`frames/points/scene_XX.json` 是从原片中间帧取的亮点，每行 `x y r g b a`，x、y 是 0–1 坐标：粒子直接摆到这些点上就是原片的形状，"
-               "不用照描述去猜；`frames/scenes.json` 的 `track` 是粒子重心和散开程度随时间的变化）",
-               "**Particle scenes** (a new scene whenever the dots regroup into a new shape inside a shot; `frames/` holds first / middle / last "
-               "full-size frames per scene, `frames/points/scene_XX.json` the lit dots of the original's middle frame, one `x y r g b a` per row "
-               "with x, y in 0–1: put the particles on these points and you have the original shape, no guessing from a description; "
-               "`track` in `frames/scenes.json` follows the dots' centre and spread over time)"), "",
-         T("| 场景 | 镜头 | 时间 | 光晕 | 粒子颜色 | 粒子数 | 范围 (x0 y0 x1 y1) |", "| Scene | Shot | Time | Halo | Dot colours | Dots | Area (x0 y0 x1 y1) |"),
-         "|---|---|---|---|---|---|---|"]
+    L = ["", T("**画面场景**（镜头内画上去的东西整体换了位置或形状就算新场景。`frames/` 里每个场景有首 / 中 / 尾原尺寸帧，"
+               "`scene_XX_layer.png` 是中间帧画上去的那一层（背景和文字已去掉，透明度按突出程度），"
+               "`frames/points/scene_XX.json` 是从这一层取的采样点，每行 `x y r g b a`，x、y 是 0–1 坐标；"
+               "按这些摆粒子、描线或重画图形，不用照文字描述去猜形状。`frames/scenes.json` 的 `track` 是这一层的重心和散开程度随时间的变化）",
+               "**Picture scenes** (a new scene whenever what is drawn moves or changes shape as a whole inside a shot. `frames/` holds first / "
+               "middle / last full-size frames per scene, `scene_XX_layer.png` the drawn layer of the middle frame (background and text "
+               "removed, alpha by how strongly it stands out), `frames/points/scene_XX.json` samples of that layer, one `x y r g b a` per row "
+               "with x, y in 0–1. Place particles, trace lines or redraw shapes from these instead of guessing from a description. `track` in "
+               "`frames/scenes.json` follows the layer's centre and spread over time)"), "",
+         T("| 场景 | 镜头 | 时间 | 底色 | 背景光 | 前景颜色 | 块数 | 范围 (x0 y0 x1 y1) |",
+           "| Scene | Shot | Time | Ground | Background glow | Drawn colours | Pieces | Area (x0 y0 x1 y1) |"),
+         "|---|---|---|---|---|---|---|---|"]
     for sc in scenes:
         m = sc.get("measure") or {}
-        halo = m.get("halo") or {}
-        hw = (T("{c}，中心 ({x:.2f}, {y:.2f})，半径 {r:.2f}", "{c}, centre ({x:.2f}, {y:.2f}), radius {r:.2f}", c=halo["colour"],
-                x=halo["centre"][0], y=halo["centre"][1], r=halo["radius"]) if halo else "—")
+        gl = m.get("glow") or {}
+        gw = (T("{c}，中心 ({x:.2f}, {y:.2f})，半径 {r:.2f}", "{c}, centre ({x:.2f}, {y:.2f}), radius {r:.2f}", c=gl["colour"],
+                x=gl["centre"][0], y=gl["centre"][1], r=gl["radius"]) if gl else "—")
         cols = " ".join(c["hex"] for c in m.get("colours") or []) or "—"
         box = " ".join(f"{v:.2f}" for v in m.get("box") or []) or "—"
-        L.append(f"| {sc['id']} | #{sc['shot']} | {sc['start']:.1f}–{sc['end']:.1f}s | {hw} | {cols} | {m.get('dots') or '—'} | {box} |")
-    L += ["", T("做完用 `rea-video compare 原片 成片 --scenes frames/scenes.json -o 对比目录` 打分（浅底复刻会自动反相再比），"
+        L.append(f"| {sc['id']} | #{sc['shot']} | {sc['start']:.1f}–{sc['end']:.1f}s | {m.get('ground') or '—'} | {gw} | {cols} | "
+                 f"{m.get('pieces') or '—'} | {box} |")
+    L += ["", T("做完用 `rea-video compare 原片 成片 --scenes frames/scenes.json -o 对比目录` 打分（两边各按自己的底色取前景，换了底色也能比），"
                 "按 `compare_worst.jpg` 先改分数最低的场景。",
-                "When built, score it with `rea-video compare original remake --scenes frames/scenes.json -o dir` (a light-ground remake is "
-                "inverted before comparing) and fix the lowest-scoring scenes first, from `compare_worst.jpg`.")]
+                "When built, score it with `rea-video compare original remake --scenes frames/scenes.json -o dir` (each side's drawn layer "
+                "is taken against its own ground, so a new ground colour still compares) and fix the lowest-scoring scenes first, from "
+                "`compare_worst.jpg`.")]
     return L
 
 
@@ -873,12 +878,12 @@ def report_md(plan: dict) -> list[str]:
             for sc in scenes:
                 pic = sc["picture"].replace("|", "/").replace("\n", " ") or T("（待看图补：画面元素拼成什么、怎么动）",
                                                                               "(to fill from the images: what the elements form and how they move)")
-                cols = (T("底 {bg}", "ground {bg}", bg=sc["background"]) + " · " + (T("粒子 ", "dots ") + " ".join(sc["dots"]) if sc.get("dots") else
-                                                                                   " ".join(c for c in sc["palette"] if c != sc["background"]))
+                cols = (T("底 {bg}", "ground {bg}", bg=sc["background"]) + " · " + " ".join(c for c in sc["palette"] if c != sc["background"])
+                        + (T(" · 前景 ", " · drawn ") + " ".join(sc["drawn"]) if sc.get("drawn") else "")
                         if sc.get("background") else T('、', ', ').join(sc['colours']) or '—')
                 L.append(f"| #{sc['shot']} | {sc['start']:.1f}–{sc['end']:.1f}s | {styles[sc.get('style', 'shapes')][0]} | {pic} | {sc['move']} | "
                          f"{cols} | {' / '.join(w.replace('|', '/') for w in sc['on_screen_text']) or '—'} |")
-            L += particle_scenes_md(plan.get("particle_scenes") or [])
+            L += layer_scenes_md(plan.get("layer_scenes") or [])
             L += code_motion_md(scenes)
     if plan["local"]:
         L += ["", T("### 本地重建", "### Local rebuild"), "", "- " + semi().join(f"#{x['shot']} {x['label_zh']} {x['duration']:.1f}s" for x in plan["local"])
