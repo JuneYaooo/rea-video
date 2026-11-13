@@ -108,6 +108,32 @@ def test_split_suggestion_rejects_malformed_input_instead_of_raising():
     assert err is None and ok["split_suggestion"]["cuts"] == [12.5, 40.0]
 
 
+def test_apply_review_reports_malformed_answers_instead_of_raising():
+    from rea_video.review import _clean, apply_answers
+
+    b = {"shots": [{"id": "shot_001", "index": 1, "base": {"label": "live_action"},
+                    "deterministic": {"probs": {"live_action": 0.9}}}], "analysis": {}}
+    # each malformed shape used to crash apply-review with a traceback; the answers file is
+    # written by an agent, so one bad entry must be reported and the rest still applied
+    log = apply_answers(b, {"shots": [
+        {"id": "shot_001", "label_probs": {"live_action": 1.0}, "evidence": "a hand-held shot"},
+        "shot_001",
+        {"id": ["shot_001"], "label_probs": {"live_action": 1.0}},
+        {"id": "shot_001", "label_probs": ["live_action"]},
+        {"id": "shot_999", "label_probs": {"live_action": 1.0}},
+    ], "story": ["not", "a", "dict"]})
+    assert log["applied"] == ["shot_001"]  # the good answer still lands
+    assert b["shots"][0]["review"]["evidence"] == ["a hand-held shot"]  # a bare string stays one item, not one char per line
+    assert len(log["problems"]) == 4 and any("shot_999" in p for p in log["problems"])
+    assert log["unanswered"] == []
+    # the whole file being the wrong shape, and shots not being a list, are problems too
+    assert apply_answers(b, ["shot_001"])["problems"] == ["答案文件不是一个对象"]
+    assert apply_answers(b, {"shots": {"shot_001": {}}})["problems"] == ["shots 不是一个列表，跳过"]
+    # and _clean itself rejects a non-dict label_probs instead of raising
+    clean, err = _clean({"id": "shot_001", "label_probs": ["live_action"]})
+    assert clean is None and "label_probs" in err
+
+
 def test_packaging_only_answers_count_as_applied(media, tmp_path, capsys):
     out = tmp_path / "p"
     b = decompose(media["code"], out, use_vlm=False, ocr=False, workers=1, stems=False)
