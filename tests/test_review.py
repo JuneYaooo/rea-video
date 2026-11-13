@@ -1,6 +1,8 @@
 """Agent-as-VLM: review tasks -> answers -> fused breakdown."""
 import json
 
+import pytest
+
 from rea_video.cli import main
 from rea_video.pipeline import decompose
 from rea_video.vlm import VLMConfig
@@ -65,6 +67,56 @@ def test_vlm_config_merges_fallback_models_on_same_endpoint(monkeypatch):
     assert VLMConfig.from_env().models == ["m1", "m2", "m3"]
     monkeypatch.setenv("GEMINI3_API_KEY", "other")
     assert VLMConfig.from_env().models == ["m1"]
+
+
+def test_vlm_config_rejects_bad_values(monkeypatch):
+    def cfg(**overrides):
+        for k in ("REA_VLM_BASE_URL", "REA_VLM_API_KEY", "REA_VLM_MODEL", "REA_VLM_TIMEOUT",
+                  "REA_VLM_MEDIA", "REA_VLM_VIDEO_PART", "REA_VLM_REASONING_EFFORT",
+                  "VIDEO_ANALYSIS_BASE_URL", "VIDEO_ANALYSIS_API_KEY", "VIDEO_ANALYSIS_MODEL_NAME",
+                  "VIDEO_ANALYSIS_TIMEOUT_SECONDS",
+                  "GEMINI3_BASE_URL", "GEMINI3_API_KEY", "GEMINI3_MODEL_NAME"):
+            monkeypatch.delenv(k, raising=False)
+        monkeypatch.setenv("REA_VLM_BASE_URL", "https://x.test/v1")
+        monkeypatch.setenv("REA_VLM_API_KEY", "k")
+        monkeypatch.setenv("REA_VLM_MODEL", "m1")
+        for k, v in overrides.items():
+            monkeypatch.setenv(k, v)
+        return VLMConfig.from_env()
+
+    # valid values still load
+    c = cfg(REA_VLM_TIMEOUT="30", REA_VLM_MEDIA="frames", REA_VLM_VIDEO_PART="video_url",
+            REA_VLM_REASONING_EFFORT="low")
+    assert (c.timeout, c.media, c.video_part, c.reasoning_effort) == (30.0, "frames", "video_url", "low")
+    # a bad timeout used to crash decompose with a bare ValueError; bad media silently sent the VLM
+    # text only (no frames, no clip); bad effort / video_part were passed on silently
+    for bad, var in (({"REA_VLM_TIMEOUT": "abc"}, "REA_VLM_TIMEOUT"),
+                     ({"REA_VLM_TIMEOUT": "0"}, "REA_VLM_TIMEOUT"),
+                     ({"REA_VLM_TIMEOUT": "-5"}, "REA_VLM_TIMEOUT"),
+                     ({"REA_VLM_TIMEOUT": "nan"}, "REA_VLM_TIMEOUT"),
+                     ({"VIDEO_ANALYSIS_TIMEOUT_SECONDS": "soon"}, "VIDEO_ANALYSIS_TIMEOUT_SECONDS"),
+                     ({"REA_VLM_MEDIA": "frame"}, "REA_VLM_MEDIA"),
+                     ({"REA_VLM_VIDEO_PART": "clip"}, "REA_VLM_VIDEO_PART"),
+                     ({"REA_VLM_REASONING_EFFORT": "ultra"}, "REA_VLM_REASONING_EFFORT")):
+        with pytest.raises(ValueError, match=var):
+            cfg(**bad)
+
+
+def test_vlm_commands_fail_fast_on_bad_config(monkeypatch, tmp_path):
+    for k in ("REA_VLM_BASE_URL", "REA_VLM_API_KEY", "REA_VLM_MODEL", "REA_VLM_TIMEOUT",
+              "REA_VLM_MEDIA", "REA_VLM_VIDEO_PART", "REA_VLM_REASONING_EFFORT",
+              "VIDEO_ANALYSIS_BASE_URL", "VIDEO_ANALYSIS_API_KEY", "VIDEO_ANALYSIS_MODEL_NAME",
+              "GEMINI3_BASE_URL", "GEMINI3_API_KEY", "GEMINI3_MODEL_NAME"):
+        monkeypatch.delenv(k, raising=False)
+    monkeypatch.setenv("REA_VLM_BASE_URL", "https://x.test/v1")
+    monkeypatch.setenv("REA_VLM_API_KEY", "k")
+    monkeypatch.setenv("REA_VLM_MODEL", "m1")
+    monkeypatch.setenv("REA_VLM_MEDIA", "frame")
+    # the video / labels files do not exist: the config error must fire before either is read
+    with pytest.raises(SystemExit, match="REA_VLM_MEDIA"):
+        main(["decompose", str(tmp_path / "nope.mp4"), "--vlm"])
+    with pytest.raises(SystemExit, match="REA_VLM_MEDIA"):
+        main(["eval", str(tmp_path / "labels.yaml"), "--vlm"])
 
 
 def test_two_of_three_beat_one_confident_model():
