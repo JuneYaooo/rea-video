@@ -320,6 +320,8 @@ def write(b: dict, out: Path) -> Path:
             ("stems/", T("人声、配乐、音效分轨", "voice, music and effects stems"), T("听声音、复刻配音配乐", "listening, remaking the sound")),
             ("sfx/", T("每处音效的试听片段", "a clip of each sound effect"), T("找同款音效", "finding matching effects")),
             ("packaging/", T("字幕文件、包装时间轴、贴纸截图", "subtitle files, packaging timeline, sticker frames"), T("复刻字幕和包装", "remaking subtitles and packaging")),
+            ("frames/", T("粒子场景：每场景原尺寸帧、测量值、取自原片的粒子目标点", "particle scenes: full-size frames, measurements and target points taken from the original"),
+             T("复刻粒子画面", "remaking particle pictures")),
             ("audio.png", T("声音波形和节拍图", "waveform and beat chart"), T("看节奏", "seeing the rhythm"))):
         if (out / rel.rstrip("/")).exists():
             files.append((rel, what, when, 0))

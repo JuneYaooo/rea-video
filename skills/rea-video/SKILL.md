@@ -94,7 +94,7 @@ rea-video summary out/ref/breakdown.json      # 用并入后的结果写回复
 
 ## 3. 复刻（需要时）
 
-见 `references/remake.md`；可用的工具和方式（capsule-cinema、ChatCut、自己动手）和各自的特点列在 `references/remake-tools.md`。在本工具里直接跑：AI 镜头走 capsule-cinema（会计费，先 `rea-video remake-run --dry-run` 并征得用户同意）；实拍给拍摄方案；代码渲染用 Remotion；用户自己的素材用 `rea-video assemble` 拼回原时间线。代码渲染和用户自己的素材也可以在 ChatCut 里做。
+见 `references/remake.md`；可用的工具和方式（capsule-cinema、ChatCut、自己动手）和各自的特点列在 `references/remake-tools.md`。在本工具里直接跑：AI 镜头走 capsule-cinema（会计费，先 `rea-video remake-run --dry-run` 并征得用户同意）；实拍给拍摄方案；代码渲染用 Remotion（粒子镜头按 `frames/points/` 摆点，做完用 `rea-video compare` 对原片打分）；用户自己的素材用 `rea-video assemble` 拼回原时间线。代码渲染和用户自己的素材也可以在 ChatCut 里做。
 
 ## 参考文件
 

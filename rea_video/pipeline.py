@@ -199,6 +199,10 @@ def decompose(video: str | Path, out_dir: str | Path, *, use_vlm: bool = False, 
                 shot_sheet(sframes, stimes, out / "shots" / f"{sid}_strip.jpg", n=len(sframes), cell_w=200)
                 motion["palette"] = palette(sframes[-1])
                 motion["palette_start"] = palette(sframes[0])
+                if facts.get("fine_dark", 0.0) > 0.5:  # particles: the frame average is the black ground, keep the dots' own colours
+                    from .particles import lit_palette
+
+                    motion["dots"] = lit_palette(sframes)
             sheet = element_crops(video, info, s.start, s.end, motion, out / "shots", sid, min(1080, info.display_size[0] or 1080))
             if sheet:
                 motion["elements_sheet"] = sheet
@@ -346,6 +350,12 @@ def decompose(video: str | Path, out_dir: str | Path, *, use_vlm: bool = False, 
         n = reapply(breakdown)
         if n:
             LOG.info("re-applied %d earlier user correction(s) for this file", n)
+    if any(((r.get("deterministic") or {}).get("facts") or {}).get("fine_dark", 0.0) > 0.5 for r in shot_records):
+        from .particles import scene_frames
+
+        LOG.info("particle shots: scenes, full-size frames and target points (frames/)")
+        sc = scene_frames(out, breakdown=breakdown)
+        breakdown["particle_scenes"] = {"file": "frames/scenes.json", "count": len(sc["scenes"])}
     finalize(breakdown, out, engine=engine)
     LOG.info("done in %.1fs -> %s", time.time() - t0, out)
     return breakdown

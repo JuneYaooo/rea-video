@@ -89,7 +89,15 @@ def spatial_features(bgr: np.ndarray) -> dict:
     lit_mask = gray > 50
     n_lit = int(lit_mask.sum())
     gf = gray.astype(np.float32)
-    peaks = (gf >= cv2.dilate(gf, np.ones((3, 3), np.uint8))) & (gf - cv2.blur(gf, (7, 7)) > 18) & lit_mask
+    bumps = (gf >= cv2.dilate(gf, np.ones((3, 3), np.uint8))) & (gf - cv2.blur(gf, (7, 7)) > 18)
+    peaks = bumps & lit_mask
+    # the same with the soft glow behind the graphics taken out: particle explainers often light a large radial
+    # halo behind the dots, which is smooth and lit and hides the dots from lit_smooth / lit_peaks. "spark" = what
+    # stands out above the heavily blurred picture
+    glow = cv2.GaussianBlur(gf, (0, 0), max(h, w) / 40.0)
+    spark = (gf - glow) > 25
+    n_spark = int(spark.sum())
+    spark_peaks = int((bumps & spark).sum())
     # the same on the inverted picture: thin dark lines / dots / small text on a light ground (line art, documents)
     inv = 255 - gray
     ink_mask = inv > 50
@@ -120,6 +128,10 @@ def spatial_features(bgr: np.ndarray) -> dict:
         "lit_ratio": n_lit / float(h * w),
         "lit_smooth": float(((mag < 40) & lit_mask).sum()) / n_lit if n_lit else 1.0,
         "lit_peaks": 100.0 * float(peaks.sum()) / n_lit if n_lit else 0.0,
+        "glow_ratio": float((glow > 28).mean()),
+        "spark_ratio": n_spark / float(h * w),
+        "spark_smooth": float(((mag < 40) & spark).sum()) / n_spark if n_spark else 1.0,
+        "spark_peaks": 100.0 * spark_peaks / n_spark if n_spark else 0.0,
         "light_ratio": float((bmean > 227).mean()),
         "ink_ratio": n_ink / float(h * w),
         "ink_smooth": float(((mag < 40) & ink_mask).sum()) / n_ink if n_ink else 1.0,

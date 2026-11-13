@@ -63,3 +63,86 @@ def test_code_scene_and_report_table(tmp_path):
                       "scenes": [{"shot": 1, "start": 0.0, "end": 3.0, **sc, "colours": ["青"]}]}]}
     md = "\n".join(report_md(plan))
     assert "Three.js" in md and "| #1 | 0.0–3.0s | 粒子/点云 | 青色粒子拼成的胶囊 |" in md
+
+
+def _halo(img, colour=(140, 120, 40), radius=150):
+    """Lay a large soft glow behind the picture, as particle explainers often do."""
+    yy, xx = np.mgrid[0:img.shape[0], 0:img.shape[1]]
+    g = np.exp(-((xx - 240) ** 2 + (yy - 135) ** 2) / (2 * (radius / 2) ** 2))
+    glow = (g[..., None] * np.array(colour, np.float32)).astype(np.float32)
+    return np.clip(img.astype(np.float32) + glow, 0, 255).astype(np.uint8)
+
+
+def test_particles_on_a_soft_halo_still_read_as_particles():
+    f = _feat(_halo(_particles()))
+    assert f["lit_smooth"] > 0.3  # the halo hides the dots from the plain lit-pixel measure
+    assert f["spark_smooth"] < 0.24 and f["spark_peaks"] > 8
+    probs, ev, facts = deterministic(f)
+    assert facts["fine_dark"] > 0.5 and max(probs, key=probs.get) == "code_render"
+    assert any("柔光" in e for e in ev)
+    _, _, facts_s = deterministic(_feat(_halo(_shaded())))  # a shaded ball on a glow stays a shaded surface
+    assert facts_s["fine_dark"] < 0.1
+
+
+def test_measure_and_points_follow_the_dots():
+    from rea_video.particles import measure, sample_points
+
+    img = _halo(_particles())
+    m = measure(img)
+    assert m["ground"] in ("#000000", "#000101") and m["halo"]["radius"] > 0.05
+    assert abs(m["centre"][0] - 0.5) < 0.05 and abs(m["centre"][1] - 0.5) < 0.05
+    assert m["box"][0] > 0.25 and m["box"][2] < 0.75  # the ellipse spans x 150-330 of 480
+    pts = sample_points(img, 500)
+    assert len(pts) == 500
+    xs = np.array([p[0] for p in pts])
+    assert xs.min() > 0.25 and xs.max() < 0.75
+    # text boxes are blanked
+    assert not sample_points(img, 50, text_boxes=[[0.0, 0.0, 1.0, 1.0]])
+
+
+def test_split_scenes_finds_a_regroup_without_a_cut():
+    from rea_video.particles import density, spark_mask, split_scenes
+
+    left, right = np.zeros((270, 480, 3), np.uint8), np.zeros((270, 480, 3), np.uint8)
+    rng = np.random.default_rng(1)
+    for _ in range(800):
+        cv2.circle(left, (int(rng.uniform(40, 200)), int(rng.uniform(60, 210))), 1, (255, 255, 255), -1)
+        cv2.circle(right, (int(rng.uniform(280, 440)), int(rng.uniform(60, 210))), 1, (255, 255, 255), -1)
+    frames = [left] * 20 + [right] * 20
+    times = np.arange(40) * 0.25
+    descs = np.array([density(spark_mask(f)).ravel() for f in frames])
+    sc = split_scenes(descs, times, 0.0, 10.0)
+    assert len(sc) == 2 and abs(sc[0][1] - 5.0) <= 0.25
+    assert split_scenes(descs[:20], times[:20], 0.0, 5.0) == [(0.0, 5.0)]
+
+
+def test_compare_scores_a_good_remake_above_a_bad_one(tmp_path):
+    from rea_video.particles import compare
+
+    def write(path, frames):
+        vw = cv2.VideoWriter(str(path), cv2.VideoWriter_fourcc(*"mp4v"), 4, (480, 270))
+        for f in frames:
+            vw.write(f)
+        vw.release()
+
+    ref = _halo(_particles())
+    good = 255 - cv2.GaussianBlur(_particles(1), (3, 3), 0) // 2  # same shape, dark dots on a light ground
+    bad = np.full((270, 480, 3), 230, np.uint8)
+    cv2.circle(bad, (420, 60), 30, (40, 40, 40), -1)
+    write(tmp_path / "ref.mp4", [ref] * 12)
+    write(tmp_path / "good.mp4", [good] * 12)
+    write(tmp_path / "bad.mp4", [bad] * 12)
+    g = compare(str(tmp_path / "ref.mp4"), str(tmp_path / "good.mp4"), out=tmp_path / "cmp")
+    b = compare(str(tmp_path / "ref.mp4"), str(tmp_path / "bad.mp4"))
+    assert g["inverted"] and g["score"] > 0.6 > b["score"]
+    assert (tmp_path / "cmp" / "compare_worst.jpg").exists() and (tmp_path / "cmp" / "compare.json").exists()
+
+
+def test_report_lists_particle_scenes():
+    from rea_video.production import particle_scenes_md
+
+    md = "\n".join(particle_scenes_md([{"id": "scene_01", "shot": 1, "start": 0.0, "end": 5.2, "points": "frames/points/scene_01.json",
+                                        "measure": {"halo": {"colour": "#507c87", "centre": [0.5, 0.52], "radius": 0.15},
+                                                    "colours": [{"hex": "#4e747c"}], "dots": 286, "box": [0.4, 0.03, 0.6, 0.78]}}]))
+    assert "| scene_01 | #1 | 0.0–5.2s | #507c87" in md and "rea-video compare" in md and "frames/points/scene_XX.json" in md
+    assert particle_scenes_md([]) == []
