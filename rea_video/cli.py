@@ -7,7 +7,7 @@ import os
 import sys
 from pathlib import Path
 
-from .util import LOG, OCR_LANGS, load_env_files, read_json, setup_logging, read_image
+from .util import ASR_LANGS, LOG, OCR_LANGS, load_env_files, read_json, setup_logging, read_image
 from .i18n import LANGS, T, set_lang
 from .classify import LABELS
 from .vlm import vlm_note
@@ -45,6 +45,17 @@ def _ocr_lang(args) -> None:
         os.environ["REA_OCR_LANG"] = lang
 
 
+def _asr_lang(args) -> None:
+    """--asr-lang (or prefs asr_lang) -> $REA_ASR_LANG, which speech.transcribe reads."""
+    from .memory import pref
+
+    lang = getattr(args, "asr_lang", None) or pref("asr_lang")
+    if lang:
+        if lang not in ASR_LANGS:
+            raise SystemExit(f"错误：不支持的语音识别语言 {lang}（可选：{', '.join(ASR_LANGS)}）")
+        os.environ["REA_ASR_LANG"] = lang
+
+
 def _check_vlm_config() -> None:
     """Fail fast on a misconfigured VLM: a typo in REA_VLM_MEDIA must not silently run text-only."""
     from .vlm import VLMConfig
@@ -59,6 +70,7 @@ def cmd_decompose(args) -> int:
     from .pipeline import decompose
 
     _ocr_lang(args)
+    _asr_lang(args)
 
     out = Path(args.out) if args.out else Path("out") / Path(args.video).stem
     from .memory import pref
@@ -549,6 +561,7 @@ def main(argv: list[str] | None = None) -> int:
     d.add_argument("--engine", help="复刻方案按哪个视频模型规划（rea-video models 列出的 id；默认 prefs 里的 engine，否则 seedance2.0）")
     d.add_argument("--meta", help='平台元数据 JSON，例如 {"music": {"title": "xx", "author": "yy", "is_original": false, "popular": true}}')
     d.add_argument("--no-asr", action="store_true", help="不做本地语音识别（装了 rea-video[asr] 才会做：在人声干声上识别台词和时间，首次使用下载约 160 MB 模型）")
+    d.add_argument("--asr-lang", choices=ASR_LANGS, help="台词的语言：auto（默认，SenseVoice 自动识别中/英/日/韩/粤）、bn 孟加拉语（换用孟加拉语识别模型，首次使用自动下载约 90 MB）；也可用 prefs asr_lang 设成默认")
     d.add_argument("--no-speakers", action="store_true", help="不区分说话人（装了 rea-video[asr] 才会做：在人声干声上分出谁在什么时候说话，多人时每人输出一条 stems/voice_S1.wav；首次使用下载约 35 MB 模型）")
     d.add_argument("--no-stems", action="store_true", help="不做人声/配乐分离（默认会输出 stems/original.wav、vocals.wav、music.wav）")
     d.set_defaults(func=cmd_decompose)
