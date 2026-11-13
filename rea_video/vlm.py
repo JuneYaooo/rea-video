@@ -45,7 +45,9 @@ class VLMConfig:
     @classmethod
     def from_env(cls) -> "VLMConfig | None":
         """First complete config wins; later configs on the same endpoint and key add their
-        models as fallbacks (capsule-cinema keeps one model in VIDEO_ANALYSIS_* and a list in GEMINI3_*)."""
+        models as fallbacks (capsule-cinema keeps one model in VIDEO_ANALYSIS_* and a list in GEMINI3_*).
+        A malformed value raises ValueError naming the variable: a typo must fail fast here, not
+        silently run the VLM with no media (bad REA_VLM_MEDIA) or crash mid-run (bad timeout)."""
         cfg: VLMConfig | None = None
         for prefix, mkey in (("REA_VLM", "REA_VLM_MODEL"), ("VIDEO_ANALYSIS", "VIDEO_ANALYSIS_MODEL_NAME"), ("GEMINI3", "GEMINI3_MODEL_NAME")):
             base, key = os.getenv(f"{prefix}_BASE_URL", "").rstrip("/"), os.getenv(f"{prefix}_API_KEY", "")
@@ -54,10 +56,8 @@ class VLMConfig:
                 continue
             if cfg is None:
                 cfg = cls(base_url=base, api_key=key, models=models,
-                          timeout=float(os.getenv("REA_VLM_TIMEOUT", os.getenv("VIDEO_ANALYSIS_TIMEOUT_SECONDS", "180"))),
-                          media=os.getenv("REA_VLM_MEDIA", "both"),
-                          video_part=os.getenv("REA_VLM_VIDEO_PART", "").strip().lower(),
-                          reasoning_effort=os.getenv("REA_VLM_REASONING_EFFORT", "").strip().lower())
+                          timeout=_timeout_from_env(), media=_media_from_env(),
+                          video_part=_video_part_from_env(), reasoning_effort=_effort_from_env())
             elif prefix != "REA_VLM" and base == cfg.base_url and key == cfg.api_key:
                 cfg.models += [m for m in models if m not in cfg.models]
         return cfg
@@ -65,6 +65,39 @@ class VLMConfig:
     def describe(self) -> str:
         host = re.sub(r"^https?://", "", self.base_url).split("/")[0].rsplit("@", 1)[-1]  # 去掉 user:pass@
         return f"{','.join(self.models)} @ {host}"
+
+
+def _timeout_from_env() -> float:
+    var = "REA_VLM_TIMEOUT" if os.getenv("REA_VLM_TIMEOUT") is not None else "VIDEO_ANALYSIS_TIMEOUT_SECONDS"
+    raw = os.getenv(var, "180")
+    try:
+        timeout = float(raw)
+    except (TypeError, ValueError):
+        raise ValueError(f"{var} must be seconds (a number), got {raw!r}") from None
+    if not timeout > 0:
+        raise ValueError(f"{var} must be more than 0 seconds, got {raw!r}")
+    return timeout
+
+
+def _media_from_env() -> str:
+    media = os.getenv("REA_VLM_MEDIA", "both")
+    if media not in ("both", "video", "frames"):
+        raise ValueError(f"REA_VLM_MEDIA must be both, video or frames, got {media!r}")
+    return media
+
+
+def _video_part_from_env() -> str:
+    part = os.getenv("REA_VLM_VIDEO_PART", "").strip().lower()
+    if part and part not in ("image_url", "video_url"):
+        raise ValueError(f"REA_VLM_VIDEO_PART must be image_url or video_url, got {part!r}")
+    return part
+
+
+def _effort_from_env() -> str:
+    effort = os.getenv("REA_VLM_REASONING_EFFORT", "").strip().lower()
+    if effort and effort not in ("low", "medium", "high"):
+        raise ValueError(f"REA_VLM_REASONING_EFFORT must be low, medium or high, got {effort!r}")
+    return effort
 
 
 SETUP_HINT = ("建议配置 VLM（任意 OpenAI 兼容的多模态模型，如 Gemini / GPT-4o / 豆包 / Qwen-VL）："
