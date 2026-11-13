@@ -224,6 +224,8 @@ def _clean_split(sp) -> tuple[dict | None, str | None]:
 
 def _clean(ans: dict) -> tuple[dict | None, str | None]:
     probs = ans.get("label_probs") or {}
+    if not isinstance(probs, dict):
+        return None, "label_probs 不是一个对象"
     bad = [k for k in probs if k not in LABELS]
     if bad:
         return None, f"未知类别 {bad}（可选：{', '.join(LABELS)}）"
@@ -249,8 +251,13 @@ def _clean(ans: dict) -> tuple[dict | None, str | None]:
     split, err = _clean_split(ans.get("split_suggestion"))
     if err:
         return None, err
+    ev = ans.get("evidence")
+    if isinstance(ev, str):  # a bare string would otherwise be listed one character per line (same as normalize_shot_result)
+        ev = [ev] if ev.strip() else []
+    elif not isinstance(ev, list):
+        ev = []
     return {"label_probs": soft, "raw_probs": {k: round(v / total, 3) for k, v in vals.items()}, "image_source": src,
-            "evidence": [str(x) for x in (ans.get("evidence") or [])][:8], "description": str(ans.get("description", "")),
+            "evidence": [str(x) for x in ev][:8], "description": str(ans.get("description", "")),
             "embedded_assets": assets, "replication": rep, "aspects": aspects.clean_answers(ans.get("aspects")),
             "split_suggestion": split, "narrative": narrative.clean(ans.get("narrative")),
             "same_clip_as": int(ans["same_clip_as"]) if str(ans.get("same_clip_as", "")).strip().isdigit() else None,
@@ -263,15 +270,34 @@ def _clean(ans: dict) -> tuple[dict | None, str | None]:
 
 def apply_answers(breakdown: dict, answers: dict, by: str | None = None) -> dict:
     """Store answers on the shots (rec["review"]) and return a change log. Call finalize() afterwards."""
+    applied, problems, changes, unanswered = [], [], [], []
+    if not isinstance(answers, dict):  # the answers file is written by an agent: a wrong shape is reported, not raised
+        problems.append("答案文件不是一个对象")
+        answers = {}
     by = by or answers.get("by") or "agent"
     recs = {r["id"]: r for r in breakdown["shots"]}
-    applied, problems, changes, unanswered = [], [], [], []
-    for ans in answers.get("shots") or []:
+    shots_in = answers.get("shots") or []
+    if not isinstance(shots_in, list):
+        problems.append("shots 不是一个列表，跳过")
+        shots_in = []
+    for ans in shots_in:
+        if not isinstance(ans, dict):
+            problems.append("有一条答案不是一个对象，跳过")
+            continue
         sid = ans.get("id")
-        if sid in recs and not any((ans.get("label_probs") or {}).values()):
+        try:
+            known = sid in recs
+        except TypeError:  # an id that is a list / dict cannot be looked up
+            problems.append(f"{sid!r}: 镜头 id 不是字符串")
+            continue
+        probs = ans.get("label_probs") or {}
+        if not isinstance(probs, dict):
+            problems.append(f"{sid}: label_probs 不是一个对象")
+            continue
+        if known and not any(probs.values()):
             unanswered.append(sid)  # left blank on purpose: listed once, not as a problem per shot
             continue
-        if sid not in recs:
+        if not known:
             problems.append(f"{sid}: 没有这个镜头")
             continue
         clean, err = _clean(ans)
@@ -295,7 +321,7 @@ def apply_answers(breakdown: dict, answers: dict, by: str | None = None) -> dict
         if clean_pk["stickers"] or clean_pk["text"] or clean_pk["missed"]:
             breakdown["packaging"]["review"] = clean_pk
             pk_applied = {k: len(clean_pk[k]) for k in ("stickers", "text", "missed") if clean_pk[k]}
-    st = answers.get("story") or {}
+    st = answers.get("story") if isinstance(answers.get("story"), dict) else {}
     story = {"summary": str(st.get("summary") or "").strip()[:200], "hook": str(st.get("hook") or "").strip()[:200],
              "highlights": [str(x).strip()[:200] for x in (st.get("highlights") or []) if str(x).strip()][:5]}
     if any(story.values()):
