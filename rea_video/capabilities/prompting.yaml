@@ -60,6 +60,21 @@ models:
       - https://fal.ai/learn/devs/seedance-2-5-prompting-guide
       - https://runway.com/resources/seedance-2-5-prompt-guide
 
+  seedance-2.5-flash:
+    basis: vendor
+    structure: >-
+      官方只说写得简洁具体：主体、动作、运镜、画面风格，一次只写一个动作。没有单独的指南，按 Seedance 2.5 的写法（rea-video models seedance-2.5）
+    frame_mode: >-
+      和 2.5 一样分首尾帧模式和全能参考模式，两种不能混用
+    frames: >-
+      最高 720p；时长和参考数量上限没公布
+    unverified:
+      - >-
+        Flash 是否和 2.5 一样认整数秒时间戳、四种声音符号的情况也未知
+    sources:
+      - https://dreamina.capcut.com/seedance/seedance-2-5-flash
+      - https://cellcog.ai/blog/seedance-2-5-flash/
+
   seedance-2.0:
     basis: vendor
     structure: 精准主体 + 动作细节 + 场景环境 + 光影色调 + 镜头运镜 + 视觉风格 + 画质 + 约束条件
@@ -104,18 +119,35 @@ models:
     camera: 自然语言描述（push-in、pull-out、pan、tracking、orbit、handheld）；没有单独的运镜参数；可以从参考视频取运镜
     frame_mode: >-
       关键帧模式最多 10 张（首、尾、中间任意时间）："Use @Image1 as the first frame and @Image2 as the last frame."，中间帧写「X–Y sec | Keyframe 1: 发生什么」。文字只写帧与帧之间的运动。关键帧模式不能加参考素材，和 Omni Reference 不能同用。昼夜这类大跳变拆成两段
-    frames: 画幅跟第一张关键帧；图片 30 MB 以内，宽高比 2:5–5:2。Flash 版只收首帧
+    frames: 画幅跟第一张关键帧；图片 30 MB 以内，宽高比 2:5–5:2
     rewriter: 没有开关；很短的提示词会被模型自动扩写
     pitfalls:
       - 抽象词（premium look）没有效果
       - 不写保持项，其他元素会跟着变
       - 帧图里有字时加一句 "Do not redraw the letters."
     unverified:
-      - 官方 API 文档没读到，字段名和关键帧最小分辨率待核实
+      - 官方 API 的字段名和关键帧最小分辨率待核实
     sources:
       - https://kling.ai/quickstart/kling-4-model-user-guide
       - https://www.krea.ai/models/kling-4/prompt-guide
       - https://fal.ai/learn/tools/what-is-kling-4-0
+
+  kling-4.0-flash:
+    basis: vendor
+    structure: >-
+      和 Kling 4.0 同一套写法（rea-video models kling-4.0）：素材职责 → 整体设定 → 按时间写事件 → 声音
+    length: >-
+      最多 8000 token
+    multi_shot: >-
+      默认自动分镜；镜头直接写在提示词里（「Shot 1 (5s): …」）；fal 上用 multi_prompt 列表，总时长等于各镜之和
+    references: >-
+      @Image1、@Video1、@Element1，按上传顺序编号，每个素材配一句职责；fal 还有 @Voice1
+    negatives: >-
+      只保留两条：不要字幕、不要背景音乐
+    frame_mode: >-
+      只收首帧，不支持首尾帧和多关键帧；构图靠首帧或参考图锁
+    sources:
+      - https://kling.ai/quickstart/kling-4-model-user-guide
 
   kling-3.0:
     basis: third-party
@@ -199,6 +231,20 @@ models:
       - https://docs.cloud.google.com/vertex-ai/generative-ai/docs/video/best-practice
       - https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/veo/3-1-generate
 
+  grok-imagine-video-1.5:
+    basis: vendor
+    references: >-
+      按位置编号：<IMAGE_0>、<IMAGE_1>…，不是 @image；如果用 image 字段锁了首帧，它就是 <IMAGE_0>。声音是 <AUDIO_0> 到 <AUDIO_2>（预设音色）。每张参考图只给一个职责、在画面里一个固定位置；参考图多时人物少放、道具别动
+    frame_mode: >-
+      锁了首帧时提示词可以不写，写的话只写运动和运镜；要循环就把同一张图同时当首帧和尾帧
+    dialogue: >-
+      声音默认开，generate_audio=false 关掉；台词写法官方没说明
+    frames: >-
+      关键帧最多 4 张，按 1/3 秒对齐，必须在片段内部；图生视频画幅跟输入图
+    sources:
+      - https://docs.x.ai/developers/model-capabilities/video/reference-to-video
+      - https://docs.x.ai/developers/model-capabilities/video/generation
+
   gemini-omni-flash:
     basis: vendor
     structure: 没有公式，自然语言写清场景、运镜、光线、氛围
@@ -246,6 +292,27 @@ models:
       - https://platform.vidu.com/docs/api-reference/video-models/vidu-q3/image-to-video
       - https://platform.vidu.com/docs/api-reference/video-models/vidu-q3/start-end-to-video
       - https://help.aliyun.com/en/model-studio/vidu-video-generation-prompt-guide
+
+  vidu-q4-preview:
+    basis: vendor
+    structure: >-
+      官方没有提示词指南。第三方建议按时间分段：0–4 秒交代场景，4–10 秒动作，10–16 秒反应；每段写景别、运镜、台词和声音
+    length: >-
+      20000 字符以内
+    multi_shot: >-
+      会自动切镜，没有分镜字段和官方写法
+    references: >-
+      参考生视频 1–15 张图加 0–3 段声音（mp3，3–12 秒）。文档写 [@主体名]、示例用 @1 / @2，但同时说暂不支持主体调用，确切写法没核实
+    frame_mode: >-
+      图生视频只收一张图，提示词可以不写
+    frames: >-
+      png / jpeg / webp，50 MB 以内（请求体 20 MB 以内）；参考模式画幅 1:1、9:16、16:9、3:4、4:3
+    rewriter: >-
+      图生视频的 is_rec 默认是 true，会用系统推荐的提示词替换你写的；要用自己的提示词必须设为 false
+    sources:
+      - https://platform.vidu.com/docs/api-reference/video-models/vidu-q4-preview/image-to-video
+      - https://platform.vidu.com/docs/api-reference/video-models/vidu-q4-preview/reference-to-video
+      - https://pollo.ai/hub/how-to-use-vidu-q4
 
   pixverse-v6:
     basis: vendor
@@ -298,6 +365,66 @@ models:
       - https://platform.minimax.io/docs/api-reference/video-generation-v2-create
       - https://docs.comfy.org/tutorials/video/minimax/minimax-h3-prompt-guide.md
 
+  minimax-h3-max:
+    basis: vendor
+    structure: >-
+      和 MiniMax H3 同一套写法（rea-video models minimax-h3）
+    length: >-
+      7000 字符以内
+    references: >-
+      没有标记语法，用白话写：Video 1、Image 2、Audio 3，「Voice timbre follows reference audio 1」
+    frame_mode: >-
+      首帧 / 尾帧和参考素材不能同传；视频和音频只能在参考模式下用
+    frames: >-
+      参考图 256–5760 px、宽高比 0.4–2.5、30 MB 以内；参考视频 2–15 秒（共 15 秒以内）；参考音频 2–15 秒；t2v 要指定画幅，i2v 跟首帧
+    rewriter: >-
+      extra.prompt_expansion_mode：disabled / balanced（默认）/ quality；要精确控制设 disabled
+    pitfalls:
+      - >-
+        时长只能 5–15 秒，4 秒会报错
+      - >-
+        只给尾帧行不行，文档前后说法矛盾，尾帧和首帧一起给
+    sources:
+      - https://platform.minimax.io/docs/api-reference/video-generation-v2-create
+
+  pika-h3-flex:
+    basis: vendor
+    structure: >-
+      按播放顺序写：画面和场景 → 谁在哪 → 每个动作以及它怎么结束
+    language: >-
+      场景用英文写；台词和画面文字保留目标语言
+    length: >-
+      8000 字符以内
+    multi_shot: >-
+      镜头编号加开始时间：「[Shot 2] at 00:04」；只在有新内容时切；每个节拍一个运镜、一个动作
+    references: >-
+      @Image1、@Video1、@Audio1，每个写明职责和跟随程度；不能只给音频参考
+    dialogue: >-
+      台词用引号，写明谁说、怎么说；画外音写明在画外，画面里的人嘴闭着；画面文字用引号原文写，并加 "No other text"；声音和音乐各占一行，或写 "No music" / "No speech"
+    negatives: >-
+      用明确的禁止句，例如 "NO slow motion"
+    camera: >-
+      每个运镜写距离和速度；推镜（push-in）不是变焦（zoom）
+    frame_mode: >-
+      让模型保持首帧画面里的东西，再写接下来发生什么；有尾帧时写一个连续的动作，正好落到尾帧
+    rewriter: >-
+      可选，由 Pika 托管
+    sources:
+      - https://pika.art/learn/pika-h3-flex-prompt-guide
+
+  heygen-video-1:
+    basis: vendor
+    structure: >-
+      官方没有提示词指南；基于 MiniMax H3，可以参考 H3 的写法（rea-video models minimax-h3）
+    length: >-
+      16000 字符以内
+    dialogue: >-
+      提示词里用引号写台词时，duration 设 auto 会按台词长度定时长
+    rewriter: >-
+      prompt_enhancement：turbo / quality / ultraquality / disabled；要精确控制设 disabled，但超过 15 秒必须开
+    sources:
+      - https://developers.heygen.com/reference/create-heygen-video.md
+
   hailuo-2.3:
     basis: vendor
     structure: 官方没有公式；常用顺序是 景别 / 运镜 → 主体 → 动作 → 场景 / 光线，一段 6 秒只写一个动作节拍
@@ -324,7 +451,7 @@ models:
     structure: >-
       [总体描述] + [参考素材引用：图 N / 视频 N / 音频 N] + [分镜 N（起-止秒）：主体 + 场景 + 运动 + 美学控制] + [台词：xx 说："xxxx"] + [音效 / BGM] + [风格 / 情绪] + [负向清单]，写不到的板块直接跳过
     language: 中文、英文
-    length: 官方没给 3.0 的上限（2.7 是 5000 字符）
+    length: 20000 字符以内
     multi_shot: >-
       「第1个镜头[0-3秒]… 第2个镜头[4-6秒]硬切转场，固定机位，…」；[起-止] 和（起-止）都可以，全篇用一种；各镜头首尾相接，每段 2–5 秒。段尾写「硬切转场」「叠化转场」，或下一段开头写「从上一分段的最后一帧无缝衔接」。要单镜头写「生成单镜头」。不要写模型控制不了的高频动作
     references: >-
@@ -334,9 +461,9 @@ models:
     negatives: 写在提示词末尾的「负向清单：无字幕水印…」，只写不想出现的，没有就留空，不要重复正向已经写明的
     camera: >-
       说大白话：推近、拉远、环绕、手持跟拍；固定写「固定镜头，摄影机静止，机位不变」；镜头写「85mm 长焦，浅景深」「24mm 广角，深焦」；慢动作写「高速摄影（1000fps 慢动作）」
-    frame_mode: 首帧 / 首尾帧模式下可以写动态过程、剧情、台词和运镜，也可以分时间段；两帧差别大时写清变化过程。首尾帧和参考素材不能同传
+    frame_mode: 首帧 / 首尾帧模式下可以写动态过程、剧情、台词和运镜，也可以分时间段；两帧差别大时写清变化过程。首尾帧和参考素材不能同传，首尾帧模式不收音频
     frames: 输出画幅跟首帧，要 3:4 就传 3:4 的首帧
-    rewriter: prompt_extend 是自动改写；已经按上面结构写好的提示词建议关掉
+    rewriter: prompt_extend 默认开；已经按上面结构写好的提示词建议关掉；带文件或链接输入时强制开启
     pitfalls:
       - 编辑视频是另一种写法：「编辑视频，视频1中的 xxx 改为 yyy，画面其余部分保持不变」，一次改一项最稳
     unverified:
@@ -426,6 +553,39 @@ models:
       - https://github.com/Tencent-Hunyuan/HunyuanVideo-1.5/blob/main/assets/HunyuanVideo_1_5_Prompt_Handbook_EN.md
       - https://github.com/Tencent-Hunyuan/HunyuanVideo-1.5/blob/main/README.md
 
+  flux-3-video:
+    basis: vendor
+    structure: >-
+      主体和动作 → 运镜 → 场景和氛围 → 运动的质感 → 连续性约束
+    multi_shot: >-
+      「SHOT ONE: … HARD CUT. SHOT TWO: …」，建议 2–3 个镜头，总长 20 秒以内；续写时写成同一个镜头接着拍，不切
+    dialogue: >-
+      台词用引号原文写，并点名画面里看得见的说话人；画外音标 voiceover；没标说话人的引号可能被画成画面上的字，要加 "no on-screen text or subtitles"；多语种时每句旁边写明语言；不要配乐写 "no music"；每个音效绑到一个看得见的动作上
+    camera: >-
+      有官方运镜词表（见来源）
+    frame_mode: >-
+      图生视频写运动，不描述图；首尾帧写过渡，两帧要相关；多关键帧写变化过程，顺序有意义，画面风格要一致，否则会被当成切镜
+    frames: >-
+      最多 10 张关键帧，可以带秒数；3 张以上要指定时长；关键帧、续写、草稿三种模式互斥
+    sources:
+      - https://docs.bfl.ml/guides/prompting_video_overview.md
+      - https://docs.bfl.ml/guides/prompting_video_image_to_video.md
+      - https://docs.bfl.ml/cookbook/video_multishot_films.md
+      - https://docs.bfl.ml/guides/prompting_video_audio.md
+      - https://docs.bfl.ml/guides/prompting_video_camera_terms.md
+
+  flux-3-video-max:
+    basis: vendor
+    structure: >-
+      没有单独的指南，按 FLUX 3 Video 的写法（rea-video models flux-3-video）
+    frames: >-
+      最多 10 张关键帧，按 24fps 的帧序号指定；尾帧用 end_image_url
+    unverified:
+      - >-
+        FLUX 3 Video 的写法是否完全适用于 Max
+    sources:
+      - https://docs.bfl.ml/api-reference/utility/generate-a-video-with-flux-3-max.md
+
   runway-gen-4.5:
     basis: vendor
     structure: >-
@@ -477,6 +637,42 @@ models:
       - https://lumalabs.ai/learning-hub/luma-video-models-guide-ray3.14-veo-sora-kling-compared
       - https://docs.agents.lumalabs.ai/guides/video-generation
 
+  minimax-h3-image:
+    basis: vendor
+    length: >-
+      最长 32000 字符；关掉扩写时大约只有前 4096 token 起作用
+    references: >-
+      <Picture 1> 到 <Picture 16>（第三方说法）
+    negatives: >-
+      没有负面提示词，API 会拒绝
+    frames: >-
+      尺寸 655360–20000000 像素、长宽比 1:3–3:1，或者用 area 选 1K / 2K / 4K；一次 1–10 张
+    rewriter: >-
+      disable_prompt_enhanced 默认 false（扩写开着），要精确控制设为 true
+    pitfalls:
+      - >-
+        请求不是幂等的，重试会再计费
+    sources:
+      - https://platform.minimax.io/docs/api-reference/image-generation-h3-generations.md
+      - https://www.orcarouter.ai/blog/minimax-h3-image-launch
+
+  midjourney-v8.2:
+    basis: third-party
+    structure: >-
+      自然的句子，主体放前面，参数放最后；不要堆 8k、masterpiece 这类标签
+    references: >-
+      --sref 风格参考（最多 20 张）锁画风；--oref 角色参考 1 张、--ow 建议 400 以下，但 V8 是否支持各来源说法不一；--cref 不支持
+    negatives: >-
+      --no（部分第三方 V8 接口不支持）
+    frames: >-
+      画幅用 --ar；--raw 减少风格化；画面文字放引号里，2–4 个词最稳
+    unverified:
+      - >-
+        官方页面没打开，参数支持情况来自第三方
+    sources:
+      - https://evolink.ai/docs/en/api-manual/image-series/midjourney/midjourney-v8-1-prompt-guide.md
+      - https://blakecrosley.com/en/guides/midjourney
+
   # -------------------------------------------------------------- 图像模型（出首帧 / 关键帧）
   gpt-image-2.5:
     basis: vendor
@@ -490,10 +686,30 @@ models:
     pitfalls:
       - 出一组关键帧：先出一张定妆图，再基于它改，只变场景和动作，每次带上 "Same facial features, proportions, and color palette" "Do not redesign the character"
       - 同一个会话里连出几张后会累积噪点，换新会话
-    unverified:
-      - 官方指南是按 gpt-image-2 写的
     sources:
+      - https://developers.openai.com/api/docs/guides/image-prompting
       - https://developers.openai.com/cookbook/examples/multimodal/image-gen-models-prompting-guide
+
+  gpt-image-2.6:
+    basis: vendor
+    structure: >-
+      场景 → 主体 → 细节 → 约束，可以分成带标签的段落；没有特殊语法。尺寸和质量用 API 参数设，不写进提示词
+    references: >-
+      按序号和职责标注：image 1 是主体、image 2 是风格 / 服装 / 背景。改图写「只改 X」，列出要保持的（身份、几何、布局、光线、标签），最后加 "Do not change anything else"；可以在图 1 上圈出要改的地方
+    negatives: >-
+      没有负面字段，写在提示词里（"no extra text"）
+    frames: >-
+      文字放引号里，写明位置和字体，生僻词逐字母拼；尺寸边长 3840 以内、16 的倍数，长宽比 1:3–3:1
+    pitfalls:
+      - >-
+        出一组关键帧：先做一张角色参考图，之后每张都带上它，重复外貌细节，并写 "Do not redesign the character"
+      - >-
+        某块区域必须一个像素都不变时，生成后把原图那块合成回去，不要指望提示词
+      - >-
+        编辑时不要传 input_fidelity
+    sources:
+      - https://developers.openai.com/api/docs/guides/image-prompting
+      - https://developers.openai.com/api/docs/guides/image-generation
 
   nano-banana-2.1:
     basis: vendor
@@ -532,6 +748,22 @@ models:
       - https://docs.volcengine.com/docs/ark/image-generation-api?lang=zh
       - https://docs.volcengine.com/docs/ark/seedream-5-0-pro?lang=zh
 
+  seedream-5.5:
+    basis: vendor
+    structure: >-
+      和 Seedream 5.0 同一套写法（rea-video models seedream-5.0）：简洁的自然语言写主体 + 行为 + 环境
+    length: >-
+      中文 300 字以内，英文 600 词以内
+    references: >-
+      用「图1 / 图2」指代：「将图1的服装换为图2的服装」；要保持的写明（「保持构图不变」）；最多 10 张
+    frames: >-
+      文字放引号里（标题为“…”）；用 size 参数控制尺寸；不支持组图，一组关键帧要带同一组参考图逐张出
+    pitfalls:
+      - >-
+        官方称可以连续改 100 轮，没改的区域不动，适合先出一张再一点点改
+    sources:
+      - https://docs.volcengine.com/docs/82379/1824121
+
   qwen-image-3.0-pro:
     basis: vendor
     language: 只支持中文和英文
@@ -545,6 +777,20 @@ models:
       - https://help.aliyun.com/zh/model-studio/qwen-image-edit-guide
       - https://help.aliyun.com/zh/model-studio/qwen-image-api
 
+  qwen-image-2.1:
+    basis: vendor
+    language: >-
+      中文、英文
+    references: >-
+      最多 10 张输入图；局部编辑可以圈选、涂抹或给蒙版
+    frames: >-
+      要透明背景时，把主体描述夹在 "This is an RGBA image with transparency." 和 "The image has alpha channel and the background is transparent." 中间；原生 2K，推荐尺寸 2048x2048、2752x1536 及对应竖版
+    rewriter: >-
+      有专门的改写模型 Qwen-Image-2.1-PE-T2I / -PE-I2I，用来扩写短提示词
+    sources:
+      - https://huggingface.co/Qwen/Qwen-Image-2.1
+      - https://www.alibabacloud.com/blog/qwen-image-2-1-pro-and-turbo-apis-are-live-one-7b-model-to-generate-edit-and-cut-out_603679
+
   flux-3:
     basis: vendor
     structure: 主体 + 动作 + 风格 + 环境，重要的放前面（越靠前权重越高）；30–80 个词
@@ -553,23 +799,30 @@ models:
     negatives: 不支持负面提示词，也没有 seed、guidance、prompt_upsampling 字段（多传会报错）；改写成正面（"sharp focus throughout"）
     frames: >-
       文字放引号里、靠前写、要短；色值前加 color 或 hex 并绑定到具体物体（"in color #0047AB"）；auto 模式下输出画幅跟第一张输入图
+    rewriter: 提示词扩写始终开启，不能关（第三方说法）
     pitfalls:
       - 一组分镜里每一格都要重复完整的角色描述
+      - 出一组图：主体、风格、光线、色板固定，只改运镜那一句；要细修就拿选中的一张当参考图改，重新写提示词等于全部重来
     unverified:
       - JSON 结构化提示词是 FLUX.2 的文档写的，FLUX 3 没有提
     sources:
       - https://docs.bfl.ai/guides/prompting_guide_flux2
       - https://docs.bfl.ml/guides/prompting_unified_reference.md
       - https://docs.bfl.ml/guides/prompting_editing_overview.md
+      - https://runware.ai/docs/models/bfl-flux-3-image/guides/prompting
 
   kling-o3-image:
     basis: vendor
-    structure: 自然语言
+    structure: 自然语言；写清楚保留什么、改什么、哪张参考图管哪个元素
+    length: 2500 字符以内，没有单独的负面字段
     references: >-
-      用 Image 1 / Image 2 指代："Use Image 1 as the base. Dress the person in Image 1 with the dress from Image 2 and the handbag from Image 3."；保留项写 "keeping all facial features, poses, and lighting the same" "leaving everything else untouched"；一次只改一个元素
-    frames: 有组图模式，可以按一张图续出分镜（"Predict the next part of the story based on this image and generate six storyboard frames."）；原生 2K / 4K
+      App 里用 Image 1 / Image 2 指代，API 里写 <<<image_1>>>，图片加主体最多 10 个。："Use Image 1 as the base. Dress the person in Image 1 with the dress from Image 2 and the handbag from Image 3."；保留项写 "keeping all facial features, poses, and lighting the same" "leaving everything else untouched"；一次只改一个元素
+    frames: >-
+      有组图模式（只有 Omni 版；API 写 result_type: series，series_amount 2–9），可以按一张图续出分镜（"Predict the next part of the story based on this image and generate six storyboard frames."）；1K / 2K / 4K
     sources:
       - https://kling.ai/quickstart/klingai-image-3-omni-user-guide
+      - https://kling.ai/document-api/api/image/3-0-omni/image-omni.md
+      - https://kling.ai/blog/kling-image-3-vs-omni
 
   # -------------------------------------------------------------- 人物驱动（文字能管的很少）
   kling-motion-control:
@@ -577,8 +830,13 @@ models:
     structure: 提示词可选：写身份、环境、光线、风格；不要描述动作，动作由参考视频决定
     length: 2500 字符以内
     frames: >-
-      图片 300 px 以上、10 MB 以内，主体占画面 5% 以上、不被遮挡、露出头部；参考视频是一个连续镜头、只有一个人、没有切镜。character_orientation=image 保持图里的朝向（视频 3–10 秒），=video 跟视频的朝向和运镜（3–30 秒）
+      图片 300 px 以上、10 MB 以内，主体占画面 5% 以上、不被遮挡、露出头部；参考视频是一个连续镜头、只有一个人、没有切镜和运镜，图和视频的全身 / 半身要一致。character_orientation=image 保持图里的朝向（视频 3–10 秒），=video 跟视频的朝向和运镜（3–30 秒）
+    camera: 跟随图片朝向时可以在提示词里写运镜；跟随视频朝向时运镜跟参考视频走
+    pitfalls:
+      - 3.0 的主体绑定只用脸（不管衣服、发型、妆），只在跟随视频朝向模式下可用；画面里几个人大小差不多时绑定会失败
+      - 动作太快太复杂时输出可能比参考视频短，积分不退
     sources:
+      - https://kling.ai/quickstart/motion-control-user-guide
       - https://apidoc.cometapi.com/api/video/kling/motion-control.md
       - https://fal.ai/learn/devs/kling-video-2-6-motion-control-prompt-guide
 
@@ -599,20 +857,47 @@ models:
       - https://help.aliyun.com/zh/model-studio/wan-animate-move-api
       - https://github.com/Wan-Video/Wan2.2/blob/main/generate.py
 
-  omnihuman-2.0:
-    basis: third-party
-    structure: 提示词可选，一句话写表演（情绪、肢体、运镜）；不描述外貌
-    unverified:
-      - 没有找到火山 / 即梦的官方说明，来自第三方平台
+  wan-animate-2:
+    basis: vendor
+    structure: >-
+      提示词写角色外貌（不写动作）加客观的背景描述；官方模板是中文，由大模型看图生成；视角也用文字指定
     sources:
-      - https://fal.ai/models/fal-ai/bytedance/omnihuman/v1.5/llms.txt
+      - https://github.com/Wan-Video/Wan-Animate-2
+
+  viggle-animate:
+    basis: vendor
+    structure: >-
+      视频生成这一步没有文字提示词；提示词用在前一步：用图像模型把驱动视频的一帧改成新角色
+    sources:
+      - https://viggle.ai/blog/viggle-animate-character-replacement-from-a-repainted-frame
+
+  omnihuman-2.0:
+    basis: vendor
+    structure: 提示词可选：写场景、动作和运镜，也可以加图里没有的物体或特效；不描述外貌
+    language: 中、英、日、韩、西班牙语、印尼语
+    frames: 图片边长 300–6000 px、宽高比 0.4–2.5、30 MB 以内；音频 4–300 秒，wav / mp3
+    unverified:
+      - BytePlus 文档正文没读到，参数来自 fal
+    sources:
+      - https://fal.ai/models/fal-ai/bytedance/omnihuman/v2/llms.txt
+      - https://docs.byteplus.com/en/docs/byteplus-vision/omnihuman-2-0-video-generation
 
   sync-3:
     basis: vendor
-    structure: 口型模型不收文字；只有 react-1 收一个情绪词（happy、angry、sad、neutral、disgusted、surprised）
-    frames: 输入最长 15 秒
+    structure: 没有画面提示词；输入视频或静态图，加音频或 TTS 文本
+    language: 95 种以上语言；内置 92 种语言配音
+    frames: 免费档每次最长 15 秒
     sources:
-      - https://docs.sync.so/models/react
+      - https://sync.so/docs/models/sync-3
+
+  sync-react-1:
+    basis: vendor
+    structure: >-
+      options.prompt 只收一个情绪词：happy、angry、sad、neutral、disgusted、surprised；不写就保留原视频的情绪。model_mode 选 lips（只改嘴）、face（默认）或 head（连头部动作一起改）
+    frames: >-
+      最长 15 秒；画面里只能有一个清楚可见的说话人
+    sources:
+      - https://sync.so/docs/models/react
 
   ltx-2.3-lipsync:
     basis: vendor
@@ -621,3 +906,58 @@ models:
     language: 验证过的语言是英、法、西、德、俄
     sources:
       - https://ltx.io/blog/ltx-2-5-prompt-guide
+
+  heygen-avatar-v:
+    basis: vendor
+    structure: >-
+      Custom Motion 用白话指导脸、手、姿势、眼神和精神状态（"Look at the camera, lean in, stay serious"、"Thumbs up at the end"）；API 字段 motion_prompt，只对 Avatar V 视频数字人生效；expressiveness 只在 Avatar IV 可用，Avatar V 会拒
+    language: >-
+      平台支持 177 种以上语言和方言
+    length: >-
+      脚本最长 5000 字符；音频最长 10 分钟
+    dialogue: >-
+      脚本里的停顿和情绪标记没找到官方写法；more_blinking 可以多眨眼
+    sources:
+      - https://developers.heygen.com/changelog
+      - https://developers.heygen.com/docs/usage-limits.md
+
+  synthesia-express-3:
+    basis: vendor
+    structure: >-
+      没有动作提示词；情绪（开心、严肃、中性、友好）按脚本自动判断，手势跟着脚本走
+    language: >-
+      平台支持 140 多种语言
+    sources:
+      - https://www.synthesia.io/updates/express-3
+
+  mirage-avatar-x:
+    basis: vendor
+    structure: >-
+      没有动作提示词；表情、节奏、动作跟着声音或脚本走
+    length: >-
+      脚本 50–1500 字符（最长 180 秒）
+    frames: >-
+      参考视频 1–120 秒或图片（短边 512 px 以上）；声音参考 10–180 秒，只用前 60 秒；只有 9:16 和 16:9
+    sources:
+      - https://fal.ai/mirage-avatar-x
+
+  longcat-video-avatar-1.5:
+    basis: vendor
+    structure: >-
+      提示词写长一点；和多数数字人模型不同，要写外貌、动作和场景
+    language: >-
+      中文、英文
+    pitfalls:
+      - >-
+        音频 CFG 设 3–5，口型不准就调高
+      - >-
+        长视频动作会重复，调 --ref_img_index 和 --mask_frame_range
+    sources:
+      - https://huggingface.co/meituan-longcat/LongCat-Video-Avatar-1.5
+
+  creatify-aurora:
+    basis: third-party
+    structure: >-
+      提示词写取景、背景、光线、眼神，以及身体是否保持不动；guidance_scale 和 audio_guidance_scale 都是 0–5
+    sources:
+      - https://fal.ai/models/fal-ai/creatify/aurora/llms.txt

@@ -87,7 +87,7 @@ rules:
     layer: base
     when: [talking_head_frontal]
     route: [audio.voice_clone, avatar.audio_driven]
-    prefer: [minimax-speech-2.8, omnihuman-2.0, kling-avatar-v2, ltx-2.3-lipsync]
+    prefer: [minimax-speech-2.8, omnihuman-2.0, kling-avatar-v2, heygen-avatar-v, ltx-2.3-lipsync]
     alternatives: 短镜头可改用音画同出模型加声音参考（R16）
     verify: [lip_sync, identity_consistency, speech_wer]
 
@@ -95,7 +95,7 @@ rules:
     layer: base
     when: [precise_motion]
     route: [motion.transfer, video.reference_video, video.edit_v2v]
-    prefer: [kling-motion-control, wan-2.2-animate, seedance-2.5, kling-o3, runway-gen-4.5]
+    prefer: [kling-motion-control, wan-2.2-animate, wan-animate-2, seedance-2.5, kling-o3, runway-gen-4.5]
     verify: [motion_trajectory_error, identity_consistency, beat_alignment]
     why: 动作的时间行为无法用文字和静帧描述
     guard: 参考视频先当证据；只有当时间行为本身就是看点时，才把片段作为模型输入。驱动视频必须有权使用
@@ -104,7 +104,7 @@ rules:
     layer: base
     when: [garment_change]
     route: [image.tryon, video.i2v_first_frame, motion.transfer]
-    prefer: [fashn-v1.6, kling-kolors-tryon, seedance-2.5, kling-3.0, kling-motion-control]
+    prefer: [fashn-tryon-max, kling-virtual-tryon-3, fashn-v1.6, seedance-2.5, kling-3.0, kling-motion-control]
     verify: [identity_consistency, perceptual_similarity]
     why: 先出试穿图并确认，再动起来，比直接让视频模型换装稳定
 
@@ -112,7 +112,7 @@ rules:
     layer: base
     when: [physical_text_zh]
     route: [image.text_render, video.i2v_first_frame]
-    prefer: [gpt-image-2.5, qwen-image-3.0-pro, seedream-5.0, seedance-2.5, kling-3.0]
+    prefer: [gpt-image-2.5, gpt-image-2.6, qwen-image-3.0-pro, seedream-5.5, seedream-5.0, seedance-2.5, kling-3.0]
     verify: [text_render_accuracy, ocr_text_match]
     guard: 文字需要长时间清晰稳定、或镜头运动大时，改走 R01 代码叠加（运动中视频模型会扭曲文字）
 
@@ -120,7 +120,7 @@ rules:
     layer: base
     when: [product_hero]
     route: [image.edit_multi_ref, video.i2v_first_frame, video.i2v_first_last]
-    prefer: [gpt-image-2.5, nano-banana-2.1, seedream-5.0, seedance-2.5, kling-3.0, veo-3.1]
+    prefer: [gpt-image-2.5, gpt-image-2.6, nano-banana-2.1, seedream-5.5, seedream-5.0, seedance-2.5, kling-3.0, veo-3.1]
     verify: [identity_consistency, perceptual_similarity]
     why: 先用商品图合成首帧并确认，锁定外观后再生成运动
 
@@ -165,7 +165,7 @@ rules:
     layer: base
     when: [redub_only]
     route: [lipsync.redub]
-    prefer: [sync-3]
+    prefer: [sync-3, sync-react-1]
     verify: [lip_sync, speech_wer]
 
   - id: R14-ambient-broll
@@ -257,7 +257,7 @@ audio_rules:
   - id: A05-lip-mismatch
     when: 生成画面的口型和新音频不同步
     route: [lipsync.redub]
-    prefer: [sync-3]
+    prefer: [sync-3, sync-react-1]
     verify: [lip_sync]
 
 # ---------------------------------------------------------------- 后期

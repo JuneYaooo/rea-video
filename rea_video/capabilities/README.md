@@ -62,5 +62,7 @@ models（具体模型/工具，带边界、价格、许可、来源）
 ## 已知待补
 
 - 很多条目的发布月份和细节规格来自第三方汇总，标为 `medium` 或 `low`，需要用探针或官方文档复核。
-- Kling 4.0 正式版预计 2026-10 上线，需要复核规格。
-- 尚未收录：海外 UGC 数字人平台（HeyGen 等）、Pika、Higgsfield 套件、更多国内图像模型（即梦图片、可图等）、剪映 / CapCut 导出能力。
+- 有几个模型是 MiniMax H3 重新训练的版本（Pika H3 Flex、HeyGen Video 1、Utopai X、P-Video-2-Pro），许可要连同 H3 的许可一起看。
+- 这些模型官方没公开提示词写法，`prompting.yaml` 里暂缺：HappyHorse 1.0、SkyReels V4、Grok Imagine Video 1.5 Lite、Utopai X、P-Video-2-Pro、Higgsfield Genjutsu。
+- 只查到传闻、没有官方页面的没有收录：Veo 3.2 / 4、Gemini Omni Pro、Runway Gen-5、Luma Ray 4、混元 Video 2.0、Midjourney Video V2。
+- 尚未收录：即梦图片、可图、剪映 / CapCut 的数字人和导出能力，蝉镜、闪剪等国内数字人工具（没有找到模型层面的发布信息）。
