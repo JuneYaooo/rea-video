@@ -11,7 +11,7 @@ Soi từng shot xem cảnh đó quay thật, tạo bằng AI hay render từ cod
 
 Mỗi bản phân tích được ghi theo định dạng **[VIDEO.md](https://videomd.github.io/videomd/)**, một định dạng mở mà agent đọc theo từng tầng.
 
-[Trang web](https://www.reavideo.ai) | [中文](README_zh.md) | [English](../README.md) | [Русский](README_ru.md) | [日本語](README_ja.md) | [한국어](README_ko.md) | [Español](README_es.md) | [Português](README_pt.md) | [Français](README_fr.md) | [Deutsch](README_de.md) | Tiếng Việt
+[Trang web](https://www.reavideo.ai) | [中文](README_zh.md) | [English](../README.md) | [Русский](README_ru.md) | [日本語](README_ja.md) | [한국어](README_ko.md) | [Español](README_es.md) | [Português](README_pt.md) | [Français](README_fr.md) | [Deutsch](README_de.md) | Tiếng Việt | [বাংলা](README_bn.md)
 
 [![Stars](https://img.shields.io/github/stars/JuneYaooo/rea-video?style=flat)](https://github.com/JuneYaooo/rea-video/stargazers)
 ![Python](https://img.shields.io/badge/python-%E2%89%A53.10-blue)

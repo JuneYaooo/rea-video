@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""生成 README 用的流程图 docs/rea-flow.svg（中文）和 docs/rea-flow_en.svg（英文）和 docs/rea-flow_ja.svg（日文），以及韩 / 俄 / 西 / 葡 / 法 / 德 / 越版 docs/rea-flow_{ko,ru,es,pt,fr,de,vi}.svg。
+"""生成 README 用的流程图 docs/rea-flow.svg（中文）和 docs/rea-flow_en.svg（英文）和 docs/rea-flow_ja.svg（日文），以及韩 / 俄 / 西 / 葡 / 法 / 德 / 越 / 孟加拉版 docs/rea-flow_{ko,ru,es,pt,fr,de,vi,bn}.svg。
 
 用法：python3 scripts/render_flow_svg.py [输出目录，默认 docs]
 
 画的是一个具体例子：一条带货视频切成 5 个镜头 + 声音，每列一个镜头，每行一步
-（切开 / 取证据 / 判断 / 复刻方案）。改文案改顶部的 ZH / EN / JA / KO / RU / ES / PT / FR / DE / VI 字典即可。
+（切开 / 取证据 / 判断 / 复刻方案）。改文案改顶部的 ZH / EN / JA / KO / RU / ES / PT / FR / DE / VI / BN 字典即可。
 """
 import sys
 from pathlib import Path
@@ -409,6 +409,46 @@ VI = dict(
     footer=("Báo cáo  report.html · breakdown.json", "kết luận 1 dòng · kế hoạch tách quay / tạo AI / code · ảnh từng shot, bằng chứng, prompt · phụ đề SRT / ASS"),
 )
 
+BN = dict(
+    title="উদাহরণ: একটি প্রোডাক্ট ভিডিওকে ৫টি শট আর সাউন্ডে ভাগ করা, প্রতিটি শট চারটি ধাপ পার হয়",
+    subtitle="পাশাপাশি পড়লে একটি শটের প্রমাণ থেকে রিমেক প্ল্যান; ওপর-নিচে পড়লে একই ধাপে শটগুলোর তুলনা",
+    steps=[
+        ("১", "ভাগ", "শট ধরে কাটা\nঅডিও ৩ ভাগে"),
+        ("২", "প্রমাণ", "ফ্রেম মাপা\nছবি দেখা\nশব্দ শোনা"),
+        ("৩", "রায়", "শক্ত প্রমাণ আগে\nগরমিল হলে\nআবার যাচাই"),
+        ("৪", "প্ল্যান", "মডেলের\nসক্ষমতা\nঅনুযায়ী ভাগ"),
+    ],
+    shots=["0:00–0:06", "0:06–0:11", "0:11–0:16", "0:16–0:21", "0:21–0:24"],
+    sound_lanes=["কণ্ঠ", "মিউজিক", "ইফেক্ট"],
+    sound_caption="পুরো ট্র্যাক 0:00–0:24",
+    kinds={"m": "মা", "l": "দে", "h": "শো"},
+    evidence=[
+        [("m", "60fps, রিপিট নেই"), ("m", "সেন্সর নয়েজ"), ("l", "হাত, লেখা ঠিক")],
+        [("m", "স্থির ব্যাকগ্রাউন্ড"), ("m", "শুধু এক অংশ নড়ে"), ("l", "আসল অ্যাপ UI")],
+        [("m", "24fps, রিপিট ছন্দ"), ("m", "AIGC ট্যাগ আছে"), ("l", "বাক্সে ভাঙা লেখা")],
+        [("m", "টুল: 3D-র মতো"), ("l", "VLM: AI-র মতো"), ("l", "মতভেদ ⚠")],
+        [("m", "স্থির ব্যাকগ্রাউন্ড"), ("m", "OCR-এ লেখা পাওয়া"), ("l", "ক্যামেরার ছাপ নেই")],
+        [("h", "3–8Hz সিলেবল হার"), ("h", "122 BPM, D মাইনর"), ("h", "কাট পড়ে বিটে")],
+    ],
+    verdicts=[
+        ("live", "আসল শুটিং", 0.96, None),
+        ("screen", "স্ক্রিন রেকর্ডিং", 0.93, None),
+        ("ai", "AI ভিডিও", 0.98, None),
+        ("ai", "AI ভিডিও", 0.88, "এজেন্ট দেখে নিশ্চিত"),
+        ("code", "কোড রেন্ডার", 0.95, None),
+        ("sound", "কণ্ঠ + লাইব্রেরি মিউজিক", 0.9, None),
+    ],
+    rule="শক্ত প্রমাণ (AIGC ট্যাগ, ফ্রেমের ছন্দ) “দেখতে এমন লাগে”-র চেয়ে বেশি গুরুত্ব পায়; যে শটে উৎসগুলোর মতভেদ, সেটা এজেন্টের চোখে যাচাইয়ের জন্য চিহ্নিত হয়",
+    plans={
+        "s1": ("cam", ["নিজে শুট", "১ সিন, ১ ক্যামেরা", "রিং লাইট + ফোন"]),
+        "s2": ("screen", ["নিজে রেকর্ড", "আসল ম্যাটেরিয়াল", "জেনারেট নয়"]),
+        "s34": ("ai", ["২টি শট ১ বারে জেনারেট", "মাল্টি-শট প্রম্পট + ২টি প্রোডাক্ট ছবি + @মূল", "মডেলের সক্ষমতা অনুযায়ী: প্রতিবার ১০ সেকেন্ড,", "মাল্টি-শট আউটপুট, ২টি রেফারেন্স ছবি"]),
+        "s5": ("code", ["কোড লেখা", "Remotion প্রজেক্ট", "লেখা, লেআউট, মোশন"]),
+        "snd": ("sound", ["তিনটি ট্র্যাক", "কণ্ঠ: রেকর্ড বা TTS", "মিউজিক: লাইব্রেরি, 122 BPM", "ইফেক্ট: সময় ধরে"]),
+    },
+    footer=("রিপোর্ট  report.html · breakdown.json", "এক লাইনের রায় · শুট / জেনারেট / কোডে ভাগ করা রিমেক প্ল্যান · প্রতি শটের স্থিরচিত্র, প্রমাণ, প্রম্পট · সাবটাইটেল SRT / ASS"),
+)
+
 # ---------------------------------------------------------------- palette
 C = {
     "ink": "#0f172a", "mute": "#64748b", "line": "#cbd5e1", "band": "#f8fafc", "bg": "#ffffff",
@@ -429,7 +469,8 @@ ROWS = {"split": (84, 214), "evidence": (222, 338), "decide": (346, 466), "plan"
 FONT_JA = "Hiragino Sans, Hiragino Kaku Gothic ProN, Yu Gothic, Meiryo, Noto Sans CJK JP, Noto Sans JP, sans-serif"
 FONT = "PingFang SC, Hiragino Sans GB, Microsoft YaHei, Noto Sans CJK SC, Source Han Sans SC, Segoe UI, Helvetica, Arial, sans-serif"
 FONT_KO = "Apple SD Gothic Neo, Malgun Gothic, Noto Sans CJK KR, Noto Sans KR, sans-serif"
-FONTS = {"ja": FONT_JA, "ko": FONT_KO}   # 其余语言和英文一样用 FONT
+FONT_BN = "Kohinoor Bangla, Bangla Sangam MN, Nirmala UI, Vrinda, Noto Sans Bengali, Hind Siliguri, sans-serif"
+FONTS = {"ja": FONT_JA, "ko": FONT_KO, "bn": FONT_BN}   # 其余语言和英文一样用 FONT
 
 
 def pick(lang, zh, ja, en):
@@ -730,6 +771,6 @@ if __name__ == "__main__":
     (out / "rea-flow.svg").write_text(build(ZH, "zh"), encoding="utf-8")
     (out / "rea-flow_en.svg").write_text(build(EN, "en"), encoding="utf-8")
     (out / "rea-flow_ja.svg").write_text(build(JA, "ja"), encoding="utf-8")
-    for lang, S in [("ko", KO), ("ru", RU), ("es", ES), ("pt", PT), ("fr", FR), ("de", DE), ("vi", VI)]:
+    for lang, S in [("ko", KO), ("ru", RU), ("es", ES), ("pt", PT), ("fr", FR), ("de", DE), ("vi", VI), ("bn", BN)]:
         (out / f"rea-flow_{lang}.svg").write_text(build(S, lang), encoding="utf-8")
     print("written", out)
