@@ -174,7 +174,7 @@ def code_scene(shot: dict) -> dict:
     pal = motion.get("palette") or {}
     return {"picture": str(desc), "particles": facts.get("fine_dark", 0.0) > 0.5, "style": code_style(shot),
             "move": _move_words(shot.get("features") or {}), "on_screen_text": words[:6],
-            "background": pal.get("background"), "palette": [c["hex"] for c in pal.get("colours", [])[:5]],
+            "background": pal.get("background"), "palette": [c["hex"] for c in pal.get("colours", [])[:5]], "dots": motion.get("dots") or [],
             "events": motion.get("events", []), "sequences": motion.get("sequences", []), "layer": motion.get("layer"),
             "static": motion.get("static", []), "elements_sheet": motion.get("elements_sheet"),
             "strip": (shot.get("assets") or {}).get("strip"), "transition_in": shot.get("transition_in"),

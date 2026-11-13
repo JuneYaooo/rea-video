@@ -29,7 +29,7 @@
 | `video/packaging.md` | 字幕、花字、贴纸、画中画的时间和样式 |
 | `video/remake.md` | 复刻方案：生成单元、拍摄场次、代码合成、要准备的真实素材 |
 | `video/shots/<编号>.md` | 每镜的 `inferred`（制作方式、概率、次选、由谁判定、有没有真实素材）、`flags`、`frames`；正文是看得到的、推断和依据、提示词 |
-| `breakdown.json`、`shots/`、`stems/`、`sfx/`、`packaging/`、`storyboard.jpg`、`audio.png` | 完整数据和媒体文件，地图里都列着 |
+| `breakdown.json`、`shots/`、`stems/`、`sfx/`、`packaging/`、`frames/`（粒子镜头才有）、`storyboard.jpg`、`audio.png` | 完整数据和媒体文件，地图里都列着 |
 
 没有内容的主题文件不生成。
 

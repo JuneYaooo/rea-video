@@ -104,6 +104,12 @@ RULES = {
     # shaded pixels and many small bright peaks. Eval photo / 3D / AI frames on dark ground keep lit_smooth >= 0.47
     # and lit_peaks <= 10; a particle explainer video sits at lit_smooth 0.01-0.22, lit_peaks 5-67
     "fine_dark": {"dark": 0.4, "smooth": 0.3, "peaks": 4.0, "lit_max": 0.4, "lit_min": 0.002},
+    # the same with a soft halo lit behind the dots (measured on the "spark" layer, the glow blurred out): a glowing
+    # particle explainer sits at spark_smooth 0.03-0.17, spark_peaks 12-62, spark_ratio <= 0.03; eval AI / 3D / photo
+    # frames keep spark_smooth >= 0.31
+    # glow_min: the halo must be there (share of the frame lit by the blurred picture; 0.16-0.36 on the particle video),
+    # so dark pictures without one (star fields, dark UI) stay with fine_dark above
+    "fine_glow": {"smooth": 0.24, "peaks": 8.0, "spark_max": 0.08, "glow_min": 0.08},
     # thin dark lines / dots on a light ground: fine_dark on the inverted picture, with a looser smoothness bound
     # (anti-aliased dark strokes shade more than glowing dots)
     "fine_light": {"smooth": 0.35},
@@ -244,13 +250,21 @@ def deterministic(f: dict, overlay: dict | None = None, text: dict | None = None
     if fd["lit_min"] < f.get("lit_ratio", 0.0):
         fine_dark = (_sig((f.get("dark_ratio", 0.0) - fd["dark"]) / 0.05) * _sig((fd["smooth"] - f.get("lit_smooth", 1.0)) / 0.05)
                      * _sig((f.get("lit_peaks", 0.0) - fd["peaks"]) / 1.0) * _sig((fd["lit_max"] - f.get("lit_ratio", 0.0)) / 0.04))
+    fg = RULES["fine_glow"]
+    glow_fine = 0.0
+    if fd["lit_min"] < f.get("spark_ratio", 0.0) and f.get("glow_ratio", 0.0) >= fg["glow_min"]:
+        glow_fine = (_sig((f.get("dark_ratio", 0.0) - fd["dark"]) / 0.05) * _sig((fg["smooth"] - f.get("spark_smooth", 1.0)) / 0.03)
+                     * _sig((f.get("spark_peaks", 0.0) - fg["peaks"]) / 1.5) * _sig((fg["spark_max"] - f.get("spark_ratio", 0.0)) / 0.01))
+    by_glow = glow_fine > fine_dark
+    fine_dark = max(fine_dark, glow_fine)
     facts["fine_dark"] = round(fine_dark, 3)
     if fine_dark > 0.5:
-        ev.append(T("暗底上的亮部几乎全是细碎亮点/细线（亮部平滑过渡只占 {sm:.0%}，每百个亮像素 {pk:.0f} 个亮峰）：粒子/点云/线框类图形，"
+        sm, pk = (f.get("spark_smooth", 0.0), f.get("spark_peaks", 0.0)) if by_glow else (f.get("lit_smooth", 0.0), f.get("lit_peaks", 0.0))
+        ev.append(T("暗底上的亮部几乎全是细碎亮点/细线（{halo}亮部平滑过渡只占 {sm:.0%}，每百个亮像素 {pk:.0f} 个亮峰）：粒子/点云/线框类图形，"
                     "不是有明暗过渡的实拍、3D 表面或 AI 画面",
-                    "On a dark ground the lit part is almost all fine dots / thin lines (only {sm:.0%} of lit pixels shade gently, "
+                    "On a dark ground the lit part is almost all fine dots / thin lines ({halo}only {sm:.0%} of lit pixels shade gently, "
                     "{pk:.0f} bright peaks per 100 lit pixels): particle / point-cloud / wireframe graphics, not a shaded photo, 3D surface or AI picture",
-                    sm=f.get("lit_smooth", 0.0), pk=f.get("lit_peaks", 0.0)))
+                    sm=sm, pk=pk, halo=T("去掉背后的柔光后，", "with the soft halo behind them taken out, ") if by_glow else ""))
         graphic = max(graphic, fine_dark)
     # the same on a light ground: thin dark lines / dots (line art, generative ink, dot matrices). Pages of small text
     # are left to the screenshot cues (RULES["ui_text"]), they are a document rather than line art

@@ -314,6 +314,42 @@ def cmd_tiles(args) -> int:
     return 0
 
 
+def cmd_frames(args) -> int:
+    from .particles import scene_frames
+
+    if args.every <= 0:
+        raise SystemExit("rea-video: --every 必须大于 0")
+    out = Path(args.out_dir)
+    if not (out / "breakdown.json").is_file():
+        raise SystemExit(f"rea-video: {out} 下没有 breakdown.json，先运行 decompose")
+    res = scene_frames(out, every=args.every, n_points=args.points, all_shots=args.all)
+    if not res["scenes"]:
+        print(T("没有粒子镜头（加 --all 对所有镜头取帧）", "no particle shots (add --all to cover every shot)"))
+        return 0
+    print(json.dumps({"scenes": len(res["scenes"]), "file": str(out / "frames" / "scenes.json"),
+                      "cuts": [s["start"] for s in res["scenes"]]}, ensure_ascii=False))
+    return 0
+
+
+def cmd_compare(args) -> int:
+    from .particles import compare
+
+    if args.every <= 0:
+        raise SystemExit("rea-video: --every 必须大于 0")
+    for p in (args.ref, args.remake):
+        if not Path(p).is_file():
+            raise SystemExit(f"rea-video: 找不到 {p}")
+    res = compare(args.ref, args.remake, every=args.every, invert=args.invert, out=Path(args.out) if args.out else None,
+                  scenes=Path(args.scenes) if args.scenes else None, worst=args.worst)
+    brief = {k: res[k] for k in ("score", "place", "shape", "inverted", "worst") if k in res}
+    if res.get("scenes"):
+        brief["lowest_scenes"] = res["scenes"][:5]
+    if res.get("sheet"):
+        brief["sheet"] = res["sheet"]
+    print(json.dumps(brief, ensure_ascii=False, indent=1))
+    return 0
+
+
 def cmd_summary(args) -> int:
     """Compact, agent-friendly view of a breakdown (instead of reading the whole JSON)."""
     from .i18n import T, join
@@ -623,6 +659,23 @@ def main(argv: list[str] | None = None) -> int:
     t.add_argument("--max", type=int, default=48)
     t.add_argument("-o", "--out", default="out/tiles.jpg")
     t.set_defaults(func=cmd_tiles)
+
+    fr = sub.add_parser("frames", help="粒子镜头按场景切分，取原尺寸帧、测光晕 / 粒子颜色 / 粒子数，并从原片取粒子目标点（decompose 遇到粒子镜头会自动跑）")
+    fr.add_argument("out_dir", help="decompose 的输出目录")
+    fr.add_argument("--every", type=float, default=0.25, help="采样间隔秒数（默认 0.25）")
+    fr.add_argument("--points", type=int, default=4000, help="每个场景取多少个目标点（默认 4000）")
+    fr.add_argument("--all", action="store_true", help="所有镜头都做，不只是粒子镜头")
+    fr.set_defaults(func=cmd_frames)
+
+    cp = sub.add_parser("compare", help="逐帧给复刻打分（粒子 / 图形落在哪、形状重合度），列出最差的时刻并拼对比图")
+    cp.add_argument("ref", help="原片")
+    cp.add_argument("remake", help="复刻成片")
+    cp.add_argument("--every", type=float, default=0.5, help="采样间隔秒数（默认 0.5）")
+    cp.add_argument("--invert", choices=["auto", "yes", "no"], default="auto", help="复刻换了深浅底时先反相再比（默认自动判断）")
+    cp.add_argument("--scenes", help="frames/scenes.json：按场景汇总分数")
+    cp.add_argument("--worst", type=int, default=8, help="对比图里放几个最差时刻（默认 8）")
+    cp.add_argument("-o", "--out", help="输出目录：compare.json 和 compare_worst.jpg")
+    cp.set_defaults(func=cmd_compare)
 
     sm = sub.add_parser("summary", help="紧凑打印拆解结果（低置信镜头会被标出来）")
     sm.add_argument("breakdown")

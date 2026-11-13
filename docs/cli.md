@@ -104,6 +104,8 @@ rea-video capsule-draft out/ref/breakdown.json --capsule-root $CC --capsule-name
 | `videomd OUT_DIR --check` | 校验目录是否符合拆片包规范，不合格时逐条列出问题 |
 | `pdf OUT_DIR` | 把 report.html 打印成 report.pdf（用本机的 Chrome / Chromium / Edge，`REA_CHROME` 可指定路径；正文的折叠内容展开，时间轴、逐镜取证这类查阅数据保持折叠） |
 | `tiles VIDEO --start --end --every` | 按时间抽帧拼图，近距离复核 |
+| `frames OUT_DIR [--every 0.25] [--points 4000] [--all]` | 粒子镜头按场景切分（镜头内粒子重组成新形状就算新场景），写出 `frames/`：每场景首 / 中 / 尾原尺寸帧、`scenes.json`（光晕颜色和位置、粒子颜色、粒子数、范围、重心随时间的轨迹）、`points/scene_XX.json`（从原片取的粒子目标点）；decompose 遇到粒子镜头会自动跑 |
+| `compare REF REMAKE [--scenes frames/scenes.json] [-o DIR]` | 逐帧给复刻打分：粒子 / 图形落在哪（密度图重合）、形状重合度、亮部多少；复刻换了深浅底时自动反相再比；`-o` 写出 `compare.json` 和最差时刻的左右对比图 `compare_worst.jpg` |
 | `eval labels.yaml` | 在带标注的样本上评测准确率和切点 F1 |
 | `capsule breakdown.json` | 导出 capsule-cinema 的视频分析 JSON |
 | `models [ID] [--plan OUT_DIR]` | 列出能力地图里的生成模型；带 id 时打印这个模型的提示词写法和关键帧要求（`models keyframes` 是关键帧通用做法）；`--plan` 把已有拆解的复刻方案改按该模型重出 |
