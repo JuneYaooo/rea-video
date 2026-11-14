@@ -107,11 +107,12 @@ def script(b: dict) -> list[dict]:
     turns = who.get("turns") or [] if who.get("count", 0) >= 2 else []
     from .performance import delivery_at
 
+    heard = [ln for ln in ((b.get("speech") or {}).get("lines") or []) if isinstance(ln, dict)]
     rows = []
     for ln in ((w.get("narration") or {}).get("lines") or []):
         if isinstance(ln, dict) and _s(ln, "text"):
             rows.append({"start": ln.get("start"), "end": ln.get("end"), "speaker": _s(ln, "speaker", 20), "text": _s(ln, "text", 200)})
-            how = _s(ln, "delivery", 60) or delivery_at(b, ln.get("start"), ln.get("end"))
+            how = _with_measured(_s(ln, "delivery", 60) or delivery_at(b, ln.get("start"), ln.get("end")), _heard_at(heard, ln), pause=False)
             if how:
                 rows[-1]["delivery"] = how
             if turns and isinstance(ln.get("start"), (int, float)) and isinstance(ln.get("end"), (int, float)):
@@ -125,7 +126,7 @@ def script(b: dict) -> list[dict]:
     for ln in ((b.get("speech") or {}).get("lines") or []):  # machine transcript: below the VLM's, above segment copy
         if isinstance(ln, dict) and _s(ln, "text"):
             voice = _s(ln, "speaker", 8) if turns else ""
-            how = delivery_at(b, ln.get("start"), ln.get("end"))
+            how = _with_measured(delivery_at(b, ln.get("start"), ln.get("end")), ln)
             rows.append({"start": ln.get("start"), "end": ln.get("end"), "speaker": speaker_label(b, voice) if voice else "",
                          "text": _s(ln, "text", 200), "source": "asr", **({"voice": voice} if voice else {}),
                          **({"delivery": how} if how else {})})
@@ -135,6 +136,28 @@ def script(b: dict) -> list[dict]:
         if isinstance(seg, dict) and _s(seg, "copy"):
             rows.append({"start": seg.get("start"), "end": seg.get("end"), "speaker": "", "text": _s(seg, "copy", 200)})
     return rows
+
+
+def _heard_at(heard: list[dict], ln: dict) -> dict:
+    """The transcribed line that overlaps this line most (the reader's timings are rough), or {}."""
+    a, z = ln.get("start"), ln.get("end")
+    if not isinstance(a, (int, float)) or not isinstance(z, (int, float)):
+        return {}
+    best, got = 0.0, {}
+    for h in heard:
+        if isinstance(h.get("start"), (int, float)) and isinstance(h.get("end"), (int, float)):
+            o = min(z, h["end"]) - max(a, h["start"])
+            if o > best and o >= 0.5 * (z - a):
+                best, got = o, h
+    return got
+
+
+def _with_measured(how: str, heard: dict, pause: bool = True) -> str:
+    """The reader's delivery plus what was measured on the line (rate, pitch, loudness, pause, heard emotion)."""
+    from .prosody import describe
+
+    got = describe(heard.get("prosody"), heard.get("emotion", ""), pause=pause)
+    return semi().join(x for x in (how, got) if x)
 
 
 def open_questions(b: dict) -> list[str]:

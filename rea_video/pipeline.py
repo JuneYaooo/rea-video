@@ -10,7 +10,7 @@ import numpy as np
 
 from . import SCHEMA, __version__
 from .assets import detect_embedded, material_summary
-from .audio import analyze_audio, merge_audio_with_vlm
+from .audio import analyze_audio, merge_audio_with_vlm, speaks_in
 from .sound_source import MUSIC_ZH, classify_sound_sources, per_clip_audio
 from .classify import FILM_HINT_ZH, LABEL_ZH, OVERLAY_KIND_ZH, RULES, UNMEASURED, decide, deterministic, drop_scene_text, fuse, group_of, image_source_guess, overlay_layers, top, verdict_text, video_context
 from .features import collect_samples, crop_box, intersect_box, photo_letterbox, shot_features
@@ -25,7 +25,7 @@ from . import aspects
 from .faces import shot_faces
 from .visual import LABEL_SHORT, shot_sheet, storyboard
 from .i18n import T, join, semi, set_lang
-from .vlm import SHOT_PROMPT, TAKE_NOTE, WHOLE_PROMPT, VLMClient, VLMConfig, normalize_shot_result, normalize_whole, prompt_lang_note, shot_hints, take_results, vlm_note
+from .vlm import SHOT_PROMPT, SILENT_NOTE, SOUND_NOTE, TAKE_NOTE, WHOLE_PROMPT, VLMClient, VLMConfig, normalize_shot_result, normalize_whole, prompt_lang_note, shot_hints, take_results, vlm_note
 
 
 def _sha256_head(path: Path, limit: int = 64 << 20) -> str:
@@ -252,16 +252,27 @@ def decompose(video: str | Path, out_dir: str | Path, *, use_vlm: bool = False, 
                 prompt = SHOT_PROMPT.format(hints=shot_hints(lead["features"], lead["deterministic"]["facts"], dl, dp))
                 if len(unit) > 1:
                     prompt += TAKE_NOTE.format(n=len(unit), cuts=", ".join(f"{r['start'] - first['start']:.2f}" for r in unit[1:]))
+                spoken = speaks_in(audio, first["start"], first["start"] + min(span, 12.0))
+                if cfg.media in ("both", "video"):
+                    prompt += SOUND_NOTE if spoken else SILENT_NOTE
                 prompt += prompt_lang_note()
                 fallback = None
                 try:
                     if cfg.media in ("both", "video"):  # a clip that fails to encode costs this unit its video, not the run
-                        clip = cut_clip(video, first["start"], min(span, 12.0), out / "clips" / f"{first['id']}.mp4", width=480)
+                        clip = cut_clip(video, first["start"], min(span, 12.0), out / "clips" / f"{first['id']}.mp4", width=480, audio=spoken)
                         media.insert(0, (clip, "video/mp4"))
                     raw = client.ask_json(prompt, media)
                 except Exception as exc:  # keep going; deterministic result stands
                     raw = None
-                    if cfg.media == "both":
+                    if spoken and cfg.media in ("both", "video"):  # an endpoint that refuses a clip with sound still gets the picture
+                        try:
+                            clip = cut_clip(video, first["start"], min(span, 12.0), out / "clips" / f"{first['id']}_mute.mp4", width=480)
+                            raw = client.ask_json(prompt.replace(SOUND_NOTE, SILENT_NOTE.replace("这一段没检测到人声，", "")),
+                                                  [(clip, "video/mp4")] + [m for m in media if m[1] != "video/mp4"])
+                            fallback = "mute_clip"
+                        except Exception as exc2:  # noqa: BLE001
+                            exc = exc2
+                    if raw is None and cfg.media == "both":
                         try:
                             raw = client.ask_json(prompt, [m for m in media if m[1] != "video/mp4"])
                             fallback = "frames_only"
@@ -327,6 +338,17 @@ def decompose(video: str | Path, out_dir: str | Path, *, use_vlm: bool = False, 
                          source="vocals_stem" if on_stem else "mix")
         else:
             heard = {"ok": False, "reason": "not_installed"}
+    if heard.get("ok") and heard.get("lines"):  # how each line is said, for the script and the voice-over
+        from . import prosody
+        from .media import extract_audio
+
+        try:  # pitch and level only on the vocal track: music under the voice gives a wrong pitch and level
+            x = extract_audio(voice_src, 16000) if on_stem else None
+            for ln, m in zip(heard["lines"], prosody.measure(x, 16000, heard["lines"], pitch=on_stem)):
+                if m:
+                    ln["prosody"] = m
+        except Exception as exc:  # noqa: BLE001  an extra: the breakdown goes on without it
+            LOG.warning("line delivery measure failed: %s", str(exc)[:160])
     breakdown = {
         "schema": SCHEMA, "tool": {"name": "rea-video", "version": __version__}, "lang": lang,
         "source": {"path": str(video), "filename": video.name, "sha256_head": _sha256_head(video), "width": info.width,

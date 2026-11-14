@@ -101,6 +101,12 @@ def _seg_mask(segs: list[list[float]], n: int) -> np.ndarray:
     return m
 
 
+def speaks_in(audio: dict, start: float, end: float, min_s: float = 0.3) -> bool:
+    """Someone talks for at least min_s inside [start, end] (the voice segments of analyze_audio)."""
+    segs = ((audio or {}).get("voice") or {}).get("segments") or []
+    return sum(max(0.0, min(end, b) - max(start, a)) for a, b in segs) >= min_s
+
+
 def _chroma(S: np.ndarray, freqs: np.ndarray) -> np.ndarray:
     valid = (freqs > 60) & (freqs < 4000)
     pc = (np.round(12 * np.log2(freqs[valid] / 440.0)) + 9) % 12

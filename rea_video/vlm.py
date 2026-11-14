@@ -359,6 +359,10 @@ AI 仿定格风格（材质在帧间漂移）与真正的定格动画（同一�
 
 
 # appended to SHOT_PROMPT when one clip covers several jump-cut pieces of the same take
+# which clip the shot pass gets: with its sound when someone speaks in it, so the delivery is heard, not read off lips
+SOUND_NOTE = "\n这段片段带原声：performance.voice 按听到的写（语气、语速、音量、停顿、句尾上扬还是下沉），不要只看口型猜。\n"
+SILENT_NOTE = "\n这一段没检测到人声，片段不带声音：performance.voice 留空。\n"
+
 TAKE_NOTE = """
 这段片子是同一机位、同一条素材剪成的 {n} 段（跳剪），后面几段从片段开头后 {cuts} 秒开始。
 制作方式、拍法和素材（label_probs、aspects、embedded_assets 等）对整段给一次即可；
