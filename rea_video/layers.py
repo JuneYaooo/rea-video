@@ -10,8 +10,9 @@ glow, the drawn colours and where the drawing sits. A remake can then place its 
 instead of redrawing them from a description.
 
 `rea-video compare ref remake` scores a remake against the original frame by frame on the drawn layer (where it sits,
-how well the shapes overlap, how much there is), so the remake is fixed where it is furthest off. Each video's layer is
-taken against its own ground, so a remake on a different ground colour compares without extra steps.
+how well the shapes overlap, how much there is) and says what to change: timing, position, spread, amount, drawn
+colour and ground. Each video's layer is taken against its own ground, so a remake on a different ground colour
+compares without extra steps.
 """
 from __future__ import annotations
 
@@ -268,35 +269,143 @@ def scene_frames(out: Path, every: float = 0.25, n_points: int = 4000, all_shots
     return res
 
 
-def _score(fa: np.ndarray, fb: np.ndarray, k: np.ndarray) -> dict:
-    ma, mb = layer_mask(fa), layer_mask(fb)
-    place = 1.0 - 0.5 * float(np.abs(layout(ma) - layout(mb)).sum()) if ma.any() and mb.any() else float(ma.any() == mb.any())
+def _lab_mean(lab: np.ndarray, m: np.ndarray) -> np.ndarray | None:
+    return lab[m].mean(axis=0) if m.any() else None
+
+
+def _side(bgr: np.ndarray) -> dict:
+    """One frame's drawn layer and what a remake can be told about it: where it sits, how spread out, how much,
+    its mean colour and the ground's (Lab)."""
+    m = layer_mask(bgr)
+    lab = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB).astype(np.float32)
+    lab[..., 0] *= 100.0 / 255.0  # OpenCV stores L as 0-255; colour distances below are in CIE units
+    lab[..., 1:] -= 128.0
+    g = cv2.cvtColor(ground(bgr).astype(np.uint8)[None, None], cv2.COLOR_BGR2LAB).astype(np.float32)[0, 0]
+    g = np.array([g[0] * 100.0 / 255.0, g[1] - 128.0, g[2] - 128.0], np.float32)
+    s = {"mask": m, "layout": layout(m), "cover": float(m.mean()), "ground": g, "colour": _lab_mean(lab, m)}
+    if m.any():
+        ys, xs = np.nonzero(m)
+        h, w = m.shape
+        s["centre"] = np.array([xs.mean() / w, ys.mean() / h])
+        s["spread"] = np.array([xs.std() / w, ys.std() / h])
+    return s
+
+
+def _score(sa: dict, sb: dict, k: np.ndarray) -> dict:
+    ma, mb = sa["mask"], sb["mask"]
+    place = 1.0 - 0.5 * float(np.abs(sa["layout"] - sb["layout"]).sum()) if ma.any() and mb.any() else float(ma.any() == mb.any())
     ua, ub = cv2.dilate(ma.astype(np.uint8), k) > 0, cv2.dilate(mb.astype(np.uint8), k) > 0
     hit_a = float((ma & ub).sum()) / max(1, int(ma.sum()))
     hit_b = float((mb & ua).sum()) / max(1, int(mb.sum()))
     shape = 2 * hit_a * hit_b / (hit_a + hit_b) if hit_a + hit_b else (1.0 if not ma.any() and not mb.any() else 0.0)
-    ca, cb = float(ma.mean()), float(mb.mean())
+    ca, cb = sa["cover"], sb["cover"]
     amount = min(ca, cb) / max(ca, cb) if max(ca, cb) > 0 else 1.0
     # equal weight on where it sits and on the shapes themselves; how much is drawn counts half as much
     return {"place": round(place, 3), "shape": round(shape, 3), "amount": round(amount, 3),
             "score": round(0.4 * place + 0.4 * shape + 0.2 * amount, 3)}
 
 
+def _pair(sa: dict, sb: dict) -> dict:
+    """Signed differences remake - original for one frame, None where one side has nothing drawn."""
+    d: dict = {"cover": (sa["cover"], sb["cover"]), "ground": sb["ground"] - sa["ground"]}
+    if sa["colour"] is not None and sb["colour"] is not None:
+        d["colour"] = sb["colour"] - sa["colour"]
+    if "centre" in sa and "centre" in sb:
+        d["shift"] = sb["centre"] - sa["centre"]
+        d["size"] = (sb["spread"] + 1e-6) / (sa["spread"] + 1e-6)
+    return d
+
+
+# How far off counts as visibly off, for the advice only (the score does not use these): a twentieth of the frame,
+# a quarter bigger or smaller, a colour difference of 10 (CIE Lab, plainly different side by side).
+OFF_SHIFT, OFF_RATIO, OFF_COLOUR = 0.05, 1.25, 10.0
+
+
+def _advice(diffs: list[dict]) -> list[str]:
+    """What to change in the remake over a stretch of frames, largest first."""
+    if not diffs:
+        return []
+    tips: list[tuple[float, str]] = []
+    sh = [d["shift"] for d in diffs if "shift" in d]
+    if sh:
+        dx, dy = np.median(np.array(sh), axis=0)
+        for v, neg, pos in ((dx, ("偏左", "too far left"), ("偏右", "too far right")),
+                            (dy, ("偏上", "too high"), ("偏下", "too low"))):
+            if abs(v) >= OFF_SHIFT:
+                tips.append((abs(v) / OFF_SHIFT, T(f"{(pos if v > 0 else neg)[0]} {abs(v) * 100:.0f}% 画面",
+                                                     f"{(pos if v > 0 else neg)[1]} by {abs(v) * 100:.0f}% of the frame")))
+        size = float(np.exp(np.median(np.log(np.array([d["size"].mean() for d in diffs if "size" in d])))))
+        if max(size, 1 / size) >= OFF_RATIO:
+            tips.append((max(size, 1 / size) / OFF_RATIO, T(f"铺开范围是原片的 {size:.1f} 倍", f"spread {size:.1f}x the original")))
+    ca = float(np.mean([d["cover"][0] for d in diffs])); cb = float(np.mean([d["cover"][1] for d in diffs]))
+    if ca > 0 and cb == 0:
+        tips.append((9.0, T("画上去的东西没出来", "nothing drawn where the original has graphics")))
+    elif cb > 0 and ca == 0:
+        tips.append((9.0, T("原片这里没有画东西", "graphics where the original has none")))
+    elif ca > 0:
+        r = cb / ca
+        if max(r, 1 / r) >= OFF_RATIO:
+            tips.append((max(r, 1 / r) / OFF_RATIO, T(f"画上去的量是原片的 {r:.1f} 倍", f"{r:.1f}x as much drawn as the original")))
+    for key, zh, en in (("colour", "前景颜色", "drawn colour"), ("ground", "底色", "ground")):
+        cs = [d[key] for d in diffs if key in d]
+        if not cs:
+            continue
+        dl, da, db = np.median(np.array(cs), axis=0)
+        de = float(np.sqrt(dl * dl + da * da + db * db))
+        if de >= OFF_COLOUR:
+            how = []
+            if abs(dl) >= OFF_COLOUR / 2:
+                how.append(T("偏亮" if dl > 0 else "偏暗", "too light" if dl > 0 else "too dark"))
+            hue = np.hypot(da, db)
+            if hue >= OFF_COLOUR / 2:
+                how.append(T("色相不对", "wrong hue"))
+            tips.append((de / OFF_COLOUR, T(f"{zh}差 {de:.0f}（{'、'.join(how) or '偏色'}）",
+                                            f"{en} off by {de:.0f} ({', '.join(how) or 'tinted'})")))
+    return [t for _, t in sorted(tips, key=lambda x: -x[0])]
+
+
+def _lag(la: list, lb: list, every: float, max_s: float = 3.0) -> tuple[float, float]:
+    """Time offset of the remake that best lines its layout up with the original's, and how much place agreement
+    it gains. Positive: the remake runs late."""
+    n = len(la)
+    best, base = 0, None
+    gains = {}
+    for L in range(-int(max_s / every), int(max_s / every) + 1):
+        idx = [(i, i + L) for i in range(n) if 0 <= i + L < n]
+        if len(idx) < max(4, n // 2):
+            continue
+        v = float(np.mean([1.0 - 0.5 * np.abs(la[i] - lb[j]).sum() for i, j in idx]))
+        gains[L] = v
+        if L == 0:
+            base = v
+    if base is None or not gains:
+        return 0.0, 0.0
+    best = max(gains, key=lambda L: (gains[L], -abs(L)))
+    return round(best * every, 2), round(gains[best] - base, 3)
+
+
 def compare(ref: str, remake: str, every: float = 0.5, out: Path | None = None, scenes: Path | None = None,
             worst: int = 8) -> dict:
-    """Frame-by-frame score of a remake against the original on the drawn layer. Both videos are decoded side by
-    side and only the worst frames are kept, so memory does not grow with length."""
+    """Frame-by-frame score of a remake against the original on the drawn layer, with what to change: position,
+    spread, amount, drawn colour, ground and timing. Both videos are decoded side by side and only the worst frames
+    are kept, so memory does not grow with length."""
     ri, mi = video_info(ref), video_info(remake)
     dur = min(ri.duration, mi.duration)
     k = np.ones((5, 5), np.uint8)
     rows: list[dict] = []
+    la: list = []
+    lb: list = []
     keep: list = []  # min-heap on -score: the `worst` lowest-scoring frames with their pictures
     pairs = zip(iter_frames(ref, ri, WORK_W, start=0, duration=dur, fps=1.0 / every),
                 iter_frames(remake, mi, WORK_W, start=0, duration=dur, fps=1.0 / every))
     for i, (fa, fb) in enumerate(pairs):
         fb = cv2.resize(fb, (fa.shape[1], fa.shape[0]))
-        r = {"t": round(i * every, 2), **_score(fa, fb, k)}
+        sa, sb = _side(fa), _side(fb)
+        r = {"t": round(i * every, 2), **_score(sa, sb, k)}
         rows.append(r)
+        del sa["mask"], sb["mask"]  # keep only the small numbers, so timing can be lined up afterwards
+        la.append(sa)
+        lb.append(sb)
         if out:
             item = (-r["score"], i, fa, fb)
             if len(keep) < worst:
@@ -306,17 +415,32 @@ def compare(ref: str, remake: str, every: float = 0.5, out: Path | None = None, 
     if not rows:
         raise ValueError(T("没有可比较的帧", "no frames to compare"))
     res: dict = {"ref": ref, "remake": remake, "every": every,
-                 **{k2: round(float(np.mean([r[k2] for r in rows])), 3) for k2 in ("score", "place", "shape")}, "frames": rows}
+                 **{k2: round(float(np.mean([r[k2] for r in rows])), 3) for k2 in ("score", "place", "shape")}}
+    lag, gain = _lag([a["layout"] for a in la], [b["layout"] for b in lb], every)
+    shift = 0
+    if lag and gain >= 0.05:
+        shift = int(round(lag / every))
+        res["offset"] = {"seconds": lag, "place_gain": gain,
+                         "advice": T(f"重做整体{'晚' if lag > 0 else '早'}了约 {abs(lag):g} 秒，先对齐时间；下面的建议已按对齐后算",
+                                     f"the remake runs {abs(lag):g}s {'late' if lag > 0 else 'early'}; line up the timing first "
+                                     "(the advice below is taken after lining it up)")}
+    # the advice compares each original frame with the remake frame it lines up with
+    diffs = [_pair(la[i], lb[i + shift]) if 0 <= i + shift < len(lb) else None for i in range(len(la))]
+    res["advice"] = _advice([d for d in diffs if d])
     if scenes and Path(scenes).exists():
         per = []
         for sc in read_json(scenes).get("scenes", []):
-            rs = [r for r in rows if sc["start"] <= r["t"] < sc["end"]]
-            if rs:
+            ix = [i for i, r in enumerate(rows) if sc["start"] <= r["t"] < sc["end"]]
+            if ix:
                 per.append({"id": sc["id"], "start": sc["start"], "end": sc["end"],
-                            "score": round(float(np.mean([r["score"] for r in rs])), 3),
-                            "shape": round(float(np.mean([r["shape"] for r in rs])), 3)})
+                            "score": round(float(np.mean([rows[i]["score"] for i in ix])), 3),
+                            "shape": round(float(np.mean([rows[i]["shape"] for i in ix])), 3),
+                            "advice": _advice([diffs[i] for i in ix if diffs[i]])})
         res["scenes"] = sorted(per, key=lambda x: x["score"])
     res["worst"] = sorted(r["t"] for r in sorted(rows, key=lambda r: r["score"])[:worst])
+    for i in sorted(range(len(rows)), key=lambda i: rows[i]["score"])[:worst]:
+        rows[i]["advice"] = _advice([diffs[i]] if diffs[i] else [])
+    res["frames"] = rows
     if out:
         out.mkdir(parents=True, exist_ok=True)
         cells = []

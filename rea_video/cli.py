@@ -353,7 +353,7 @@ def cmd_compare(args) -> int:
             raise SystemExit(f"rea-video: 找不到 {p}")
     res = compare(args.ref, args.remake, every=args.every, out=Path(args.out) if args.out else None,
                   scenes=Path(args.scenes) if args.scenes else None, worst=args.worst)
-    brief = {k: res[k] for k in ("score", "place", "shape", "worst") if k in res}
+    brief = {k: res[k] for k in ("score", "place", "shape", "offset", "advice", "worst") if k in res}
     if res.get("scenes"):
         brief["lowest_scenes"] = res["scenes"][:5]
     if res.get("sheet"):

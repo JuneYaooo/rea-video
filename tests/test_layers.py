@@ -134,3 +134,16 @@ def test_scene_table_text():
                                                  "colours": [{"hex": "#4e747c"}], "pieces": 286, "box": [0.4, 0.03, 0.6, 0.78]}}]))
     assert "| scene_01 | #1 | 0.0–5.2s | #000000 | #507c87" in md and "rea-video compare" in md and "scene_XX_layer.png" in md
     assert layer_scenes_md([]) == []
+
+
+def test_compare_says_what_to_change(tmp_path):
+    moving = [_glow(_dots(0, cx=100 + 15 * i)) for i in range(24)]
+    ref = _video(tmp_path / "ref.mp4", moving)
+    late = compare(str(ref), str(_video(tmp_path / "late.mp4", [moving[0]] * 4 + moving[:-4])))
+    assert late["offset"]["seconds"] == 1.0 and late["advice"] == []  # lined up first, nothing else is off
+    still = _video(tmp_path / "still.mp4", [_glow(_dots())] * 12)
+    left = compare(str(still), str(_video(tmp_path / "left.mp4", [_glow(_dots(cx=150))] * 12)))
+    assert "offset" not in left and any("偏左" in a for a in left["advice"])
+    pale = compare(str(still), str(_video(tmp_path / "pale.mp4", [_dots(light=True)] * 12)))
+    assert any(a.startswith("底色") and "偏亮" in a for a in pale["advice"])
+    assert compare(str(still), str(still))["advice"] == []
