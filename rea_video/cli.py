@@ -616,7 +616,7 @@ def main(argv: list[str] | None = None) -> int:
     d.add_argument("--no-ocr", action="store_true", help="不做 OCR（字幕/花字时间轴也会跳过，只剩贴纸检测）")
     d.add_argument("--ocr-lang", choices=OCR_LANGS, help="字幕/花字的语言：zh 中英（默认）、ja 日文、ko 韩文（后两种首次使用自动下载识别模型）；也可用 prefs ocr_lang 设成默认")
     d.add_argument("--no-packaging", action="store_true", help="跳过剪辑包装层（整片字幕时间轴、花字、贴纸/动图、音效卡点）；省掉约每分钟 30–50 秒")
-    d.add_argument("--lang", choices=LANGS, help="报告、结论和 VLM 描述的语言：zh（默认）/ en；按用户提问的语言选，也可用 prefs lang 设成默认")
+    d.add_argument("--lang", choices=LANGS, help="报告、结论和 VLM 描述的语言：zh（默认）/ en / pt-BR；按用户提问的语言选，也可用 prefs lang 设成默认")
     d.add_argument("--workers", type=int, default=3)
     d.add_argument("--max-vlm-shots", type=int, default=60, help="最多发给 VLM 的调用数（默认 60；镜头更多时优先看最拿不准的，其余只靠确定性取证）")
     d.add_argument("--engine", help="复刻方案按哪个视频模型规划（rea-video models 列出的 id；默认 prefs 里的 engine，否则 seedance2.0）")
@@ -749,7 +749,7 @@ def main(argv: list[str] | None = None) -> int:
     ar.add_argument("out_dir")
     ar.add_argument("answers", nargs="?", help="答案文件（默认 <out_dir>/review_answers.json）")
     ar.add_argument("--by", help="复核者名字（写进报告）")
-    ar.add_argument("--lang", choices=LANGS, help="在这一步换报告语言：结论、证据和报告文字重新生成，VLM 已写好的描述和提示词保持原语言")
+    ar.add_argument("--lang", choices=LANGS, help="在这一步换报告语言（zh / en / pt-BR）：结论、证据和报告文字重新生成，VLM 已写好的描述和提示词保持原语言")
     ar.set_defaults(func=cmd_apply_review)
 
     co = sub.add_parser("correct", help="用户指出判错：改正这条视频的结论，并记入记忆（以后同类镜头会提示复核）")

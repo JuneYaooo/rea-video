@@ -127,7 +127,7 @@ def framing_words(shot: dict) -> tuple[str, str]:
     move = cm.get("move") or (v.get("camera_move") if v.get("camera_move") not in (None, "", "固定", "static") else None)
     from .aspects.vocab import ZH2EN, canon, show
 
-    loc = [x for x in (show(size), show(angle), comp or (where and (where[1] if lang() == "en" else where[0])),
+    loc = [x for x in (show(size), show(angle), comp or (where and (where[0] if lang() == "zh" else T(*where))),
                        move and T("镜头{m}", "camera {m}", m=show(move))) if x]
 
     def en_of(x):  # the English prompt always gets English words, whatever the report language

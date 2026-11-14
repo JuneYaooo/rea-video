@@ -1,6 +1,8 @@
 """Report language.
 
-Chinese is the source language of every user-facing string; English sits next to it. Two helpers:
+Chinese is the source language of every user-facing string; English sits next to it. Brazilian Portuguese
+(pt-BR) is a catalog keyed by the English string (i18n_pt_br.PT_BR), so call sites stay T("中文", "English");
+an English string missing from the catalog falls back to English. Two helpers:
 
   T("中文", "English")          pick the string for the current report language (optional .format kwargs)
   LangDict(zh={...}, en={...})  a code -> text mapping that resolves per language, so existing `X_ZH[code]`
@@ -16,15 +18,22 @@ import re
 from collections.abc import Mapping
 from typing import Iterator
 
-LANGS = ("zh", "en")
-LANG_NAMES = {"zh": "中文", "en": "English"}
+LANGS = ("zh", "en", "pt-BR")
+LANG_NAMES = {"zh": "中文", "en": "English", "pt-BR": "Português (Brasil)"}
+_ALIASES = {"pt": "pt-BR", "pt-br": "pt-BR", "pt_br": "pt-BR"}
 _lang: contextvars.ContextVar[str] = contextvars.ContextVar("rea_video_lang", default="zh")
 
 
-def set_lang(lang: str | None) -> str:
+def normalize_lang(lang: str | None) -> str:
     lang = (lang or "zh").lower()
+    lang = _ALIASES.get(lang, lang)
     if lang not in LANGS:
         raise ValueError(f"unsupported report language {lang!r} (choose from {', '.join(LANGS)})")
+    return lang
+
+
+def set_lang(lang: str | None) -> str:
+    lang = normalize_lang(lang)
     _lang.set(lang)
     return lang
 
@@ -35,8 +44,16 @@ def lang() -> str:
 
 def T(zh: str, en: str | None = None, **kw) -> str:
     """Text for the current language; `en` missing falls back to zh. kwargs are applied with str.format."""
-    s = en if (en is not None and _lang.get() == "en") else zh
+    s = zh if (en is None or _lang.get() == "zh") else _from_en(en)
     return s.format(**kw) if kw else s
+
+
+def _from_en(en: str) -> str:
+    """English text, or its pt-BR catalog entry when the report language is pt-BR."""
+    if _lang.get() != "pt-BR" or not isinstance(en, str):
+        return en
+    from .i18n_pt_br import PT_BR
+    return PT_BR.get(en, en)
 
 
 def model_name(name: str | None) -> str | None:
@@ -46,7 +63,7 @@ def model_name(name: str | None) -> str | None:
 
 
 def sep() -> str:
-    """List separator: 、 in Chinese, ", " in English."""
+    """List separator: 、 in Chinese, ", " in English and pt-BR."""
     return "、" if _lang.get() == "zh" else ", "
 
 
@@ -71,7 +88,7 @@ def shot_ids(ids) -> str:
 
 
 def semi() -> str:
-    """Clause separator: ； in Chinese, "; " in English."""
+    """Clause separator: ； in Chinese, "; " in English and pt-BR."""
     return "；" if _lang.get() == "zh" else "; "
 
 
@@ -83,8 +100,8 @@ class LangDict(Mapping):
         self._en = dict(en or {})
 
     def __getitem__(self, key):
-        if _lang.get() == "en" and key in self._en:
-            return self._en[key]
+        if _lang.get() != "zh" and key in self._en:
+            return _from_en(self._en[key])
         return self._zh[key]
 
     def __iter__(self) -> Iterator:

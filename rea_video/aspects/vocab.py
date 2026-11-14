@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 
-from ..i18n import lang
+from ..i18n import T, lang
 
 PAIRS = [
     # shot size
@@ -45,10 +45,10 @@ def show(x: str | None) -> str | None:
     s = str(x)
     if "/" in s and _head(s) not in ZH2EN and _head(s).lower() not in EN2ZH:
         parts = [show(p.strip()) or p for p in s.split("/")]
-        return " / ".join(parts) if lang() == "en" else "/".join(parts)
+        return " / ".join(parts) if lang() != "zh" else "/".join(parts)
     c = canon(s)
     if c not in ZH2EN:
         return s
-    if lang() == "en":
-        return ZH2EN[c]
-    return s if _head(s) == c else c  # Chinese: keep the reader's fuller wording ("顶拍（正上方俯拍桌面）")
+    if lang() == "zh":
+        return s if _head(s) == c else c  # keep the reader's fuller wording ("顶拍（正上方俯拍桌面）")
+    return T(c, ZH2EN[c])

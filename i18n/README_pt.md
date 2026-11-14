@@ -47,7 +47,7 @@ As análises foram totalmente renovadas. Cada uma gera dois resultados:
 
 Dá para adicionar um modelo que entenda vídeo — Gemini ou Doubao servem: é só passar o endpoint e a chave para o agente. Com ele, a separação entre real, IA e 3D fica mais precisa, e cada plano ganha um prompt reconstruído. Sem ele, tudo continua funcionando; se o seu agente enxerga imagens, ele mesmo revisa os planos em que ficou na dúvida.
 
-> O relatório sai no idioma em que você pedir (chinês ou inglês). Os relatórios de exemplo abaixo estão em inglês.
+> O relatório sai no idioma em que você pedir (chinês, inglês ou português do Brasil com `--lang pt-BR`). Há documentação em pt-BR em [docs/pt-BR/](../docs/pt-BR/). Os relatórios de exemplo abaixo estão em inglês.
 
 ## O que dá para analisar
 

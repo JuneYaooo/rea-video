@@ -35,7 +35,7 @@ if [ -z "$PY" ] || ! py_ok "$PY"; then
   echo "  macOS: brew install python@3.12；Ubuntu: sudo apt install python3.12 python3.12-venv；然后 PYTHON_BIN=python3.12 bash $0" >&2
   exit 1
 fi
-echo "使用 $PY（$("$PY" --version 2>&1)）"
+echo "使用 ${PY}（$("$PY" --version 2>&1)）"
 install_failed() {
   echo "✗ 安装失败，见上面的输出。" >&2
   if ! py_known "$PY"; then

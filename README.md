@@ -47,7 +47,7 @@ Breakdowns are fully upgraded. Each one gives you two outputs:
 
 You can also hook up a video-capable model (Gemini or Doubao both work) by giving the agent its endpoint and key. That makes the live/AI/3D calls more accurate and adds a reverse-engineered prompt for every shot. It works fine without one; if your agent can see images, it checks the uncertain shots itself.
 
-> Reports are written in whichever language you ask in (Chinese or English). The example reports below are in English.
+> Reports are written in whichever language you ask in (Chinese, English, or Brazilian Portuguese with `--lang pt-BR`). The example reports below are in English. Portuguese docs: [docs/pt-BR/](docs/pt-BR/).
 
 ## What it can break down
 
