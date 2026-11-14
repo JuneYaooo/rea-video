@@ -72,3 +72,20 @@ def test_generation_unit_prompt_and_report_use_the_acting(tmp_path):
                                                     {"start": 0.2, "end": 1.0, "speaker": "A", "text": "你听我说", "delivery": "急促"}]}}
     assert [ln.get("delivery") for ln in script(b)] == ["压低声音，句尾带哭腔", "急促"]
     json.dumps(plan, ensure_ascii=False)
+
+
+def test_english_prompt_gets_english_acting_only(tmp_path):
+    set_lang("zh")
+    act = performance.clean(ACT)
+    assert act["en"] == "" and performance.prompt_line_en(act) == ""  # Chinese cues never go into the English prompt
+    assert with_acting("She stands by the window.", act, en=True) == "She stands by the window."
+    act_en = performance.clean(dict(ACT, en="eyes slightly red, mouth corners pressed down; at 1.5s she looks up"))
+    line = with_acting("She stands by the window", act_en, en=True)
+    assert line == "She stands by the window. Acting (very subtle, barely visible): eyes slightly red, mouth corners pressed down; at 1.5s she looks up"
+    assert performance.clean(dict(ACT, en="眼眶微红"))["en"] == ""  # a non-English "en" is dropped
+    english = performance.clean({"face": "brows drawn together", "arc": [{"t": 0.5, "state": "glances away"}], "intensity": "mid"})
+    assert performance.prompt_line_en(english) == "Acting (moderate, not exaggerated): brows drawn together; at 0.5s glances away"
+    shots = [_shot(1, 0.0, 2.0, "ai_video", KITCHEN, tmp_path), _shot(2, 2.0, 2.0, "ai_video", KITCHEN, tmp_path)]
+    shots[1]["review"] = {"performance": act_en}
+    u = production_plan(_b(shots), tmp_path)["units"][0]
+    assert "Shot 2 (2.0-4.0s): shot 2. Acting (very subtle" in u["prompt_en"] and "眼眶" not in u["prompt_en"]

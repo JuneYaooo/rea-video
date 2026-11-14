@@ -349,7 +349,7 @@ AI 仿定格风格（材质在帧间漂移）与真正的定格动画（同一�
   "material_origin": "real|ai_generated|rendered|mixed（画面主要来自真实素材 / AI 生成 / 制作方渲染 / 混合）",
   "embedded_assets": [{{"kind": "real_footage|photo|screenshot|screen_recording|product_photo|logo|ai_image", "description": "是什么、在画面哪里", "is_real_material": true}}],
   "ai_edits": [{{"kind": "face_swap|lip_sync|restyle|outfit_swap|bg_replace|object_edit|beautify", "evidence": "看到的破绽"}}],
-  "performance": {{"who": "", "emotion": "", "intensity": "low|mid|high", "face": "", "body": "", "arc": [], "voice": "", "key": false}},
+  "performance": {{"who": "", "emotion": "", "intensity": "low|mid|high", "face": "", "body": "", "arc": [], "voice": "", "key": false, "en": ""}},
   "replication": {{
     "image_prompt": "复刻首帧的中文图像提示词（主体、构图、光线、风格，具体可执行；有人物时写首帧的表情）",
     "video_prompt": "复刻该镜头的中文视频提示词：写清动作过程和结束状态、运镜；人物表演写看得见的表情和动作（眼、眉、嘴、头、手），不写「开心」「难过」这类情绪词，幅度宁小勿大；只写想要的内容，不写否定句",

@@ -417,7 +417,8 @@ def _unit(seg: list[dict], k: int, lim: dict, model: dict | None, style: str, ca
         acc = z
         lines.append(T("镜头{i}（{a:.1f}–{z:.1f}s）：{text}", "Shot {i} ({a:.1f}–{z:.1f}s): {text}", i=i, a=a, z=z, text=text) if len(seg) > 1 else text)
         if p.get("video_prompt_en"):
-            lines_en.append(f"Shot {i} ({a:.1f}-{z:.1f}s): {p['video_prompt_en']}" if len(seg) > 1 else p["video_prompt_en"])
+            en = with_acting(p["video_prompt_en"], act, en=True)
+            lines_en.append(f"Shot {i} ({a:.1f}-{z:.1f}s): {en}" if len(seg) > 1 else en)
     parts = 1
     if len(seg) == 1 and dur > lim["max"]:
         parts = int(-(-dur // lim["max"]))

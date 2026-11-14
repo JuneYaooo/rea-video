@@ -13,7 +13,7 @@ from . import aspects, narrative, performance
 from .narrative import ROLE_GUIDE
 from .vlm import SHOT_PROMPT, shot_hints
 
-PERF_TEMPLATE = {"who": "", "emotion": "", "intensity": "", "face": "", "body": "", "arc": [], "voice": "", "key": False}
+PERF_TEMPLATE = {"who": "", "emotion": "", "intensity": "", "face": "", "body": "", "arc": [], "voice": "", "key": False, "en": ""}
 SHOOT_LIKE = ("live_action", "avatar", "stop_motion", "film_footage")  # shots where "how was it shot / lit" applies
 AGENT_WEIGHT = 0.85  # agent answers are softened toward uniform before fusion
 IMAGE_SOURCES = ("ai_image", "photo", "graphic", "screenshot", "unknown")

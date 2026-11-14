@@ -30,7 +30,8 @@ GUIDE = """画面里有人物、动物、卡通角色或数字人在表演（脸
 - body：头、肩、手、姿态、呼吸（点头、歪头、耸肩、手捂嘴、身体前倾、深吸一口气）
 - arc：镜头里情绪有变化时按秒写，t 是相对镜头开头的秒：[{"t": 0.0, "state": "这一刻看得见的表情和动作"}]；没变化写 []
 - voice：画面里的角色在这一镜开口（说话、笑、叹气）时写语气、语速、音量、停顿（"压低声音，语速慢，句尾带笑"）；画外旁白或没人开口留空
-- key：true = 表演是这一镜的看点（反应镜头、情绪爆发、反转时的表情），复刻时要专门保证"""
+- key：true = 表演是这一镜的看点（反应镜头、情绪爆发、反转时的表情），复刻时要专门保证
+- en：把 face、body、arc 合成一句英文，只写看得见的动作，不写情绪词（"eyes slightly red, corners of the mouth pressed down; at 1.5s she looks up"），给英文提示词用；上面几项已经是英文时留空"""
 
 
 def intensity_code(v) -> str:
@@ -58,7 +59,8 @@ def clean(v) -> dict | None:
             arc.append({"t": t, "state": _txt(a.get("state"), 80)})
     out = {"who": _txt(v.get("who"), 30), "emotion": _txt(v.get("emotion"), 20), "intensity": intensity_code(v.get("intensity")),
            "face": _txt(v.get("face")), "body": _txt(v.get("body")), "arc": sorted(arc, key=lambda a: a["t"])[:6],
-           "voice": _txt(v.get("voice"), 100), "key": v.get("key") is True or str(v.get("key")).lower() == "true"}
+           "voice": _txt(v.get("voice"), 100), "key": v.get("key") is True or str(v.get("key")).lower() == "true",
+           "en": _txt(v.get("en"), 240) if _txt(v.get("en"), 240).isascii() else ""}
     if not any(out[k] for k in ("emotion", "face", "body", "arc", "voice")):
         return None
     return out
@@ -78,6 +80,26 @@ def _strength() -> dict[str, str]:
     return {"low": T("幅度很小，几乎看不出", "very subtle, barely visible"),
             "mid": T("幅度适中，不夸张", "moderate, not exaggerated"),
             "high": T("情绪外放，但五官不变形", "openly expressed, features stay natural")}
+
+
+STRENGTH_EN = {"low": "very subtle, barely visible", "mid": "moderate, not exaggerated", "high": "openly expressed, features stay natural"}
+
+
+def prompt_line_en(p: dict | None) -> str:
+    """The acting for the English prompt: the reader's English sentence, or the fields themselves when they are
+    already English. Chinese cues are never mixed into an English prompt."""
+    if not p:
+        return ""
+    body = p.get("en") or ""
+    if not body:
+        bits = [x for x in (p.get("face"), p.get("body")) if x]
+        bits += [f"at the start {a['state']}" if a["t"] < 0.05 else f"at {a['t']:.1f}s {a['state']}" for a in p.get("arc") or []]
+        body = "; ".join(bits)
+        if not body.isascii():
+            return ""
+    if not body:
+        return ""
+    return "Acting" + (f" ({STRENGTH_EN[p['intensity']]})" if p.get("intensity") else "") + ": " + body
 
 
 def prompt_line(p: dict | None) -> str:
