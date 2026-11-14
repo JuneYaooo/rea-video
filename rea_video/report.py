@@ -11,7 +11,7 @@ import html
 import re
 from pathlib import Path
 
-from . import aspects, entities, narrative
+from . import aspects, entities, narrative, performance
 from .classify import LABEL_ZH
 from .i18n import LangDict, T, join, lang, semi, shot_ids
 from .packaging import layer_name, anchor_text
@@ -466,6 +466,11 @@ def _plan_md(b: dict) -> list[str]:
         if parts.get(key):
             steps.append(step)
             sub(title, parts[key])
+    acting = _acting_md(b)
+    if acting:
+        steps.append(T("**表演与情绪**：每镜的表情、动作和语气，见下方「表演与情绪」",
+                       "**Acting and emotion**: each shot's expression, movement and delivery, see “Acting and emotion” below"))
+        sub(T("表演与情绪", "Acting and emotion"), acting)
     steps.append(T("**剪辑**：见下方「剪辑」", "**Edit**: see “Edit” below"))
     sub(T("剪辑", "Edit"), _edit_md(b))
     files = ((b.get("packaging") or {}).get("files") or {})
@@ -480,6 +485,23 @@ def _plan_md(b: dict) -> list[str]:
     return (["", T("## 自己复刻：按这个顺序做", "## Remake it yourself: do it in this order"), "",
              T("复刻的是做法和节奏，不是照抄画面。", "Copy the method and the rhythm, not the pictures."), ""]
             + [f"{i}. {x}" for i, x in enumerate(steps, 1)] + subs)
+
+
+def _acting_md(b: dict) -> list[str]:
+    """Who acts in which shot, with what emotion, face, body and voice, and how to get it in a remake."""
+    rows, kinds = performance.table(b)
+    if not rows:
+        return []
+    L = [T("情绪写进提示词时用看得见的表情和动作，不写「开心」「难过」这类词，幅度宁小勿大（强情绪词容易出面具脸、假笑）；"
+           "首帧图先把表情做到位；有台词的镜头先做有语气的配音，再让画面跟着声音演。AI 生成的镜头，下面的「表情」「动作」已经写进生成单元的提示词。",
+           "In a prompt, describe the visible expression and movement rather than words like “happy” or “sad”, and keep it smaller rather "
+           "than bigger (strong emotion words tend to give mask faces and forced smiles); get the expression right in the first frame; "
+           "for shots with lines, make the voice with its delivery first and let the picture act to it. For generated shots the Face and "
+           "Movement below are already in the generation-unit prompts."), ""]
+    L += _table([T("镜头", "Shot"), T("谁", "Who"), T("情绪（强度）", "Emotion (strength)"), T("表情", "Face"), T("动作 / 变化", "Movement / change"),
+                 T("语气", "Delivery"), T("复刻怎么做", "How to get it")], rows, fold_title=T("全部 {n} 镜", "all {n} shots", n=len(rows)))
+    L += [""] + [f"- **{performance.ROUTE_ZH[k]}**{_colon()}{performance.route_text(k)}" for k in kinds]
+    return L
 
 
 def _content_md(b: dict, user: bool = False) -> list[str]:
@@ -520,8 +542,10 @@ def _content_md(b: dict, user: bool = False) -> list[str]:
         if lines[0].get("source") == "asr":
             head += T("（本地语音识别，未校对；同音字和专有名词以画面字幕为准）", " (local speech recognition, unchecked; trust on-screen subtitles for names and homophones)")
         L += ["", head]
-        L += _table([T("时间", "Time"), T("谁", "Who"), T("台词 / 旁白", "Line")],
-                    [[_span(ln["start"], ln["end"]), ln["speaker"] or T("旁白", "narration"), ln["text"]] for ln in lines], fold_title=T("全部 {n} 句", "all {n} lines", n=len(lines)))
+        tone = any(ln.get("delivery") for ln in lines)
+        L += _table([T("时间", "Time"), T("谁", "Who"), T("台词 / 旁白", "Line"), *([T("语气", "Delivery")] if tone else [])],
+                    [[_span(ln["start"], ln["end"]), ln["speaker"] or T("旁白", "narration"), ln["text"], *([ln.get("delivery") or "—"] if tone else [])]
+                     for ln in lines], fold_title=T("全部 {n} 句", "all {n} lines", n=len(lines)))
         if any(ln.get("voice") for ln in lines) and lines[0].get("source") == "asr":
             L.append(T("- 「谁」这一列按音色分出来的说话人填写，对应的单人音轨见「声音」",
                        "- The “Who” column is filled from the voices separated by timbre; each one's own track is under “Sound”"))
@@ -853,6 +877,9 @@ def _remake_md(b: dict) -> list[str]:
               T("这些镜头的画面是生成或拍摄出来的，下面是画面里出现、复刻时应作为参考图 / 道具准备的东西（不是嵌入的真实像素）：",
                 "These shots were generated or filmed; the items below appear in them and should be prepared as reference images / props for the remake (they are not embedded real pixels):"), ""]
         L += _grouped_assets(b, lambda r: (r.get("material") or {}).get("references", []), with_where=False)
+    acting = _acting_md(b)
+    if acting:
+        L += ["", T("### 表演与情绪", "### Acting and emotion"), ""] + acting
     return L
 
 
@@ -921,6 +948,10 @@ def _shot_detail_md(r: dict) -> list[str]:
     v = r.get("vlm") or r.get("review") or {}
     if v.get("description"):
         L.append(T("- 画面：{d}", "- Picture: {d}", d=v["description"]))
+    act = performance.of(r)
+    if act:
+        L.append(T("- 表演：{a}", "- Acting: {a}", a=performance.summary(act))
+                 + (T("；语气：{v}", "; delivery: {v}", v=act["voice"]) if act.get("voice") else ""))
     cl = aspects.shot_text(r) if base["label"] in aspects.PHOTOGRAPHIC else ""
     if cl:
         L.append(T("- 拍法/打光：{c}", "- Camera / lighting: {c}", c=cl))

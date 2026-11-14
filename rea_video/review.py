@@ -9,10 +9,11 @@ import shlex
 import time
 
 from .classify import LABEL_ZH, LABELS, top
-from . import aspects, narrative
+from . import aspects, narrative, performance
 from .narrative import ROLE_GUIDE
 from .vlm import SHOT_PROMPT, shot_hints
 
+PERF_TEMPLATE = {"who": "", "emotion": "", "intensity": "", "face": "", "body": "", "arc": [], "voice": "", "key": False}
 SHOOT_LIKE = ("live_action", "avatar", "stop_motion", "film_footage")  # shots where "how was it shot / lit" applies
 AGENT_WEIGHT = 0.85  # agent answers are softened toward uniform before fusion
 IMAGE_SOURCES = ("ai_image", "photo", "graphic", "screenshot", "unknown")
@@ -24,6 +25,7 @@ LABEL_GUIDE = re.search(r"底层画面类别.*?\n\n", SHOT_PROMPT, re.S).group(0
 CONFUSIONS = re.search(r"注意区分：.*?\n\n", SHOT_PROMPT, re.S).group(0).strip()
 ASPECT_GUIDE = aspects.review_guide()
 
+PERF_GUIDE = performance.GUIDE
 INSTRUCTIONS = f"""你是这次的 VLM：逐个镜头看图，判断「底层画面」的制作方式，把答案写进 review_answers.json，然后运行
   rea-video apply-review <输出目录> --by <你的名字>
 把你的判断并入结论（会重写 breakdown.json、report.md、report.html）。
@@ -49,8 +51,8 @@ kind 取 {"|".join(ASSET_KINDS)}，is_real_material 为 true/false）。
 画面里拍到了带字的东西（手机屏幕、包装、招牌）时填 overlay_text：这一镜后期加上去的字幕、花字、标注原文列表（画面本身的字不要写），报告会把其余 OCR 文字当成画面内容；没有这种情况就不填。
 同一段成片在片中出现不止一次（开头先放一段成片当预告、结尾完整放；或中途回放），在较短的那一处填 same_clip_as：另一处的镜头号（整数），复刻时只生成一次；不是就不要填。
 实拍或定格镜头被 AI 二次加工过时填 ai_edits：[{{"kind": "{"|".join(EDIT_KINDS)}", "evidence": "看到的破绽"}}]（换脸、对口型、风格化、换装、换背景、加删物体、美颜）；没有就留空。
-AI 生成 / 3D / 实拍镜头再填 replication：image_prompt（复刻首帧的<PROMPT_LANG>图像提示词：景别、机位高度和俯仰角、主体在画面里的位置和朝向、主体、光线、风格，具体可执行）、
-video_prompt（复刻该镜头的<PROMPT_LANG>视频提示词：先写景别、机位角度、主体在画面里的位置，再写动作过程和结束状态、运镜；只写想要的内容，不写否定句）、video_prompt_en（英文版）。
+AI 生成 / 3D / 实拍镜头再填 replication：image_prompt（复刻首帧的<PROMPT_LANG>图像提示词：景别、机位高度和俯仰角、主体在画面里的位置和朝向、主体、光线、风格，有人物时写首帧的表情，具体可执行）、
+video_prompt（复刻该镜头的<PROMPT_LANG>视频提示词：先写景别、机位角度、主体在画面里的位置，再写动作过程和结束状态、运镜；人物表演写看得见的表情和动作，不写情绪词，幅度宁小勿大；只写想要的内容，不写否定句）、video_prompt_en（英文版）。
 这些提示词会被合并进「生成单元」的多镜头提示词，所以每镜只写这一镜的内容，统一的风格和场景描述写在 description 里即可。
 
 实拍/写实镜头再填 aspects（怎么拍、怎么打光；纯图形/界面画面不填），像素测不出的部分靠你看：
@@ -59,6 +61,10 @@ video_prompt（复刻该镜头的<PROMPT_LANG>视频提示词：先写景别、�
 工具已经测了景别、主体光比、主光左右/上下、软硬、色温、背景虚化（见每镜 aspects），你主要补：机位角度、
 拍摄方式（自拍/支架）、主光是什么光源、眼神光、轮廓光/背景灯、画面里可见的光源；和测量冲突时写明依据。
 最后在答案顶层的 aspects 里写整片：机位/场景、推测设备、整体布光、剪辑手法、视频形式。
+
+有人在表演的镜头填 performance（表演和情绪；报告「表演与情绪」一节和生成单元的提示词都用它，复刻时表情、动作、语气靠它还原）。
+看 sheet 的首 / 中 / 尾三帧，表情变化快的镜头用 zoom_cmd 抽帧细看；有 said 的镜头结合台词写 voice：
+{PERF_GUIDE}
 
 每个镜头再填 narrative（这个镜头在讲什么）：role 选它在叙事上的作用，point 用一句话写它讲的那一点（去掉具体的人和产品也成立的写法，
 例如"用反常识的数字开场"而不是"说水豚每天睡 12 小时"）。先通读 storyboard.jpg 和每镜的 said（这一镜里的字幕；没有字幕时是语音识别听到的话，可能有同音错字）再填，作用是相对整片说的：
@@ -153,6 +159,7 @@ def build_tasks(breakdown: dict, out_dir: str) -> tuple[dict, dict]:
             **({"said": said[rec["index"]]} if said.get(rec["index"]) else {}),
             "images": {"sheet": rec["assets"]["sheet"], **({"strip": rec["assets"]["strip"]} if rec["assets"].get("strip") else {})},
             "_shoot_like": shoot_like,
+            "_acting": any(l in performance.ACTING_LABELS for l, _ in ranked[:2]),
         })
     pack = breakdown.get("packaging") or {}
     pk_tasks, pk_answers = None, None
@@ -168,6 +175,7 @@ def build_tasks(breakdown: dict, out_dir: str) -> tuple[dict, dict]:
         pk_answers = {"stickers": [{"id": st["id"], "is_overlay": None, "what": ""} for st in sts],
                       "text": [{"id": c["id"], "kind": ""} for c in txt[:80]], "missed": []}
     shoot = {s["id"]: s.pop("_shoot_like") for s in shots}
+    acting = {s["id"]: s.pop("_acting") for s in shots}
     # whole-video evidence (frame rate, transcode) repeats on most shots: state it once at the top
     from collections import Counter
 
@@ -194,7 +202,8 @@ def build_tasks(breakdown: dict, out_dir: str) -> tuple[dict, dict]:
                                      "label_probs": {}, "image_source": "unknown",
                                      "evidence": [], "description": "", "narrative": {"role": "", "point": ""}, "embedded_assets": [], "ai_edits": [], "same_clip_as": None,
                                      "replication": {"image_prompt": "", "video_prompt": "", "video_prompt_en": ""},
-                                     **({"aspects": aspects.review_template()} if shoot[s["id"]] else {})} for s in shots],
+                                     **({"aspects": aspects.review_template()} if shoot[s["id"]] else {}),
+                                     **({"performance": dict(PERF_TEMPLATE)} if acting[s["id"]] else {})} for s in shots],
                "aspects": aspects.review_template(video=True),
                "story": {"summary": "", "hook": "", "highlights": [""]},
                "cast": {"style": "", "characters": [{"id": "A", "name": "", "kind": "", "look": "", "role": "", "voice": "", "shots": []}],
@@ -260,6 +269,7 @@ def _clean(ans: dict) -> tuple[dict | None, str | None]:
             "evidence": [str(x) for x in ev][:8], "description": str(ans.get("description", "")),
             "embedded_assets": assets, "replication": rep, "aspects": aspects.clean_answers(ans.get("aspects")),
             "split_suggestion": split, "narrative": narrative.clean(ans.get("narrative")),
+            "performance": performance.clean(ans.get("performance")),
             "same_clip_as": int(ans["same_clip_as"]) if str(ans.get("same_clip_as", "")).strip().isdigit() else None,
             # the words added in post (subtitles, styled text, labels), like the VLM's overlay_text: OCR text in the
             # shot that matches none of them is part of the picture (a filmed phone screen, a gift box)

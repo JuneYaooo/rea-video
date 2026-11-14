@@ -329,6 +329,8 @@ AI 仿定格风格（材质在帧间漂移）与真正的定格动画（同一�
 实拍（或定格）画面如果被 AI 二次加工过，在 ai_edits 里逐个列出：换脸、对口型/改台词、整段风格化重绘、AI 换装、抠像换背景/绿幕、
 加删换物体、美颜瘦脸。依据要写看得到的破绽（脸部边缘、嘴型和下巴不跟、头发与背景交界、光线不一致）。没有就写 []。
 
+<<PERFORMANCE>>
+
 确定性分析给出的参考信号（可能有误，以画面为准）：
 {hints}
 
@@ -347,9 +349,10 @@ AI 仿定格风格（材质在帧间漂移）与真正的定格动画（同一�
   "material_origin": "real|ai_generated|rendered|mixed（画面主要来自真实素材 / AI 生成 / 制作方渲染 / 混合）",
   "embedded_assets": [{{"kind": "real_footage|photo|screenshot|screen_recording|product_photo|logo|ai_image", "description": "是什么、在画面哪里", "is_real_material": true}}],
   "ai_edits": [{{"kind": "face_swap|lip_sync|restyle|outfit_swap|bg_replace|object_edit|beautify", "evidence": "看到的破绽"}}],
+  "performance": {{"who": "", "emotion": "", "intensity": "low|mid|high", "face": "", "body": "", "arc": [], "voice": "", "key": false}},
   "replication": {{
-    "image_prompt": "复刻首帧的中文图像提示词（主体、构图、光线、风格，具体可执行）",
-    "video_prompt": "复刻该镜头的中文视频提示词：写清动作过程和结束状态、运镜；只写想要的内容，不写否定句",
+    "image_prompt": "复刻首帧的中文图像提示词（主体、构图、光线、风格，具体可执行；有人物时写首帧的表情）",
+    "video_prompt": "复刻该镜头的中文视频提示词：写清动作过程和结束状态、运镜；人物表演写看得见的表情和动作（眼、眉、嘴、头、手），不写「开心」「难过」这类情绪词，幅度宁小勿大；只写想要的内容，不写否定句",
     "video_prompt_en": "same video prompt in English"
   }}
 }}"""
@@ -402,7 +405,8 @@ WHOLE_PROMPT = """你是短视频拆解专家。完整观看并**仔细收听**�
   "highlights": ["这条视频能火 / 能卖货的关键做法，2–4 条，每条写手法 + 在哪一秒 + 为什么有效，不写空话"],
   "segments": [{{"start": 0.0, "end": 3.0, "role": "<<NARRATIVE_ENUM>>", "beat": "这一段在讲什么（一句话，换个题材也能照着写的那种）", "copy": "这一段的旁白/字幕文案", "audio": "人声/音乐/音效"}}],
   "narration": {{"type": "tts|human|none|mixed", "voice": "性别/年龄感/音色", "style": "语速、情绪、口癖", "language": "zh|en|...",
-                 "lines": [{{"start": 0.0, "end": 2.0, "speaker": "角色编号或 旁白", "text": "台词/旁白原文"}}]}},
+                 "lines": [{{"start": 0.0, "end": 2.0, "speaker": "角色编号或 旁白", "text": "台词/旁白原文",
+                            "delivery": "这句的语气、语速、音量、停顿（压低声音 / 带笑 / 急促 / 叹气）；和上一句一样就留空"}}]}},
   "music": {{"present": true, "segments": [{{"start": 0.0, "end": 10.0}}], "style": "风格", "genre": "流派", "mood": "情绪",
             "instruments": ["主要乐器"], "bpm_estimate": 0, "has_vocals": false,
             "source_guess": "ai_generated|stock_library|popular_song|original|unknown", "song_guess": "若是知名歌曲写歌名，否则空",
@@ -435,7 +439,9 @@ from .narrative import ROLE_GUIDE as _ROLE_GUIDE, ROLES as _ROLES  # noqa: E402
 
 WHOLE_PROMPT = WHOLE_PROMPT.replace("<<NARRATIVE_ROLES>>", _ROLE_GUIDE).replace("<<NARRATIVE_ENUM>>", "|".join(_ROLES))
 
-SHOT_PROMPT = SHOT_PROMPT.replace("<<SHOT_ASPECTS>>", _aspect_block(video=False))
+from .performance import GUIDE as _PERF_GUIDE  # noqa: E402
+
+SHOT_PROMPT = SHOT_PROMPT.replace("<<SHOT_ASPECTS>>", _aspect_block(video=False)).replace("<<PERFORMANCE>>", _PERF_GUIDE.replace("{", "{{").replace("}", "}}"))
 WHOLE_PROMPT = WHOLE_PROMPT.replace("<<VIDEO_ASPECTS>>", _aspect_block(video=True))
 
 
@@ -539,6 +545,10 @@ def normalize_shot_result(raw: dict) -> dict:
     for k in ("aspects", "replication"):
         if k in raw and not isinstance(raw[k], dict):
             del raw[k]
+    if "performance" in raw:
+        from .performance import clean as _perf
+
+        raw["performance"] = _perf(raw["performance"])
     if "replication" in raw:
         raw["replication"] = {k: v if isinstance(v, str) else _text(v) for k, v in raw["replication"].items()}
     return raw

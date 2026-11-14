@@ -21,13 +21,13 @@
 | 文件 | 内容 |
 |---|---|
 | `VIDEO.md` | 卡片带 `made_mix`（按时长的制作方式占比）、`confidence`、`readers`（工具 / 看图模型 / agent / 人工）、`source.sha256`；正文是结论、讲什么、叙事线、复刻概要、要拿到的真实素材、不确定点、地图 |
-| `video/timeline.md` | `story` 叙事作用 · `seen` 画面 · `camera` 运镜 · `overlay` 叠加层 · `made~` 制作方式 · `material~` 素材来源 · `remake` 复刻路线 · `flag` 需要复核 |
+| `video/timeline.md` | `story` 叙事作用 · `seen` 画面 · `act` 表演 · `camera` 运镜 · `overlay` 叠加层 · `made~` 制作方式 · `material~` 素材来源 · `remake` 复刻路线 · `flag` 需要复核 |
 | `video/content.md` | 内容与结构、叙事线、台词 |
 | `video/cast.md` | 角色、场景、道具 |
 | `video/sound.md` | 人声、BGM、音效、节拍和来源 |
 | `video/look.md` | 实拍镜头的景别、机位、打光、剪辑和器材（有实拍镜头时） |
 | `video/packaging.md` | 字幕、花字、贴纸、画中画的时间和样式 |
-| `video/remake.md` | 复刻方案：生成单元、拍摄场次、代码合成、要准备的真实素材 |
+| `video/remake.md` | 复刻方案：生成单元、拍摄场次、代码合成、要准备的真实素材、表演与情绪 |
 | `video/shots/<编号>.md` | 每镜的 `inferred`（制作方式、概率、次选、由谁判定、有没有真实素材）、`flags`、`frames`；正文是看得到的、推断和依据、提示词 |
 | `breakdown.json`、`shots/`、`stems/`、`sfx/`、`packaging/`、`frames/`（有代码渲染镜头时才有）、`storyboard.jpg`、`audio.png` | 完整数据和媒体文件，地图里都列着 |
 

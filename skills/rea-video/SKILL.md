@@ -44,6 +44,7 @@ rea-video summary out/ref/breakdown.json
 ```bash
 rea-video review out/ref                      # 写出 review_tasks.json（每镜要看的图、工具判断、优先级）和 review_answers.json（答案模板）
 # 读 review_tasks.json 的 instructions，逐镜看 images 里的图（priority=high 必看），把 label_probs / evidence / description / narrative / embedded_assets 填进 review_answers.json；narrative 是「这个镜头在讲什么」：role 选叙事作用（抓注意 / 交代背景 / 补信息 / 给证据 / 转折 / 给结论 / 引导行动 / 渲染情绪），point 一句话写它讲的那一点，报告会连成「叙事线」；若某镜头实为多刀合并（暗底图形与暗底口播交替时容易被合成一个长镜头），可加 split_suggestion（cuts 切点秒数 + labels 各段类别 + note），报告会在该镜头标注拆分建议，镜头边界本身不变
+# 有人在演的镜头填 performance：主情绪、强度、看得见的表情和动作、镜头里的变化、说话的语气；复刻提示词和配音会照它还原表演
 # 顶层 cast 填整片的角色 / 场景 / 道具（同一个角色跨镜头认成同一个，外观写到能据此复刻）和一句视觉风格；没开 VLM 时报告的「角色、场景与道具」一节全靠这里
 # 顶层 story 填报告开头的「核心看点」：summary 一句话、hook 开头几秒怎么抓人、highlights 2–4 条能火的做法（手法 + 第几秒 + 为什么有效）
 # 画面里拍到带字的东西（手机屏幕、包装、招牌）时，每镜填 overlay_text：这一镜后期加的字幕 / 花字原文，其余 OCR 文字报告当成画面内容

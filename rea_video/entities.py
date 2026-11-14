@@ -105,10 +105,15 @@ def script(b: dict) -> list[dict]:
     w = b.get("whole_video_vlm") or {}
     who = b.get("speakers") or {}
     turns = who.get("turns") or [] if who.get("count", 0) >= 2 else []
+    from .performance import delivery_at
+
     rows = []
     for ln in ((w.get("narration") or {}).get("lines") or []):
         if isinstance(ln, dict) and _s(ln, "text"):
             rows.append({"start": ln.get("start"), "end": ln.get("end"), "speaker": _s(ln, "speaker", 20), "text": _s(ln, "text", 200)})
+            how = _s(ln, "delivery", 60) or delivery_at(b, ln.get("start"), ln.get("end"))
+            if how:
+                rows[-1]["delivery"] = how
             if turns and isinstance(ln.get("start"), (int, float)) and isinstance(ln.get("end"), (int, float)):
                 from .speakers import speaker_at
 
@@ -120,8 +125,10 @@ def script(b: dict) -> list[dict]:
     for ln in ((b.get("speech") or {}).get("lines") or []):  # machine transcript: below the VLM's, above segment copy
         if isinstance(ln, dict) and _s(ln, "text"):
             voice = _s(ln, "speaker", 8) if turns else ""
+            how = delivery_at(b, ln.get("start"), ln.get("end"))
             rows.append({"start": ln.get("start"), "end": ln.get("end"), "speaker": speaker_label(b, voice) if voice else "",
-                         "text": _s(ln, "text", 200), "source": "asr", **({"voice": voice} if voice else {})})
+                         "text": _s(ln, "text", 200), "source": "asr", **({"voice": voice} if voice else {}),
+                         **({"delivery": how} if how else {})})
     if rows:
         return rows
     for seg in w.get("segments") or []:

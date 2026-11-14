@@ -92,6 +92,21 @@ def _where(cx: float | None, cy: float | None) -> tuple[str, str] | None:
         f"subject in the {(v[1] + ' ') if v[1] else ''}{h[1]} of the frame".replace("upper centre", "upper middle").replace("lower centre", "lower middle")
 
 
+def with_acting(prompt: str, act: dict | None, image: bool = False) -> str:
+    """Add the visible acting (face, body, change over time, strength) to a shot prompt, unless the prompt already
+    carries it. Readers' prompts tend to name the emotion or leave the face out, which gives a flat or mask-like remake."""
+    from .performance import image_line, prompt_line
+
+    line = image_line(act) if image else prompt_line(act)
+    if not prompt or not line:
+        return prompt
+    cue = (act or {}).get("face") or ""
+    if cue and cue in prompt:
+        return prompt
+    end = "" if prompt.rstrip().endswith(("。", ".", "；", ";")) else T("。", ". ")
+    return prompt.rstrip() + end + line
+
+
 def framing_words(shot: dict) -> tuple[str, str]:
     """Shot size, camera angle, subject position and camera move as a prompt prefix, (report language, English).
     The readers' free-text prompts tend to keep the style words and drop these, which flattens the camera in a remake."""
@@ -304,11 +319,14 @@ class Planner:
             # the measured / seen framing goes in front, so a remake keeps the camera height, angle and subject position
             fw, fw_en = framing_words(shot)
             still = T("，", ", ").join(w for w in fw.split(T("，", ", ")) if not w.startswith(T("镜头", "camera ")))
+            from .performance import of as _acting
+
+            act = _acting(shot)
             plan["capsule"] = {
                 "engine": engine, "generation_type": gen_type, "duration": gen_dur,
                 "trim_to": round(dur, 3), "aspect_ratio": video.get("aspect_ratio", "9:16"),
-                "prompt": _with_framing(prompt, fw), "prompt_en": _with_framing(rep.get("video_prompt_en", ""), fw_en),
-                "image_prompt": _with_framing(rep.get("image_prompt", ""), still), "framing": fw,
+                "prompt": with_acting(_with_framing(prompt, fw), act), "prompt_en": _with_framing(rep.get("video_prompt_en", ""), fw_en),
+                "image_prompt": with_acting(_with_framing(rep.get("image_prompt", ""), still), act, image=True), "framing": fw,
                 "needs_split": dur > hi,
             }
             if not prompt:

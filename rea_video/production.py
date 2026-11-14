@@ -22,7 +22,8 @@ from .util import read_image
 from .classify import LABEL_ZH
 from .aspects.camera import SUPPORT_ZH
 from .aspects.vocab import canon, show
-from .plan import CODE_STYLES, Planner, code_scene, shot_prompts
+from .plan import CODE_STYLES, Planner, code_scene, shot_prompts, with_acting
+from . import performance
 
 GEN_LABELS = ("ai_video", "cg_3d", "anim_2d")
 SHOOT_LABELS = ("live_action", "stop_motion")
@@ -399,7 +400,7 @@ def _unit(seg: list[dict], k: int, lim: dict, model: dict | None, style: str, ca
         head.append(T("参考 @视频1 的动作、运镜和剪辑节奏", "Follow the action, camera movement and cutting rhythm of @视频1"))
     if len(seg) > 1:
         head.append(T("镜头之间硬切", "Hard cuts between shots"))
-    lines, lines_en, missing = [], [], []
+    lines, lines_en, missing, acting = [], [], [], []
     acc = 0.0
     for i, r in enumerate(seg, 1):
         p = shot_prompts(r)
@@ -407,6 +408,11 @@ def _unit(seg: list[dict], k: int, lim: dict, model: dict | None, style: str, ca
         if not text:
             missing.append(r["index"])
             text = T("（缺提示词：开 --vlm 或 agent 看图补写）", "(prompt missing: run --vlm or have the agent write one from the frames)")
+        act = performance.of(r)
+        text = with_acting(text, act)
+        if act:
+            acting.append({"shot": r["index"], "line": performance.summary(act), "key": act["key"],
+                           "how": performance.ROUTE_ZH[performance.route_kind(act, r["base"]["label"])]})
         a, z = acc, acc + r["duration"]
         acc = z
         lines.append(T("镜头{i}（{a:.1f}–{z:.1f}s）：{text}", "Shot {i} ({a:.1f}–{z:.1f}s): {text}", i=i, a=a, z=z, text=text) if len(seg) > 1 else text)
@@ -423,7 +429,9 @@ def _unit(seg: list[dict], k: int, lim: dict, model: dict | None, style: str, ca
             "generate_s": max(dur, lim["min"], unit_min if len(seg) == 1 else 0), "refs": refs, "continuity": cont,
             "prompt": T("。", ". ").join(head) + T("。\n", ".\n") + "\n".join(lines),
             "prompt_en": "\n".join(lines_en) if len(lines_en) == len(seg) else "",
-            "image_prompt": shot_prompts(seg[0]).get("image_prompt", "")}
+            "image_prompt": with_acting(shot_prompts(seg[0]).get("image_prompt", ""), performance.of(seg[0]), image=True)}
+    if acting:
+        unit["acting"] = acting
     unit["method"], unit["inputs"] = _inputs(seg, lim, refs, prev_unit["id"] if chained else None, parts)
     if missing:
         unit["prompt_missing"] = missing
@@ -807,6 +815,8 @@ def report_md(plan: dict) -> list[str]:
             for k in ("note", "alt"):
                 if u.get(k):
                     L.append(f"- {u[k]}")
+            for a in u.get("acting") or []:
+                L.append(T("- 表演 #{s}{k}：{l}（{h}，见「表演与情绪」）", "- Acting #{s}{k}: {l} ({h}, see “Acting and emotion”)", s=a["shot"], k=T("（看点）", " (key)") if a["key"] else "", l=a["line"], h=a["how"]))
             if u.get("prompt_missing"):
                 L.append(T("- 镜头 {sh} 缺提示词", "- Shots {sh} have no prompt", sh=shot_ids(u["prompt_missing"])))
             L += ["", "```text", u["prompt"], "```"]

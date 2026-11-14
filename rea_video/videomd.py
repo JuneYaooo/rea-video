@@ -19,7 +19,7 @@ from pathlib import Path
 
 import yaml
 
-from . import entities, narrative
+from . import entities, narrative, performance
 from .classify import LABEL_ZH
 from .i18n import T, join
 
@@ -39,7 +39,7 @@ TRANSITION_ID = {"jump": "jump_cut", "fade": "fade_through", "dissolve": "dissol
                  "shake": "shake", "effect": "effect"}
 
 # timeline keys, in line order; `~` = inferred by the tools
-KEYS = ("story", "seen", "layers", "camera", "transition", "overlay", "made~", "material~", "remake", "flag")
+KEYS = ("story", "seen", "act", "layers", "camera", "transition", "overlay", "made~", "material~", "remake", "flag")
 
 
 # ------------------------------------------------------------------ helpers ---------------------------------------
@@ -113,6 +113,9 @@ def timeline_line(r: dict, roles: dict, units: dict) -> str:
     desc = (r.get("vlm") or r.get("review") or {}).get("description")
     if desc:
         f["seen"] = _one_line(desc, 60)
+    act = performance.of(r)
+    if act:
+        f["act"] = _one_line(performance.summary(act), 40)
     f["camera"] = CAMERA_ZH.get((r.get("features") or {}).get("camera", "unknown"), "—")
     trans = TRANSITION_ID.get(r.get("transition_in") or "cut")
     if trans:
@@ -145,9 +148,9 @@ def timeline_line(r: dict, roles: dict, units: dict) -> str:
 def _legend() -> list[str]:
     return [T("每行一个镜头：`#编号 起-止(秒) | 键 值 | …`。键后带 `~` 的是工具推断，不带的是画面里看得到或直接测得的。",
               "One shot per line: `#<n> start-end (s) | key value | …`. A key ending in `~` is the tools' inference; keys without it are visible on screen or measured directly."),
-            T("`story` 在叙事里的作用和讲的点 · `seen` 画面里看到的 · `camera` 运镜 · `overlay` 叠加层 · `made~` 制作方式（推断）· "
+            T("`story` 在叙事里的作用和讲的点 · `seen` 画面里看到的 · `act` 表演（情绪、强度、表情）· `camera` 运镜 · `overlay` 叠加层 · `made~` 制作方式（推断）· "
               "`material~` 素材来源（推断）· `remake` 复刻路线 · `flag` 需要复核",
-              "`story` job in the story and the point · `seen` what is on screen · `camera` camera move · `overlay` overlays · `made~` how it was made (inferred) · "
+              "`story` job in the story and the point · `seen` what is on screen · `act` acting (emotion, strength, face) · `camera` camera move · `overlay` overlays · `made~` how it was made (inferred) · "
               "`material~` where the material came from (inferred) · `remake` remake route · `flag` needs a second look"),
             T("某一镜的全部细节在 `{d}/shots/编号.md`（如 `{d}/shots/07.md`）。", "Full detail for a shot is in `{d}/shots/<n>.md` (e.g. `{d}/shots/07.md`).", d=DIR)]
 
@@ -187,7 +190,7 @@ def _topics(b: dict) -> list[tuple[str, str, str, list[str]]]:
         ("sound", T("声音", "Sound"), T("人声、BGM、音效、节拍和来源", "voice, music, sound effects, beats and sources"), _audio_md(b)),
         ("look", T("拍法、打光与剪辑", "Camera, lighting and editing"), T("有实拍镜头时：景别、机位、布光、器材", "for filmed shots: framing, camera, lighting, kit"), _visual_md(b)),
         ("packaging", T("剪辑包装", "Packaging"), T("字幕、花字、贴纸、画中画的时间和样式", "subtitles, styled text, stickers, picture-in-picture: timing and style"), packaging_md(b)),
-        ("remake", T("复刻方案", "Remake plan"), T("生成单元、拍摄场次、代码合成、要准备的真实素材", "generation units, shoots, code builds, real material to collect"), _remake_md(b)),
+        ("remake", T("复刻方案", "Remake plan"), T("生成单元、拍摄场次、代码合成、要准备的真实素材、表演与情绪", "generation units, shoots, code builds, real material to collect, acting and emotion"), _remake_md(b)),
     ]
 
 
