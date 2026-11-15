@@ -449,6 +449,46 @@ BN = dict(
     footer=("রিপোর্ট  report.html · breakdown.json", "এক লাইনের রায় · শুট / জেনারেট / কোডে ভাগ করা রিমেক প্ল্যান · প্রতি শটের স্থিরচিত্র, প্রমাণ, প্রম্পট · সাবটাইটেল SRT / ASS"),
 )
 
+TR = dict(
+    title="Çözümlü bir örnek: bir ürün videosu 5 çekim artı sese bölünüyor, her çekim dört adımdan geçiyor",
+    subtitle="Bir çekimi kanıttan yeniden yapım planına izlemek için yatay oku; bir adımda çekimleri karşılaştırmak için dikey oku",
+    steps=[
+        ("1", "Ayır", "çekimlere böl\nsesi 3'e ayır"),
+        ("2", "Kanıt", "kareleri ölç\ngörüntüye bak\ndinle"),
+        ("3", "Karar", "önce sağlam kanıt\nçelişkileri incele"),
+        ("4", "Plan", "model yeteneğine\ngöre grupla"),
+    ],
+    shots=["0:00–0:06", "0:06–0:11", "0:11–0:16", "0:16–0:21", "0:21–0:24"],
+    sound_lanes=["ses", "müzik", "efekt"],
+    sound_caption="tüm parça 0:00–0:24",
+    kinds={"m": "Ö", "l": "G", "h": "D"},
+    evidence=[
+        [("m", "60fps, tekrar yok"), ("m", "sensör gürültüsü"), ("l", "eller, yazı düzgün")],
+        [("m", "sabit arka plan"), ("m", "kısmi hareket"), ("l", "gerçek uygulama")],
+        [("m", "24fps tekrar ritmi"), ("m", "AIGC meta etiketi"), ("l", "kutuda bozuk yazı")],
+        [("m", "araçlar: 3D gibi"), ("l", "VLM: AI gibi"), ("l", "çelişki ⚠")],
+        [("m", "sabit arka plan"), ("m", "OCR metin izi"), ("l", "kamera izi yok")],
+        [("h", "3–8Hz hece hızı"), ("h", "122 BPM, Re minör"), ("h", "kesmeler ritimde")],
+    ],
+    verdicts=[
+        ("live", "Gerçek çekim", 0.96, None),
+        ("screen", "Ekran kaydı", 0.93, None),
+        ("ai", "AI video", 0.98, None),
+        ("ai", "AI video", 0.88, "ajan görsel inceler"),
+        ("code", "Kod render", 0.95, None),
+        ("sound", "Ses + kütüphane müziği", 0.9, None),
+    ],
+    rule="Sağlam kanıt (AIGC etiketi, kare temposu) \"öyle görünüyor\"dan üstündür; kaynakların çeliştiği çekimler ajanın görsel incelemesi için işaretlenir",
+    plans={
+        "s1": ("cam", ["Kendin çek", "1 mekân, 1 kamera", "halka ışık + telefon"]),
+        "s2": ("screen", ["Kaydet", "gerçek materyal", "asla üretilmez"]),
+        "s34": ("ai", ["2 çekimi 1 üretimde birleştir", "çoklu çekim istemi + 2 ürün görseli + @kaynak", "model yeteneğine göre: çağrı başına 10 sn,", "çoklu çekim çıktı, 2 referans görsel"]),
+        "s5": ("code", ["Kod yaz", "Remotion projesi", "metin, yerleşim, hareket"]),
+        "snd": ("sound", ["Üç parça", "ses: kayıt ya da TTS", "müzik: kütüphane, 122 BPM", "efekt: zamana göre"]),
+    },
+    footer=("Rapor  report.html · breakdown.json", "tek satırlık karar · çekim / üretim / kod olarak bölünmüş yeniden yapım planı · çekim başına kareler, kanıtlar, istemler · altyazı SRT / ASS"),
+)
+
 # ---------------------------------------------------------------- palette
 C = {
     "ink": "#0f172a", "mute": "#64748b", "line": "#cbd5e1", "band": "#f8fafc", "bg": "#ffffff",
@@ -771,6 +811,6 @@ if __name__ == "__main__":
     (out / "rea-flow.svg").write_text(build(ZH, "zh"), encoding="utf-8")
     (out / "rea-flow_en.svg").write_text(build(EN, "en"), encoding="utf-8")
     (out / "rea-flow_ja.svg").write_text(build(JA, "ja"), encoding="utf-8")
-    for lang, S in [("ko", KO), ("ru", RU), ("es", ES), ("pt", PT), ("fr", FR), ("de", DE), ("vi", VI), ("bn", BN)]:
+    for lang, S in [("ko", KO), ("ru", RU), ("es", ES), ("pt", PT), ("fr", FR), ("de", DE), ("vi", VI), ("bn", BN), ("tr", TR)]:
         (out / f"rea-flow_{lang}.svg").write_text(build(S, lang), encoding="utf-8")
     print("written", out)

@@ -11,7 +11,7 @@
 
 প্রতিটি বিশ্লেষণ লেখা হয় **[VIDEO.md](https://videomd.github.io/videomd/)** ফরম্যাটে: একটি ওপেন ফরম্যাট, যা এজেন্ট স্তরে স্তরে পড়ে।
 
-[ওয়েবসাইট](https://www.reavideo.ai) | [中文](README_zh.md) | [English](../README.md) | [Русский](README_ru.md) | [日本語](README_ja.md) | [한국어](README_ko.md) | [Español](README_es.md) | [Português](README_pt.md) | [Français](README_fr.md) | [Deutsch](README_de.md) | [Tiếng Việt](README_vi.md) | বাংলা
+[ওয়েবসাইট](https://www.reavideo.ai) | [中文](README_zh.md) | [English](../README.md) | [Русский](README_ru.md) | [日本語](README_ja.md) | [한국어](README_ko.md) | [Español](README_es.md) | [Português](README_pt.md) | [Français](README_fr.md) | [Deutsch](README_de.md) | [Tiếng Việt](README_vi.md) | বাংলা | [Türkçe](README_tr.md)
 
 [![Stars](https://img.shields.io/github/stars/JuneYaooo/rea-video?style=flat)](https://github.com/JuneYaooo/rea-video/stargazers)
 ![Python](https://img.shields.io/badge/python-%E2%89%A53.10-blue)
