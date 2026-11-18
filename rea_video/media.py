@@ -176,6 +176,10 @@ def iter_frames(
     w, h = scaled_size(info, width)
     vf = []
     if fps:
+        if start is not None and start > 0:
+            # the first frame (half a frame past the seek point) at time zero, or the rate filter repeats it and every
+            # frame after it lands one late
+            vf.append("setpts=PTS-STARTPTS")
         vf.append(f"fps={fps:g}")
     if crop:
         cx, cy, cw, ch = crop
