@@ -422,7 +422,8 @@ def decompose(video: str | Path, out_dir: str | Path, *, use_vlm: bool = False, 
         "speech": heard,
         "speakers": who,
         **({"rhythm": timeline["rhythm"], "survey": {"rounds": timeline.get("rounds"), "shots_estimate": timeline.get("shots_estimate"),
-                                                      "cuts": timeline["cuts"], "busy": timeline.get("busy", [])}} if timeline else {}),
+                                                      "cuts": timeline["cuts"], "busy": timeline.get("busy", []),
+                                                      **({"scenes": timeline["scene_names"]} if timeline.get("scene_names") else {})}} if timeline else {}),
         "per_clip_audio": per_clip_audio(str(video), [s.start for s in shots[1:]], info.duration) if info.has_audio else {},
     }
     if pack is not None:

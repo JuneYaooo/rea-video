@@ -64,9 +64,9 @@ DROP_TOOL_CUT_P = 0.85     # a detector cut is dropped only when its gap is expl
 
 GAP_CRITERIA = {
     "same": "同一个镜头在继续：画面延续，只有小幅运动",
-    "busy": "同一个镜头，但这段里画面变化很多（动作、元素进出、形变），要多抽关键帧",
-    "cut": "这段里换了镜头 / 场景，是一刀硬切",
-    "transition": "这段里换了场景，但不是硬切：形变、叠化、推拉进出、划像、甩镜等，过程要细看",
+    "busy": "还是同一个主体 / 场景，只是变化多：动了、变大变小、变形、多了或少了小元素、镜头推近拉远但还是那个东西",
+    "cut": "一刀硬切成了另一个主体 / 场景",
+    "transition": "逐渐变成了另一个主体 / 场景（不是硬切）：A 形变成 B、推进到某处出现新场景、叠化、划像、甩镜等",
     "unsure": "看不出来，要在这段加密抽帧再看",
 }
 KEY_ROLES = {
@@ -97,6 +97,8 @@ DETAIL_INSTRUCTIONS = """你是动画原画师，在挑关键帧。图里每一�
 ZOOM_INSTRUCTIONS = """你是视频节奏审阅员，这一轮是放大细看：图里每一块（标题写着段编号和时间范围）是上一轮要细看的地方，按变化最大的帧密集抽取，
 转场里基本逐帧。格子左上角是编号（时间在 state 里），底部橙色条是到下一格画面变化多大，右边红色竖线是切镜检测器的切点。
 gap 编号写成 段编号.NN，例如 r2_01.03 是这一段第 03 格和第 04 格之间。
+先按顺序数清每一块里出现了哪几个主体 / 场景，写进 scenes：每一块一行，"格子编号 名称"，逗号分开，格子编号是这个东西第一次完整出现的那格，
+例如 {"r2_03": "00 螺旋, 05 粒子圈, 11 向日葵"}；只有一个场景就写一个。再按它填 gaps：每换一次东西，换的那几个 gap 写 cut / transition。
 
 """
 SOURCE_CRITERIA = {
@@ -119,6 +121,8 @@ INSTRUCTIONS = """你是视频节奏审阅员。这一步只找镜头怎么切�
 - gaps：每个 gap 从 criteria 里选一项，简写成 "选项 [kind] 概率"，例如 {"g06": "transition zoom .85", "g09": "cut", "g12": "busy .7"}；
   是 "same" 的 gap 不用写，但画了红线的 gap 必须写。选 cut / transition 的，kind 从 kinds 里选（太小看不出是哪种就写 unsure，下一轮放大看）。
   一个转场跨几个 gap 时，这几个 gap 的 kind 写成一样；紧接着又是另一个转场（A 变成 B，B 马上又变成 C），换一个 kind，或者在 B 停留的那格写 busy。
+- busy 还是 transition，只问一句：这段结束时画面的主体或场景，还是开始时那个东西吗？还是同一个（只是动了、变大、变形、多了点东西）→ busy；
+  变成了另一个东西（向日葵变成鸟群、地球变成细胞、人物换成产品）→ transition。连着几次变成新东西，每次都算一次。
 - 拿不准就选 unsure，会在那里逐帧放大再看一轮；不要猜。
 - 宁可多报 transition / unsure，也不要漏掉换场景的地方：每个场景的第一帧都是关键帧。"""
 GAP_RULES = INSTRUCTIONS[INSTRUCTIONS.index("按 JEV 格式回答"):].replace("（太小看不出是哪种就写 unsure，下一轮放大看）", "")
@@ -476,8 +480,10 @@ def zoom_tasks(video: str, info: VideoInfo, track: FrameTrack, shots: list[Shot]
         tasks.append({
             "id": tid, "round": rnd, "images": [f"survey/zoom/{tid}.jpg"], "instructions": ZOOM_INSTRUCTIONS + GAP_RULES,
             "state": {"windows": [meta[k][1] for k in ks]},
-            "questions": {"gaps": {"type": "choice", "per": "gap", "ids": list(gaps), "criteria": GAP_CRITERIA, "kinds": KINDS}},
-            "answer_template": {"gaps": {}}, "_gaps": gaps,
+            "questions": {"scenes": {"type": "list", "per": "block", "ids": [meta[k][1]["id"] for k in ks],
+                                     "instructions": "每块里按顺序出现的主体 / 场景：\"格子编号 名称, ...\""},
+                          "gaps": {"type": "choice", "per": "gap", "ids": list(gaps), "criteria": GAP_CRITERIA, "kinds": KINDS}},
+            "answer_template": {"scenes": {}, "gaps": {}}, "_gaps": gaps,
         })
     return tasks
 
@@ -644,8 +650,38 @@ def read_answer(path: Path) -> dict | None:
     est = got.get("shots_estimate")
     if not (got.get("filled") or gaps or (isinstance(est, dict) and est.get("answer"))):
         return None  # the empty template: "filled": true marks an answer where every gap is a plain continuation
-    return {"gaps": gaps, "by": got.get("by") or "",
+    scenes = {}
+    for blk, v in (got.get("scenes") or {}).items():
+        rows = []
+        for part in (v if isinstance(v, list) else str(v).split(",")):
+            tok = str(part).strip().split(None, 1)
+            if tok and tok[0].isdigit():
+                rows.append((int(tok[0]), tok[1].strip() if len(tok) > 1 else ""))
+        if rows:
+            scenes[blk] = sorted(rows)
+    return {"gaps": gaps, "by": got.get("by") or "", **({"scenes": scenes} if scenes else {}),
             **({"shots_estimate": est} if isinstance(est, dict) and est.get("answer") else {})}
+
+
+def scene_fix(task: dict, ans: dict, track: FrameTrack) -> list[dict]:
+    """A zoom answer's scene list is the reader saying what it saw; a new scene with no cut / transition answered
+    before it (the reader called the change busy) gets a transition at the gap that changes most. Returns the scenes
+    with their times."""
+    score = change_score(track)
+    out = []
+    for w in task["state"].get("windows", []):
+        rows = [(k, n) for k, n in ans.get("scenes", {}).get(w["id"], []) if 0 <= k < len(w["times"])]
+        for (p, _), (k, name) in zip(rows, rows[1:]):
+            ids = [f"{w['id']}.{j:02d}" for j in range(p, k)]
+            if not ids or any((ans["gaps"].get(g) or {}).get("answer") in ("cut", "transition") for g in ids):
+                continue
+            def peak(g):
+                a, z = frame_at(track, task["_gaps"][g][0]) + 1, frame_at(track, task["_gaps"][g][1]) + 1
+                return float(score[a:max(a + 1, z)].max()) if z > a else 0.0
+            g = max(ids, key=peak)
+            ans["gaps"][g] = {"answer": "transition", "p": {"transition": 0.6}, "by_scenes": True}
+        out += [{"t": w["times"][k], "name": n} for k, n in rows if n]
+    return out
 
 
 def spikes(track: FrameTrack, t0: float, t1: float, level: float = 0.25) -> int:
@@ -778,6 +814,8 @@ def run(video: str | Path, out: Path, track: FrameTrack, shots: list[Shot], info
         zoomed = [(w["span"][0], w["span"][1]) for t in tasks for w in t["state"].get("windows", [])]
         for t in tasks:
             ans = read_answer(_task_paths(sdir, t["id"])[1]) or {"gaps": {}}
+            if ans.get("scenes"):
+                meta.setdefault("scene_names", {})[t["id"]] = scene_fix(t, ans, track)
             lvl = rnd if t["id"] == "overview" else rnd + 1  # how close the look was: a zoom beats the overview
             for g, span in t["_gaps"].items():
                 if g in ans["gaps"]:
@@ -990,6 +1028,8 @@ def build_timeline(track: FrameTrack, shots: list[Shot], found: dict, meta: dict
         "version": VERSION, "source": meta.get("source"), "rounds": len(meta.get("rounds", [])),
         "shots_estimate": meta.get("shots_estimate"), "shots": len(cuts) + 1, "cuts": cuts,
         **({"dropped_tool_cuts": dropped} if dropped else {}), "busy": busy,
+        **({"scene_names": sorted((x for v in meta["scene_names"].values() for x in v), key=lambda x: x["t"])}
+           if meta.get("scene_names") else {}),
         "rhythm": {"shot_lengths": lengths, "mean_shot_s": round(float(np.mean(lengths)), 3) if lengths else 0.0,
                    "cuts_per_min": round(len(cuts) / dur * 60, 1) if dur else 0.0,
                    "change_step_s": RHYTHM_STEP, "change": rhythm(track)},

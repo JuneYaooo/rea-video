@@ -228,10 +228,24 @@ def rhythm_md(b: dict) -> list[str]:
                     "", f"`{_curve(rh['change'], float(rh.get('change_step_s') or 0.25))}`", ""]
     if sv.get("cuts"):
         out += [T("## 切点和转场", "## Cuts and transitions"), ""]
-        for c in sv["cuts"]:
+        names = sv.get("scenes") or []  # what each stretch shows, as the closer looks named it
+
+        last = [""]
+
+        def named(t0: float, t1: float) -> str:
+            got = [n["name"] for n in names if t0 - 0.05 <= n["t"] < t1 - 0.05 and n["name"] != last[0]]
+            if not got:
+                return ""
+            last[0] = got[-1]
+            return f" → {got[-1]}"
+        ends = [c["t"] for c in sv["cuts"]] + [1e9]
+        if (first := named(0.0, ends[0])):
+            out.append(f"- 0.00s{first}")
+        for k, c in enumerate(sv["cuts"]):
             span = c.get("span") or [c["t"], c["t"]]
             dur = f" {span[1] - span[0]:.2f}s" if span[1] > span[0] and c.get("kind", "cut") not in ("cut", "jump") else ""
-            out.append(f"- {c['t']:.2f}s {c.get('kind', 'cut')}{dur}" + (T("（待确认）", " (to confirm)") if c.get("unsure") else ""))
+            out.append(f"- {c['t']:.2f}s {c.get('kind', 'cut')}{dur}" + (T("（待确认）", " (to confirm)") if c.get("unsure") else "")
+                       + named(span[0], ends[k + 1]))
         out.append("")
     rows = [(r["index"], r["keyframes"]) for r in b.get("shots", []) if r.get("keyframes")]
     if rows:
