@@ -597,10 +597,11 @@ def _vlm_gate(rec: dict, vprobs: dict | None, vctx: dict) -> dict | None:
               and bool(facts.get("big_face") or facts.get("lowlight") or facts.get("face_area", 0) >= RULES["big_face"]["area"]))
     if v in UNMEASURED:  # 2D animation / stop motion: the tools cannot score them, so they cannot back them either
         return vprobs
-    # the overview is the only reader and reads the whole video as one way of making it: where the tools hold no hard
-    # evidence (no repeated frames; not sure either, as an AIGC label would make them; a sharpness rhythm alone proves
-    # nothing), that consistency decides. A shot that looks generated or filmed among rendered ones is the case the
-    # overview is for (the tools read the textures of a hand-drawn vector animation as photo or AI)
+    # the survey's closer look is the only reader, and it saw this shot among its neighbours (a sheet's usual look,
+    # shots that differ marked): where the tools hold no hard evidence (no repeated frames; not sure either, as an
+    # AIGC label would make them; a sharpness rhythm alone proves nothing), that reading decides. A shot that looks
+    # generated or filmed among rendered ones is the case it is for (the tools read the textures of a hand-drawn
+    # vector animation as photo or AI)
     survey_only = bool(rec.get("survey_look")) and not rec.get("vlm") and not rec.get("review")
     if survey_only and vprobs.get(v, 0.0) >= 0.7 and facts.get("pulldown") in (None, "interpolated") and dp < 0.65:
         return vprobs
@@ -760,7 +761,7 @@ def finalize(breakdown: dict, out: Path, engine: str | None = None) -> dict:
         evidence = measured + seen_ev
         if not rec.get("vlm") and not rec.get("review") and rec.get("survey_look"):
             sl = rec["survey_look"]
-            seen_ev.append(T("[{by} 总览] 全片总览判断这段是{l}", "[{by} overview] The whole-video overview reads this stretch as {l}",
+            seen_ev.append(T("[{by} 逐镜细看] 看关键帧判断这段是{l}", "[{by} shot look] The key frames read this stretch as {l}",
                              by=reviewer_name(sl.get("_by") or "agent"), l=LABEL_ZH.get(sl.get("answer"), sl.get("answer"))))
             evidence = measured + seen_ev
         decided = "fused" if rec.get("vlm") else ("fused_agent" if rec.get("review") or rec.get("survey_look") else "deterministic")
