@@ -35,7 +35,7 @@ from .shots import FrameTrack, Shot
 from .util import fmt_time, read_json, write_json
 from .visual import _font, _to_pil
 
-VERSION = 3
+VERSION = 4
 # One sheet is one image a model takes in without shrinking it (Claude: 1568 px on the long side, about 1.15 MP; other
 # readers are close). The image costs about its pixel count, so a sheet is filled to that size and no further, and
 # what changes is how many tiles share it.
@@ -47,6 +47,8 @@ SHEET_SIDE, SHEET_PIX = 1568, 1_150_000
 TILE_AREA = {"overview": 120 * 68, "zoom": 144 * 81, "detail": 144 * 81}
 OVERVIEW_TILES = 240       # overview tiles at most; a longer video gets wider spacing
 OVERVIEW_MIN, OVERVIEW_MAX = 0.33, 3.0  # overview spacing (s), set by how often the video changes (overview_every)
+OVERVIEW_ACTIVE = 0.5      # share of the overview tiles placed by how much the picture changes (the rest evenly)
+FINE_GAP = 0.25            # an overview gap this short is already a close look: a transition in it is not zoomed again
 ZOOM_MAX = 18              # frames for one stretch looked at closer (two rows of zoom tiles)
 ZOOM_SPAN = 4.0            # longest stretch one zoom block covers
 MAX_ROUNDS = 3
@@ -90,7 +92,7 @@ DETAIL_INSTRUCTIONS = """你是动画原画师，在挑关键帧。图里每一�
 - 要改的镜头写 frames 和 missing：frames 只写是关键帧的格子，"格子编号": "角色 概率"，例如 {"02": "extreme .8", "05": "enter"}，
   角色从 roles 里选；missing 写漏了关键帧的相邻两格，例如 ["03-04"]（动作在两格之间转折了、有元素一闪而过）。
 - 第一格一般是 first；动作的转折和极值最重要，宁多勿漏。"""
-ZOOM_INSTRUCTIONS = """你是视频节奏审阅员，这一轮是放大细看：图里每一块（标题写着段编号和时间范围）是上一轮要细看的地方，按变化最大的帧密集抽取，
+ZOOM_INSTRUCTIONS = """你是视频节奏审阅员，这一轮是放大细看：图里每一块（标题写着段编号和时间范围）是要细看的地方（上一轮标出的，或工具从画面变化里找到的渐变段），按变化最大的帧密集抽取，
 转场里基本逐帧。格子左上角是编号（时间在 state 里），底部橙色条是到下一格画面变化多大，右边红色竖线是切镜检测器的切点。
 gap 编号写成 段编号.NN，例如 r2_01.03 是这一段第 03 格和第 04 格之间。
 
@@ -107,7 +109,8 @@ KINDS = {"cut": "硬切", "dissolve": "叠化", "morph": "形变：上一画面�
          "effect": "其他转场特效"}
 
 INSTRUCTIONS = """你是视频节奏审阅员。这一步只找镜头怎么切分：有多少个镜头 / 场景、在哪里换、怎么换；不判断画面是怎么做出来的（后面逐镜细看时再判断）。
-图里是按时间排开的帧，格子故意很小，够分辨场景就行；每格左上角是编号（时间在 state.times 里）。格子之间叫 gap，
+图里是按时间排开的帧，格子故意很小，够分辨场景就行；每格左上角是编号（时间在 state.times 里）。格子不是等距的：画面变化多的地方密，
+平稳的地方稀。格子之间叫 gap，
 编号 gNN 表示第 NN 格和下一格之间。格子底部的橙色条是这段里画面变化有多大（越长越大），右边红色竖线表示切镜检测器在这段里找到了切点。
 
 按 JEV 格式回答：只回 JSON，不写解释。
@@ -363,11 +366,74 @@ def overview_every(track: FrameTrack, shots: list[Shot], dur: float) -> float:
     return max(every, dur / OVERVIEW_TILES)
 
 
+def overview_times(track: FrameTrack, dur: float, n: int) -> list[float]:
+    """Where the n overview tiles go, from the change curve (no AI needed): OVERVIEW_ACTIVE of them where the picture
+    changes (a slow morph or dissolve gets tiles all through it, back-to-back cuts get a tile between them), the
+    rest evenly (a still stretch is still seen)."""
+    score = change_score(track)
+    nf = len(score)
+    if nf < 2:
+        return [round((k + 0.5) * dur / n, 3) for k in range(n)]
+    w = max(1, int(round(0.1 * track.fps)))  # the change spread over 0.1 s, so all of a transition counts
+    act = np.array([score[max(0, i - w):i + w + 1].max() for i in range(nf)])
+    act = np.clip(act - 0.03, 0, None)       # noise and slow drifts are not activity
+    dens = np.full(nf, (1 - OVERVIEW_ACTIVE) / nf)
+    dens += OVERVIEW_ACTIVE * (act / act.sum() if act.sum() > 0 else 1.0 / nf)
+    cdf = np.cumsum(dens)
+    idx = sorted({int(min(nf - 1, np.searchsorted(cdf, q))) for q in (np.arange(n) + 0.5) / n * cdf[-1]})
+    return [round(_t(track, i), 3) for i in idx]
+
+
+def tool_windows(track: FrameTrack) -> list[tuple[float, float, str]]:
+    """Stretches the change curve alone shows to be gradual scene changes, zoomed in round 1 next to the overview
+    instead of after it: the picture keeps changing (several frames of change, not one cut frame, which the detector
+    places exactly) and ends as something else (the frames before and after differ, unlike motion inside a shot)."""
+    score = change_score(track)
+    nf = len(score)
+    w = max(1, int(round(0.1 * track.fps)))
+    on = np.array([score[max(0, i - w):i + w + 1].max() > 0.06 for i in range(nf)])
+    out: list[tuple[float, float, str]] = []
+    i = 0
+    while i < nf:
+        if not on[i]:
+            i += 1
+            continue
+        j = i
+        while j < nf and on[j]:
+            j += 1
+        a, z = max(0, i - 1), min(nf - 1, j)
+        if int((score[i:j] > 0.06).sum()) >= 3 and _differ(track, a, z):
+            t0, t1 = _t(track, a), _t(track, z)
+            if out and t0 - out[-1][1] < 0.2:
+                out[-1] = (out[-1][0], t1, "tool")
+            else:
+                out.append((t0, t1, "tool"))
+        i = j
+    split = []
+    for t0, t1, why in out:
+        n = max(1, int(math.ceil((t1 - t0) / ZOOM_SPAN)))
+        split += [(t0 + (t1 - t0) * k / n, t0 + (t1 - t0) * (k + 1) / n, why) for k in range(n)]
+    return split
+
+
+def _differ(track: FrameTrack, a: int, z: int) -> bool:
+    """Frames a and z show different pictures: brightness histograms apart, or the pixels."""
+    fa, fz = track.thumbs[a], track.thumbs[z]
+    ga = fa if fa.ndim == 2 else cv2.cvtColor(fa, cv2.COLOR_RGB2GRAY)
+    gz = fz if fz.ndim == 2 else cv2.cvtColor(fz, cv2.COLOR_RGB2GRAY)
+    ha = cv2.calcHist([ga], [0], None, [32], [0, 256]).ravel()
+    hz = cv2.calcHist([gz], [0], None, [32], [0, 256]).ravel()
+    hist = 0.5 * float(np.abs(ha / max(ha.sum(), 1) - hz / max(hz.sum(), 1)).sum())
+    pix = float(np.abs(fa.astype(float) - fz.astype(float)).mean() / 255)
+    return hist >= 0.1 or pix >= 0.07
+
+
 def overview_task(video: str, info: VideoInfo, track: FrameTrack, shots: list[Shot], sdir: Path) -> dict:
     dur = info.duration or _t(track, track.n - 1)
     n = max(8, int(round(dur / overview_every(track, shots, dur))))
+    times = overview_times(track, dur, n)
+    n = len(times)
     every = dur / n
-    times = [round((k + 0.5) * every, 3) for k in range(n)]
     score = change_score(track)
     tw, th = tile_size(info, "overview")
     frames = _grab(video, info, times, width=tw)
@@ -637,11 +703,18 @@ def _windows(task: dict, gaps: dict, rnd: int = 1, track: FrameTrack | None = No
     when the gap holds more than one sudden change: one answer can only place one cut), unsure on a zoom sheet (a
     transition there has been looked at closely already), split to ZOOM_SPAN."""
     ids = list(task["_gaps"])
-    want = ("transition", "unsure") if rnd == 1 else ("unsure",)
+    first = task["id"] == "overview"
+    want = ("transition", "unsure") if first else ("unsure",)
+    one = 2.5 / track.fps if track is not None else 0.0
 
     def zoom(g: str) -> bool:
         ans = (gaps.get(g) or {}).get("answer")
-        return ans in want or (rnd == 1 and ans == "cut" and track is not None and spikes(track, *task["_gaps"][g]) > 1)
+        t0, t1 = task["_gaps"][g]
+        if t1 - t0 <= one:
+            return False  # neighbouring frames: nothing more to see, the change curve decides (build_timeline)
+        if ans == "transition" and first and t1 - t0 <= FINE_GAP:
+            return False  # the overview already showed it closely
+        return ans in want or (first and ans == "cut" and track is not None and spikes(track, t0, t1) > 1)
     pick = [g for g in ids if zoom(g)]
     runs: list[list[str]] = []
     for g in pick:
@@ -714,6 +787,9 @@ def run(video: str | Path, out: Path, track: FrameTrack, shots: list[Shot], info
         _reset(sdir)
         meta = {"version": VERSION, "source": src, "rounds": [["overview"]]}
         _write_task(sdir, overview_task(video, info, track, shots, sdir))
+        for t in zoom_tasks(video, info, track, shots, sdir, tool_windows(track), 1):  # alongside, no need to wait
+            _write_task(sdir, t)
+            meta["rounds"][0].append(t["id"])
         write_json(meta_p, meta)
 
     def answer(tasks: list[dict], reader) -> None:
@@ -744,17 +820,21 @@ def run(video: str | Path, out: Path, track: FrameTrack, shots: list[Shot], info
         if (w := waiting(tasks, read_answer, "cuts", rnd)):
             return w
         nxt: list[tuple[float, float, str]] = []
+        zoomed = [(w["span"][0], w["span"][1]) for t in tasks for w in t["state"].get("windows", [])]
         for t in tasks:
             ans = read_answer(_task_paths(sdir, t["id"])[1]) or {"gaps": {}}
+            lvl = rnd if t["id"] == "overview" else rnd + 1  # how close the look was: a zoom beats the overview
             for g, span in t["_gaps"].items():
                 if g in ans["gaps"]:
-                    found[g] = {"t": span, "round": rnd, **ans["gaps"][g]}
-                elif rnd > 1:  # a zoomed stretch: gaps left out are continuations, and replace the coarser answer
-                    found[g] = {"t": span, "round": rnd, "answer": "same", "p": {"same": 1.0}, "implicit": True}
+                    found[g] = {"t": span, "round": lvl, **ans["gaps"][g]}
+                elif t["id"] != "overview":  # a zoomed stretch: gaps left out are continuations, and replace the coarser answer
+                    found[g] = {"t": span, "round": lvl, "answer": "same", "p": {"same": 1.0}, "implicit": True}
             if rnd == 1 and ans.get("shots_estimate"):
                 meta["shots_estimate"] = ans["shots_estimate"]
             if rnd < MAX_ROUNDS:
-                nxt += _windows(t, ans["gaps"], rnd, track)
+                # stretches zoomed in this round already are not zoomed again for the overview's sake
+                nxt += [w for w in _windows(t, ans["gaps"], rnd, track)
+                        if t["id"] != "overview" or sum(max(0.0, min(w[1], z) - max(w[0], a)) for a, z in zoomed) < 0.8 * (w[1] - w[0])]
         if rnd == len(meta["rounds"]) and nxt:
             new = []
             for t in zoom_tasks(video, info, track, shots, sdir, nxt, rnd + 1):
@@ -861,7 +941,8 @@ def _finest(found: dict) -> dict:
     out = {}
     for g, v in found.items():
         t0, t1 = v["t"]
-        later = sorted((max(t0, w["t"][0]), min(t1, w["t"][1])) for w in found.values() if w["round"] > v["round"])
+        later = sorted((max(t0, w["t"][0]), min(t1, w["t"][1])) for w in found.values()
+                       if w["round"] > v["round"] and w["t"][0] < t1 and w["t"][1] > t0)  # only what overlaps it
         covered, end = 0.0, t0
         for a, z in later:
             if z > end:
@@ -889,6 +970,9 @@ def build_timeline(track: FrameTrack, shots: list[Shot], found: dict, meta: dict
         elif ans == "cut" or (ans == "unsure"):
             a, z = frame_at(track, v["t"][0]) + 1, frame_at(track, v["t"][1]) + 1
             b = a + int(np.argmax(score[a:max(a + 1, z)]))
+            if ans == "unsure" and z - a <= 2 and score[b] < 0.25:
+                k += 1
+                continue  # neighbouring frames nobody could tell apart, and no sudden change between them
             tb = round(_t(track, b), 3)
             cuts.append({"t": tb, "frame": int(b), "kind": v.get("kind", "cut") if ans == "cut" else "cut",
                          "span": [tb, tb], "p": v["p"].get(ans, 0.5) if ans == "cut" else 0.5,
