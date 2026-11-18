@@ -997,7 +997,10 @@ def build_timeline(track: FrameTrack, shots: list[Shot], found: dict, meta: dict
     for s in shots[1:]:
         t = s.start
         inside = [c for c in cuts if c["span"][1] - c["span"][0] > 2 * edge and c["span"][0] + edge < t < c["span"][1] - edge]
-        at_edge = [c for c in cuts if c not in inside and c["span"][0] - edge <= t <= c["span"][1] + edge and c["span"][1] > c["span"][0]]
+        # a cut on a transition's first or last frame is a change of its own next to it; only a detector "transition"
+        # (whip, dissolve, ...) where the transition starts is the same change, seen from its first frame
+        at_edge = [c for c in cuts if c not in inside and c["span"][0] - edge <= t <= c["span"][1] + edge and c["span"][1] > c["span"][0]
+                   and not (s.transition_in not in (None, "cut", "start", "flash") and t <= c["span"][0] + edge)]
         if inside or (not at_edge and any(c["span"][0] - near <= t <= c["span"][1] + near for c in cuts)):
             for c in inside:  # the survey found the same change: take the detector's exact frame
                 c.update(frame=s.start_frame, t=round(t, 3), by="survey+tool")
