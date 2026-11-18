@@ -1,10 +1,12 @@
 """Survey: look at the whole video once, then look closer only where it needs it.
 
-Round 1 lays evenly spaced frames of the whole video on one overview sheet of small tiles (index, how much the picture
-changes in each gap, the cut detector's cuts marked): its only job is to find the shots, which small tiles do as well
-as large ones. Every gap between two tiles gets a typed question. Gaps answered "transition" or "unsure" get a zoom
+Round 1 lays frames of the whole video on one overview sheet of small tiles (index, how much the picture changes in
+each gap, the cut detector's cuts marked): its only job is to find the shots, which small tiles do as well as large
+ones. The tiles are placed by the change curve, half evenly and half where the picture changes, so a slow morph is
+seen through and a still stretch costs few tiles. Every gap between two tiles gets a typed question. Gaps answered "transition" or "unsure" get a zoom
 block in the next round, at a larger tile size: frames picked where the picture changes most, about every frame
-through a transition. Blocks are packed onto as few sheets as fit; sheets of a round are independent, so they can be
+through a transition; a transition the overview already showed closely, and a gap between two neighbouring frames
+(nothing more to see), are not zoomed. Blocks are packed onto as few sheets as fit; sheets of a round are independent, so they can be
 answered in parallel. At most three rounds. Then every shot is shown once at the closer size: its key frames are
 picked and named, and how its picture was made is judged there, where the texture can be seen.
 
@@ -92,7 +94,7 @@ DETAIL_INSTRUCTIONS = """你是动画原画师，在挑关键帧。图里每一�
 - 要改的镜头写 frames 和 missing：frames 只写是关键帧的格子，"格子编号": "角色 概率"，例如 {"02": "extreme .8", "05": "enter"}，
   角色从 roles 里选；missing 写漏了关键帧的相邻两格，例如 ["03-04"]（动作在两格之间转折了、有元素一闪而过）。
 - 第一格一般是 first；动作的转折和极值最重要，宁多勿漏。"""
-ZOOM_INSTRUCTIONS = """你是视频节奏审阅员，这一轮是放大细看：图里每一块（标题写着段编号和时间范围）是要细看的地方（上一轮标出的，或工具从画面变化里找到的渐变段），按变化最大的帧密集抽取，
+ZOOM_INSTRUCTIONS = """你是视频节奏审阅员，这一轮是放大细看：图里每一块（标题写着段编号和时间范围）是上一轮要细看的地方，按变化最大的帧密集抽取，
 转场里基本逐帧。格子左上角是编号（时间在 state 里），底部橙色条是到下一格画面变化多大，右边红色竖线是切镜检测器的切点。
 gap 编号写成 段编号.NN，例如 r2_01.03 是这一段第 03 格和第 04 格之间。
 
@@ -382,50 +384,6 @@ def overview_times(track: FrameTrack, dur: float, n: int) -> list[float]:
     cdf = np.cumsum(dens)
     idx = sorted({int(min(nf - 1, np.searchsorted(cdf, q))) for q in (np.arange(n) + 0.5) / n * cdf[-1]})
     return [round(_t(track, i), 3) for i in idx]
-
-
-def tool_windows(track: FrameTrack) -> list[tuple[float, float, str]]:
-    """Stretches the change curve alone shows to be gradual scene changes, zoomed in round 1 next to the overview
-    instead of after it: the picture keeps changing (several frames of change, not one cut frame, which the detector
-    places exactly) and ends as something else (the frames before and after differ, unlike motion inside a shot)."""
-    score = change_score(track)
-    nf = len(score)
-    w = max(1, int(round(0.1 * track.fps)))
-    on = np.array([score[max(0, i - w):i + w + 1].max() > 0.06 for i in range(nf)])
-    out: list[tuple[float, float, str]] = []
-    i = 0
-    while i < nf:
-        if not on[i]:
-            i += 1
-            continue
-        j = i
-        while j < nf and on[j]:
-            j += 1
-        a, z = max(0, i - 1), min(nf - 1, j)
-        if int((score[i:j] > 0.06).sum()) >= 3 and _differ(track, a, z):
-            t0, t1 = _t(track, a), _t(track, z)
-            if out and t0 - out[-1][1] < 0.2:
-                out[-1] = (out[-1][0], t1, "tool")
-            else:
-                out.append((t0, t1, "tool"))
-        i = j
-    split = []
-    for t0, t1, why in out:
-        n = max(1, int(math.ceil((t1 - t0) / ZOOM_SPAN)))
-        split += [(t0 + (t1 - t0) * k / n, t0 + (t1 - t0) * (k + 1) / n, why) for k in range(n)]
-    return split
-
-
-def _differ(track: FrameTrack, a: int, z: int) -> bool:
-    """Frames a and z show different pictures: brightness histograms apart, or the pixels."""
-    fa, fz = track.thumbs[a], track.thumbs[z]
-    ga = fa if fa.ndim == 2 else cv2.cvtColor(fa, cv2.COLOR_RGB2GRAY)
-    gz = fz if fz.ndim == 2 else cv2.cvtColor(fz, cv2.COLOR_RGB2GRAY)
-    ha = cv2.calcHist([ga], [0], None, [32], [0, 256]).ravel()
-    hz = cv2.calcHist([gz], [0], None, [32], [0, 256]).ravel()
-    hist = 0.5 * float(np.abs(ha / max(ha.sum(), 1) - hz / max(hz.sum(), 1)).sum())
-    pix = float(np.abs(fa.astype(float) - fz.astype(float)).mean() / 255)
-    return hist >= 0.1 or pix >= 0.07
 
 
 def overview_task(video: str, info: VideoInfo, track: FrameTrack, shots: list[Shot], sdir: Path) -> dict:
@@ -787,9 +745,6 @@ def run(video: str | Path, out: Path, track: FrameTrack, shots: list[Shot], info
         _reset(sdir)
         meta = {"version": VERSION, "source": src, "rounds": [["overview"]]}
         _write_task(sdir, overview_task(video, info, track, shots, sdir))
-        for t in zoom_tasks(video, info, track, shots, sdir, tool_windows(track), 1):  # alongside, no need to wait
-            _write_task(sdir, t)
-            meta["rounds"][0].append(t["id"])
         write_json(meta_p, meta)
 
     def answer(tasks: list[dict], reader) -> None:

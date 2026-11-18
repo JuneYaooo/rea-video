@@ -32,7 +32,7 @@ VLM（能看图的多模态模型）建议配，不强制，配置方法也在 `
 # ⓪ 先看记住了什么：用户偏好（默认引擎、是否开 VLM、给你的偏好说明）和常见纠正类型
 rea-video memory
 # ① 先看后拆（能看图、没开 VLM 时）：小格总览图只定切点和转场，看不清的地方逐帧放大再看，最后逐镜挑关键帧、判断画面怎么做的。
-#    按输出的 images 看图，把答案写进 waiting 里的文件，再跑同一条命令，直到 status 是 done；同一轮的任务互不相关，可以分给几个子 agent 并发。
+#    按输出的 images 看图，把答案写进 waiting 里的文件，再跑同一条命令，直到 status 是 done；同一轮的图自己一次看完、一起答（最省 token）；图多（4 张以上）再分给几个子 agent 并发。
 #    答案按 JEV 格式只写选项和概率，是 same 的 gap 不写；关键帧图上整张写一次 look，不用改的镜头不写。开了 VLM 时 decompose 会自动做这一步
 rea-video survey ref.mp4 -o out/ref
 # ② 拆解（产出 out/<名>/VIDEO.md + video/（给你读的拆片包）、report.html / report.md（给用户看）、breakdown.json、storyboard.jpg、audio.png、shots/、stems/）
