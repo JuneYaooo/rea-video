@@ -260,7 +260,7 @@ def decompose(video: str | Path, out_dir: str | Path, *, use_vlm: bool = False, 
         rec = {
             **({"survey_look": {"label_probs": {k: float(look["p"].get(k, 0.0)) for k in LABEL_ZH}, "answer": look["answer"],
                                 "_by": look.get("by") or "agent", "evidence": []}} if look else {}),
-            "id": sid, **s.to_dict(), "keyframes": [{k: r[k] for k in ("t", "role", "by", "p") if k in r} for r in kf],
+            "id": sid, **s.to_dict(), "keyframes": [{k: r[k] for k in ("t", "frame", "role", "by", "p") if k in r} for r in kf],
             "features": round_floats(feats), "faces": round(faces, 3),
             "aspects": round_floats(asp), "overlay": round_floats(ov), "text": text, "layers": layers, "embedded_assets": round_floats(embedded),
             "deterministic": {"probs": round_floats(probs), "evidence": evidence, "facts": facts},

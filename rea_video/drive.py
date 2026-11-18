@@ -408,7 +408,7 @@ def readme(res: dict, plan_units: list[dict]) -> list[str]:
 
 def join(out: Path, results: Path | None = None) -> dict:
     """Generated segments -> per-shot clips in remake/mine.json. A shot is filled only when every segment over it is in."""
-    from .remake import _fit_clip, _original_segment
+    from .remake import _fit_clip, _original_segment, frame_bounds
 
     b = read_json(out / "breakdown.json")
     ddir = out / "drive"
@@ -442,17 +442,19 @@ def join(out: Path, results: Path | None = None) -> dict:
         fitted = []
         for s in blk:
             f = jdir / f"{s['id']}_fit.mp4"
-            _fit_clip(paths[s["id"]], f, s["duration"], (w, h), fps)
+            _fit_clip(paths[s["id"]], f, max(1, int(round(s["end"] * fps)) - int(round(s["start"] * fps))), (w, h), fps)
             fitted.append(f)
         lst = jdir / f"block_{k:02d}.txt"
         lst.write_text("".join(f"file '{f.resolve()}'\n" for f in fitted), encoding="utf-8")
         whole = jdir / f"block_{k:02d}.mp4"
         _ff(["-f", "concat", "-safe", "0", "-i", str(lst), "-c", "copy", str(whole)])
         a, z = blk[0]["start"], blk[-1]["end"]
+        bounds = frame_bounds(b["shots"], fps)
         for r in b["shots"]:
             if r["start"] >= a - 1e-3 and r["end"] <= z + 1e-3:
                 clip = jdir / f"shot_{int(r['index']):03d}.mp4"
-                _original_segment(whole, clip, r["start"] - a, r["duration"], (w, h), fps)
+                first, n = bounds[r["index"]]
+                _original_segment(whole, clip, first - int(round(a * fps)), n, (w, h), fps)
                 res[str(r["index"])] = {"video": str(clip.resolve())}
                 filled.append(r["index"])
     mine_p.parent.mkdir(parents=True, exist_ok=True)

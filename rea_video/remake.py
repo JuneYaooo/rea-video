@@ -78,19 +78,38 @@ def _clip_seconds(src: Path) -> float:
         return 0.0
 
 
-def _fit_clip(src: Path, out: Path, duration: float, size: tuple[int, int], fps: float) -> Path:
+def frame_bounds(shots: list[dict], fps: float) -> dict[int, tuple[int, int]]:
+    """{shot index: (first frame, frame count)} on the original's frame grid. Every segment of a remake is cut to
+    exactly its count, so a cut lands on the original's frame and the lengths never add up to a drift against the
+    original sound (seconds rounded per segment lose or gain a frame each, a few tenths of a second by the end)."""
+    starts = [int(round(sh["start"] * fps)) for sh in shots]
+    ends = starts[1:] + [int(round(shots[-1]["end"] * fps))] if shots else []
+    return {sh["index"]: (a, max(1, z - a)) for sh, a, z in zip(shots, starts, ends)}
+
+
+def _exact(fps: float, frames: int) -> tuple[str, list[str]]:
+    """The tail of a filter chain and the output flags that make a segment exactly `frames` frames at `fps`: the last
+    frame held when the source runs short, the rest cut off."""
+    return (f"fps={fps},tpad=stop_mode=clone:stop_duration={frames / fps + 1:.3f}",
+            ["-frames:v", str(frames), "-r", f"{fps}"])
+
+
+def _fit_clip(src: Path, out: Path, frames: int, size: tuple[int, int], fps: float) -> Path:
     w, h = size
-    speed = fit_speed(_clip_seconds(src), duration)
-    vf = (f"setpts=PTS/{speed:.4f},scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},fps={fps},"
-          f"tpad=stop_mode=clone:stop_duration={duration:.3f},trim=duration={duration:.3f},setpts=PTS-STARTPTS")
-    _ff(["-i", str(src), "-an", "-vf", vf, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", str(out)])
+    speed = fit_speed(_clip_seconds(src), frames / fps)
+    tail, flags = _exact(fps, frames)
+    vf = f"setpts=PTS/{speed:.4f},scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},{tail}"
+    _ff(["-i", str(src), "-an", "-vf", vf, *flags, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", str(out)])
     return out
 
 
-def _original_segment(src: Path, out: Path, start: float, duration: float, size: tuple[int, int], fps: float) -> Path:
+def _original_segment(src: Path, out: Path, first: int, frames: int, size: tuple[int, int], fps: float) -> Path:
+    """Frames first .. first + frames - 1 of src: seeking half a frame early, so the first one is never skipped, and
+    its time reset to zero, so the frame-rate filter does not repeat it (which would shift the whole segment a frame)."""
     w, h = size
-    _ff(["-ss", f"{start:.4f}", "-i", str(src), "-t", f"{duration:.4f}", "-an",
-         "-vf", f"scale={w}:{h},fps={fps}", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", str(out)])
+    tail, flags = _exact(fps, frames)
+    _ff(["-ss", f"{max(0.0, (first - 0.5) / fps):.6f}", "-i", str(src), "-an",
+         "-vf", f"setpts=PTS-STARTPTS,scale={w}:{h},{tail}", *flags, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", str(out)])
     return out
 
 
@@ -134,7 +153,8 @@ def overlay_cues(b: dict, spans: list[tuple[float, float]]) -> tuple[list[dict],
     return cues, stickers
 
 
-def unit_shots(b: dict, results: dict, udir: Path, size: tuple[int, int], fps: float) -> dict:
+def unit_shots(b: dict, results: dict, udir: Path, size: tuple[int, int], fps: float,
+               bounds: dict[int, tuple[int, int]] | None = None) -> dict:
     """Generation-unit clips (one call made several shots: results keyed "G2", or "G4-1", "G4-2" for the parts of a
     long shot) -> one clip per shot. The parts are fitted to their lengths and joined; the shots are then cut at the
     source's own cut points, because the model was given the source stretch and follows its timing.
@@ -146,6 +166,7 @@ def unit_shots(b: dict, results: dict, udir: Path, size: tuple[int, int], fps: f
     if not by_unit:
         return {}
     by_index = {r["index"]: r for r in b["shots"]}
+    bounds = bounds or frame_bounds(b["shots"], fps)
     out: dict[str, dict] = {}
     udir.mkdir(parents=True, exist_ok=True)
     for uid, got in by_unit.items():
@@ -155,7 +176,7 @@ def unit_shots(b: dict, results: dict, udir: Path, size: tuple[int, int], fps: f
         fitted = []
         for v in got:
             f = udir / f"{uid}_p{v.get('part', 1)}.mp4"
-            _fit_clip(Path(v["video"]), f, float(v["trim_to"]), size, fps)
+            _fit_clip(Path(v["video"]), f, max(1, int(round(float(v["trim_to"]) * fps))), size, fps)
             fitted.append(f)
         whole = fitted[0]
         if len(fitted) > 1:
@@ -163,15 +184,15 @@ def unit_shots(b: dict, results: dict, udir: Path, size: tuple[int, int], fps: f
             lst.write_text("".join(f"file '{f.resolve()}'\n" for f in fitted), encoding="utf-8")
             whole = udir / f"{uid}.mp4"
             _ff(["-f", "concat", "-safe", "0", "-i", str(lst), "-c", "copy", str(whole)])
-        t = 0.0
+        at = 0
         for i in got[0].get("shots") or []:
-            r = by_index.get(i)
-            if not r:
+            if i not in by_index or i not in bounds:
                 continue
             clip = udir / f"shot_{int(i):03d}.mp4"
-            _original_segment(whole, clip, t, r["duration"], size, fps)
+            n = bounds[i][1]
+            _original_segment(whole, clip, at, n, size, fps)
             out[str(i)] = {"video": str(clip), "unit": uid}
-            t += r["duration"]
+            at += n
     return out
 
 
@@ -195,18 +216,21 @@ def assemble(breakdown_path: Path, results_path: Path, out_dir: Path | None = No
     fps = float(b["source"]["fps"]) if b["source"]["fps"] and b["source"]["fps"] <= 60 else 30.0
     results = {**results, **{str(k): v for k, v in (extra or {}).items()}}
     # unit clips (one call, several shots) become per-shot clips; a shot's own clip, given later, still wins
-    results = {**unit_shots(b, results, seg_dir / "units", (w, h), fps), **{k: v for k, v in results.items() if not (isinstance(v, dict) and v.get("unit"))}}
+    bounds = frame_bounds(b["shots"], fps)
+    results = {**unit_shots(b, results, seg_dir / "units", (w, h), fps, bounds),
+               **{k: v for k, v in results.items() if not (isinstance(v, dict) and v.get("unit"))}}
     parts, legend = [], []
     for sh in b["shots"]:
-        dur = sh["duration"]
+        first, n = bounds[sh["index"]]
+        dur = n / fps
         seg = seg_dir / f"shot_{int(sh['index']):03d}.mp4"  # 不用 JSON 里的 id 拼路径，防 ../
         res = results.get(str(sh["index"])) or {}
         job = jobs.get(sh["index"], {})
         if res.get("video") and Path(res["video"]).is_file():
-            _fit_clip(Path(res["video"]), seg, dur, (w, h), fps)
+            _fit_clip(Path(res["video"]), seg, n, (w, h), fps)
             legend.append((sh["index"], "generated"))
         elif code_video and sh["base"]["label"] == "code_render" and Path(code_video).is_file():
-            _original_segment(Path(code_video), seg, sh["start"], dur, (w, h), fps)
+            _original_segment(Path(code_video), seg, first, n, (w, h), fps)
             legend.append((sh["index"], "code"))
         elif job.get("executor") == "local_ffmpeg" or sh["base"]["label"] in ("still_motion", "static_hold"):
             m = sh["replication"].get("local", {})
@@ -215,7 +239,7 @@ def assemble(breakdown_path: Path, results_path: Path, out_dir: Path | None = No
                                 m.get("pan_dir_deg", 0.0), m.get("analysis_width", 480))
             legend.append((sh["index"], "local_still"))
         else:
-            _original_segment(src, seg, sh["start"], dur, (w, h), fps)
+            _original_segment(src, seg, first, n, (w, h), fps)
             legend.append((sh["index"], "original"))
         parts.append(seg)
     lst = seg_dir / "concat.txt"

@@ -220,6 +220,15 @@ def rhythm_md(b: dict) -> list[str]:
     if not rh and not any(r.get("keyframes") for r in b.get("shots", [])):
         return []
     out = [T("# 节奏与关键帧", "# Rhythm and key frames"), ""]
+    fps = float((b.get("source") or {}).get("fps") or 0)
+    if fps:
+        out += [T("帧率 {f:g}fps。时间后面的 @数字 是原片帧号（从 0 起）：复刻时按帧号对齐切点和关键帧，秒数四舍五入会差一帧。",
+                  "{f:g} fps. The @number after a time is the original's frame number (from 0): line cuts and key frames up by "
+                  "frame number, rounded seconds can be a frame off.", f=fps), ""]
+
+    def at(t: float, frame=None) -> str:
+        f = frame if frame is not None else (int(round(t * fps)) if fps else None)
+        return f"{t:.3f}s" + (f" @{f}" if f is not None else "")
     if rh:
         out += [T("每分钟 {n} 刀，平均镜头 {m}s；镜头长度：{l}", "{n} cuts a minute, mean shot {m}s; shot lengths: {l}",
                   n=rh.get("cuts_per_min"), m=rh.get("mean_shot_s"), l=" ".join(f"{x:.1f}" for x in rh.get("shot_lengths", []))), ""]
@@ -240,18 +249,19 @@ def rhythm_md(b: dict) -> list[str]:
             return f" → {got[-1]}"
         ends = [c["t"] for c in sv["cuts"]] + [1e9]
         if (first := named(0.0, ends[0])):
-            out.append(f"- 0.00s{first}")
+            out.append(f"- {at(0.0, 0)}{first}")
         for k, c in enumerate(sv["cuts"]):
             span = c.get("span") or [c["t"], c["t"]]
             dur = f" {span[1] - span[0]:.2f}s" if span[1] > span[0] and c.get("kind", "cut") not in ("cut", "jump") else ""
-            out.append(f"- {c['t']:.2f}s {c.get('kind', 'cut')}{dur}" + (T("（待确认）", " (to confirm)") if c.get("unsure") else "")
+            dur = f" {span[1] - span[0]:.2f}s ({at(span[0])} – {at(span[1])})" if dur else ""
+            out.append(f"- {at(c['t'], c.get('frame'))} {c.get('kind', 'cut')}{dur}" + (T("（待确认）", " (to confirm)") if c.get("unsure") else "")
                        + named(span[0], ends[k + 1]))
         out.append("")
     rows = [(r["index"], r["keyframes"]) for r in b.get("shots", []) if r.get("keyframes")]
     if rows:
         out += [T("## 每镜关键帧", "## Key frames per shot"), ""]
         for i, kf in rows:
-            out.append(f"- #{i}: " + ", ".join(f"{k['t']:.2f}s {T(*KEY_ROLE_WORDS.get(k.get('role', ''), (k.get('role', ''), k.get('role', ''))))}" for k in kf))
+            out.append(f"- #{i}: " + ", ".join(f"{at(k['t'], k.get('frame'))} {T(*KEY_ROLE_WORDS.get(k.get('role', ''), (k.get('role', ''), k.get('role', ''))))}" for k in kf))
     return out
 
 
