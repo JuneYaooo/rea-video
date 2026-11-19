@@ -40,7 +40,7 @@ SEG_ARCHIVE_SHA256 = "24615ee884c897d9d2ba09bb4d30da6bb1b15e685065962db5b02e76e4
 SEG_FILE = "model.onnx"
 EMB_NAME = "3dspeaker_speech_campplus_sv_zh_en_16k-common_advanced.onnx"
 EMB_URL = f"https://github.com/k2-fsa/sherpa-onnx/releases/download/speaker-recongition-models/{EMB_NAME}"
-EMB_SHA256 = "aa3cfc16963a10586a9393f5035d6d6b57e98d358b347f80c2a30bf4f00ceba2"
+EMB_SHA256 = "53cab20ba8f2eb2f6e2d89ecc18e88ef3222169b61b4419cbc13666744a4574b"
 
 PIECE_S = 1.5             # length of the pieces that are embedded one by one
 MAX_PIECES = 600          # longer soundtracks use longer pieces
