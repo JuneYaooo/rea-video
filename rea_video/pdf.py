@@ -8,6 +8,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
+_LOCAL = os.environ.get("LOCALAPPDATA", "")  # per-user Chrome / Edge installs on Windows
+
 _CANDIDATES = [
     os.environ.get("REA_CHROME", ""),
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -15,7 +17,10 @@ _CANDIDATES = [
     "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
     "google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "microsoft-edge", "msedge", "chrome",
     r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+    r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
     r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+    os.path.join(_LOCAL, r"Google\Chrome\Application\chrome.exe") if _LOCAL else "",
+    os.path.join(_LOCAL, r"Microsoft\Edge\Application\msedge.exe") if _LOCAL else "",
 ]
 
 
