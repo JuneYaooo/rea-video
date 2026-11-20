@@ -6,7 +6,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 # ---- ffmpeg ----
 if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
-  echo "⚠ 没找到 ffmpeg / ffprobe，rea-video 跑不起来。安装：macOS 'brew install ffmpeg'，Ubuntu/Debian 'sudo apt install ffmpeg'" >&2
+  echo "⚠ 没找到 ffmpeg / ffprobe，rea-video 跑不起来。安装：macOS 'brew install ffmpeg'，Ubuntu/Debian 'sudo apt install ffmpeg'，Windows 'winget install Gyan.FFmpeg'" >&2
 fi
 
 # ---- Python >= 3.10 ----
@@ -32,7 +32,7 @@ if [ -z "$PY" ]; then
 fi
 if [ -z "$PY" ] || ! py_ok "$PY"; then
   echo "✗ 需要 Python ≥ 3.10（当前 ${PY:-python3}: $("${PY:-python3}" --version 2>&1 || echo 未安装)）。" >&2
-  echo "  macOS: brew install python@3.12；Ubuntu: sudo apt install python3.12 python3.12-venv；然后 PYTHON_BIN=python3.12 bash $0" >&2
+  echo "  macOS: brew install python@3.12；Ubuntu: sudo apt install python3.12 python3.12-venv；Windows: winget install Python.Python.3.12；然后 PYTHON_BIN=python3.12 bash $0" >&2
   exit 1
 fi
 echo "使用 $PY（$("$PY" --version 2>&1)）"

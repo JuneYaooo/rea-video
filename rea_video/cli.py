@@ -1002,8 +1002,8 @@ def main(argv: list[str] | None = None) -> int:
     except MediaError as exc:  # missing ffmpeg / unreadable video: one line, not a traceback
         hint = ""
         if "not found on PATH" in str(exc):
-            hint = T("\n安装 ffmpeg：macOS `brew install ffmpeg`，Ubuntu/Debian `sudo apt install ffmpeg`",
-                     "\ninstall ffmpeg: macOS `brew install ffmpeg`, Ubuntu/Debian `sudo apt install ffmpeg`")
+            hint = T("\n安装 ffmpeg：macOS `brew install ffmpeg`，Ubuntu/Debian `sudo apt install ffmpeg`，Windows `winget install Gyan.FFmpeg`",
+                     "\ninstall ffmpeg: macOS `brew install ffmpeg`, Ubuntu/Debian `sudo apt install ffmpeg`, Windows `winget install Gyan.FFmpeg`")
         print(f"rea-video: {exc}{hint}", file=sys.stderr)
         if args.verbose:
             raise
