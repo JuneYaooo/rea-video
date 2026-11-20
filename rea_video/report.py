@@ -489,7 +489,10 @@ def _plan_md(b: dict) -> list[str]:
                        c=plan.get("calls") or len(plan["units"]), s="" if (plan.get("calls") or 1) == 1 else "s"))
         pre = parts.get("pre", [])
         if pre:  # grouping rules, the model's prompt conventions, the input primer: needed when writing prompts, not to follow the steps
-            pre = ["", f'<details class="ref"><summary>{html.escape(T("写提示词前看：分组规则、模型写法、能喂哪些输入", "Before writing prompts: grouping, the model's conventions, what it takes as input"))}</summary>', ""] + pre + ["", "</details>", ""]
+            # local patch: precompute the summary so the f-string stays single-quoted
+            # (the apostrophe in "model's" breaks f-string parsing on Python <= 3.11)
+            _pre_summary = html.escape(T("写提示词前看：分组规则、模型写法、能喂哪些输入", "Before writing prompts: grouping, the model's conventions, what it takes as input"))
+            pre = ["", f'<details class="ref"><summary>{_pre_summary}</summary>', ""] + pre + ["", "</details>", ""]
         m = plan.get("model_name") or T("视频模型", "the video model")
         drafts = [u["id"] for u in plan.get("units") or [] if u["id"] not in (plan.get("prompts") or {})]
         tip = (T("> ⚠️ {u} 的提示词还是通用草稿。生成前按 {m} 的官方写法改好（或让 agent 用这个模型的提示词 skill 写），放进 `remake/prompts.json`，"
