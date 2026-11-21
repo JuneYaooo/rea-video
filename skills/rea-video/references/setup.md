@@ -18,6 +18,8 @@ New-Item -ItemType Directory -Force "$HOME\.claude\skills" | Out-Null
 New-Item -ItemType Junction -Path "$HOME\.claude\skills\rea-video" -Target "$PWD\skills\rea-video"
 ```
 
+Windows 上 `pip` 用的是 PATH 里第一个 Python：同时装过 3.8 和 3.12 的机器上，默认解释器低于 3.10 时这一步会直接报 `requires a different Python: 3.8.10 not in '>=3.10'`。先 `py -0p` 看有哪些版本，再用 `py -3.12 -m pip install ".[ocr]"`。
+
 `Junction` 不需要管理员权限（`SymbolicLink` 需要）；仓库路径带中文或空格不用特殊处理。`rea-video pdf` 会用 `Program Files` 或 `%LOCALAPPDATA%` 下的 Chrome / Edge，装在别处就设 `REA_CHROME`。
 
 pip 报 `externally-managed-environment`（Homebrew / 新版 Ubuntu 的系统 Python）时，不要加 `--break-system-packages`，改用
