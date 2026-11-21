@@ -159,9 +159,10 @@ def load_env_files(paths: Iterable[str | Path]) -> list[str]:
 
 
 def fmt_time(seconds: float) -> str:
-    seconds = max(0.0, float(seconds))
-    m, s = divmod(seconds, 60)
-    return f"{int(m):02d}:{s:06.3f}"
+    """MM:SS.mmm. Rounds to milliseconds before splitting off the minutes, so 59.9996 is 01:00.000, not 00:60.000."""
+    ms = round(max(0.0, float(seconds)) * 1000)
+    m, ms = divmod(ms, 60_000)
+    return f"{m:02d}:{ms / 1000:06.3f}"
 
 
 def clamp(x: float, lo: float, hi: float) -> float:
