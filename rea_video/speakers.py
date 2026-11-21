@@ -287,7 +287,10 @@ def _pitch(x: np.ndarray, ranges: list[tuple[float, float]]) -> dict:
     lo, hi = int(SR / 400), int(SR / 70)
     f0 = []
     for a, b in ranges:
-        for s in range(int(a * SR), int(b * SR) - frame, frame):
+        # The diarization model can report a turn ending in padding past the real audio.
+        start = max(0, int(a * SR))
+        end = min(len(x), int(b * SR))
+        for s in range(start, end - frame + 1, frame):
             seg = x[s:s + frame]
             if np.sqrt(np.mean(seg ** 2)) < 0.01:
                 continue
