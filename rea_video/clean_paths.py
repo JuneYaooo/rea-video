@@ -123,5 +123,14 @@ def clean_package(root: Path, home: str, apply: bool = False) -> dict:
 
 def clean_paths(start: Path, apply: bool = False, home: str | None = None) -> list[dict]:
     home = home or str(Path.home())
-    return [clean_package(f.parent, home, apply) for f in sorted(Path(start).expanduser().resolve().rglob(BREAKDOWN))
+    return [_guarded(f.parent, home, apply) for f in sorted(Path(start).expanduser().resolve().rglob(BREAKDOWN))
             if (f.parent / "VIDEO.md").is_file()]
+
+
+def _guarded(root: Path, home: str, apply: bool) -> dict:
+    """One unreadable or half-written package is reported like the other per-file failures, so the rest of the
+    directory still gets cleaned instead of the whole run dying on it."""
+    try:
+        return clean_package(root, home, apply)
+    except (OSError, ValueError) as exc:
+        return {"package": str(root), "cleaned": [], "kept": [], "error": f"could not read {BREAKDOWN}: {exc}"}
