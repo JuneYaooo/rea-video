@@ -29,7 +29,7 @@ def _env(args) -> None:
             if explicit:
                 raise SystemExit(f"rea-video: {msg}")
             LOG.warning("%s%s", msg, U("（来自 prefs env_file）", " (from prefs env_file)"))
-        files.insert(0, Path(env_file))
+        files.insert(0, Path(env_file).expanduser())
     loaded = load_env_files(files)
     if loaded:
         LOG.debug("env loaded from %s", loaded)
@@ -709,6 +709,7 @@ def cmd_correct(args) -> int:
 
     out = Path(args.out_dir)
     b = read_json(out / "breakdown.json")
+    set_lang(b.get("lang", "zh"))
     real = None if args.real is None else args.real == "yes"
     try:
         logged = correct(b, label=args.label, real=real, shots=args.shots, start=args.start, end=args.end, note=args.note or "")
@@ -883,8 +884,9 @@ def _cli_lang(argv: list[str] | None) -> str | None:
 def main(argv: list[str] | None = None) -> int:
     set_ui_lang(_cli_lang(argv))
     ap = argparse.ArgumentParser(prog="rea-video", description="逆向拆解视频：逐镜头判断实拍 / AI 生成 / 代码渲染 / 混合，并生成复刻方案")
-    ap.add_argument("-v", "--verbose", action="store_true")
+    ap.add_argument("-v", "--verbose", action="store_true", help="输出调试日志与完整异常堆栈")
     ap.add_argument("--env-file", help="额外的 .env（例如 capsule-cinema/.env，用于 VLM 配置）")
+    ap.add_argument("--lang", choices=LANGS, default=argparse.SUPPRESS, help="界面与输出语言：zh（默认）/ en")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     d = sub.add_parser("decompose", help="拆解一条视频")
@@ -1099,8 +1101,10 @@ def main(argv: list[str] | None = None) -> int:
     me.add_argument("--export-labels", metavar="YAML")
     me.set_defaults(func=cmd_memory)
 
-    for sp in sub.choices.values():  # also accept `rea-video decompose x.mp4 --env-file ...`
+    for sp in sub.choices.values():  # also accept `rea-video decompose x.mp4 --env-file ...` and `<cmd> --lang en`
         sp.add_argument("--env-file", default=argparse.SUPPRESS, help=argparse.SUPPRESS)
+        if not any("--lang" in a.option_strings for a in sp._actions):
+            sp.add_argument("--lang", choices=LANGS, default=argparse.SUPPRESS, help=argparse.SUPPRESS)
 
     from .cli_en import localize
 

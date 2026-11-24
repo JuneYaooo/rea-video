@@ -11,9 +11,14 @@ _NO_VLM_AGENT = "no VLM this run (overrides vlm=on in prefs): write tasks for an
 
 HELP = {
     "": "Reverse-engineer a video shot by shot: live action / AI-generated / code-rendered / mixed, with a remake plan",
+    "verbose": "print debug logs and full tracebacks on error",
     "env_file": "extra .env file (for example capsule-cinema/.env, for VLM settings)",
+    "lang": "CLI and output language: zh (default) / en",
 
     "decompose": "break down a video",
+    "decompose.video": "input video file",
+    "decompose.out": "output directory (default: out/<video-stem>)",
+    "decompose.workers": "parallel VLM workers (default 3)",
     "decompose.vlm": "use a vision model (VLM) to judge each shot; recommended. Without it, live action / AI / 3D are harder to tell apart",
     "decompose.no_vlm": "no VLM this run (overrides vlm=on in prefs)",
     "decompose.no_whole": "skip the whole-video structure and copy analysis",
@@ -32,10 +37,17 @@ HELP = {
     "decompose.no_moments": "skip special moments (magic reveals, twists, climaxes, mistakes); with VLM they are searched by default, about 3-5 extra calls",
 
     "stems": "only split the audio into original / vocals / music tracks",
+    "stems.video": "input video or audio file",
+    "stems.out": "output directory (default: out/<video-stem>)",
     "probe": "only show container metadata and source clues",
+    "probe.video": "input video file",
+    "probe.tags": "include raw container and stream tags",
 
     "eval": "measure breakdown accuracy on a labeled sample set",
     "eval.labels": "labels.yaml",
+    "eval.out": "evaluation output directory (default: out/eval)",
+    "eval.vlm": "enable VLM during evaluation",
+    "eval.no_ocr": "skip OCR during evaluation",
     "eval.ocr_lang": "same as decompose --ocr-lang",
     "eval.fresh": "do not reuse existing breakdowns",
     "eval.only": "re-decompose only these ids (comma-separated); the rest reuse the cache and are reclassified",
@@ -130,6 +142,8 @@ HELP = {
     "correct": "record a user's correction: update this video's verdict and remember it (similar shots get a review hint later)",
     "correct.out_dir": _OUT_DIR,
     "correct.shots": "shot numbers, comma-separated (such as 3,5 or shot_003), or all for the whole video; or use --start/--end for a time range",
+    "correct.start": "start time in seconds when selecting shots by range",
+    "correct.end": "end time in seconds when selecting shots by range",
     "correct.label": "correct base label: {labels}",
     "correct.real": "whether the user's real material was used",
     "correct.note": 'the user\'s words or reason, for example "this is stop motion, not AI"',
@@ -142,8 +156,13 @@ HELP = {
     "models": "list generation models in the capability map; with a model id, print its prompt guide and key-frame requirements",
     "models.model": "model id (such as seedance-2.5, kling-3.0); keyframes prints the general key-frame guide",
     "prefs": "show / set preferences (default engine, VLM on or off, VLM env file, reviewer, free-text notes)",
+    "prefs.key": "preference key (or key=value)",
+    "prefs.value": "new value for the preference key",
+    "prefs.unset": "reset the given preference key to default",
     "prefs.note": 'add a preference note for agents, for example "keep reports short"',
+    "prefs.remove_note": "remove preference note #N (1-based)",
     "memory": "show what is remembered: preferences and common corrections; can export them as eval samples",
+    "memory.export_labels": "export remembered corrections to a labels YAML file for rea-video eval",
 }
 
 

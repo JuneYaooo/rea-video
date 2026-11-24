@@ -221,8 +221,9 @@ def _env_value(raw: str) -> str:
     quote and a comment after it is dropped; unquoted, a comment starts at a # that follows whitespace, so
     pa#ss and http://x/#frag stay whole."""
     quoted = _ENV_QUOTED.fullmatch(raw.strip())
-    value = quoted.group(1) if quoted else re.sub(r"\s#.*", "", raw).strip()
-    return value.strip('"').strip("'")
+    if quoted:
+        return quoted.group(1)[1:-1]
+    return re.sub(r"\s#.*", "", raw).strip()
 
 
 def load_env_files(paths: Iterable[str | Path]) -> list[str]:

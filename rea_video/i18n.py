@@ -22,12 +22,22 @@ _lang: contextvars.ContextVar[str] = contextvars.ContextVar("rea_video_lang", de
 _ui_lang: contextvars.ContextVar[str] = contextvars.ContextVar("rea_video_ui_lang", default="zh")
 
 
+def _norm_lang(lang: str | None) -> str | None:
+    if not lang:
+        return None
+    low = lang.strip().lower()
+    if low in LANGS:
+        return low
+    prefix = re.split(r"[-_.]", low, maxsplit=1)[0]
+    return prefix if prefix in LANGS else low
+
+
 def set_lang(lang: str | None) -> str:
-    lang = (lang or "zh").lower()
-    if lang not in LANGS:
+    norm = _norm_lang(lang) or "zh"
+    if norm not in LANGS:
         raise ValueError(f"unsupported report language {lang!r} (choose from {', '.join(LANGS)})")
-    _lang.set(lang)
-    return lang
+    _lang.set(norm)
+    return norm
 
 
 def lang() -> str:
@@ -42,9 +52,10 @@ def T(zh: str, en: str | None = None, **kw) -> str:
 
 def set_ui_lang(lang: str | None) -> str:
     """Language of CLI help and diagnostics. Separate from the report language, so it never changes what is written."""
-    lang = lang if lang in LANGS else "zh"
-    _ui_lang.set(lang)
-    return lang
+    norm = _norm_lang(lang)
+    chosen = norm if norm in LANGS else "zh"
+    _ui_lang.set(chosen)
+    return chosen
 
 
 def ui_lang() -> str:
