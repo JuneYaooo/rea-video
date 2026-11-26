@@ -185,8 +185,9 @@ def open_questions(b: dict) -> list[str]:
         unsure = sorted({it.get("kind_zh", "") for it in (r.get("material") or {}).get("items", []) if it.get("real_material") is None})
         if unsure:
             q.append(tag + T("：{k} 是真实素材还是生成的，待确认", ": {k}: real material or generated, to confirm", k=join(unsure)))
-    if (b.get("audio") or {}).get("has_audio") and not vlm.get("whole_ok"):
+    if (b.get("audio") or {}).get("has_audio") and not (vlm.get("whole_ok") and vlm.get("whole_media", "clip") == "clip"):
         # an image review covers the picture; the soundtrack is only heard by a model that takes video
+        # (a whole-video pass over frame sheets succeeds without hearing anything)
         fx = bool((b.get("stems") or {}).get("effects"))
         q.append(T("声音没有 AI 听过{r}：人声是真人还是 TTS 是按波形推断的；音效{f}。可以在「声音」里试听分轨和每处音效核对",
                    "No AI listened to the soundtrack{r}: real voice versus TTS is inferred from the waveform; the effects {f}. "

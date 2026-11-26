@@ -9,8 +9,11 @@ REA_VLM_VIDEO_PART = image_url | video_url  (how a clip is attached; unset: imag
                      itself when the endpoint refuses the first form, as DashScope does)
 REA_VLM_REASONING_EFFORT = low | medium | high  (passed through when set; thinking models answer these prompts
                      several times faster and cheaper on low)
-REA_VLM_MAX_TOKENS = ceiling for a retry when an answer is cut off at max_tokens (default 32000)
-With REA_VLM_MEDIA=frames the whole-video pass sends one frame sheet per shot instead of a clip.
+REA_VLM_MAX_TOKENS = how far max_tokens may be raised when an answer is cut off (default 32000; Gemini too):
+                     thinking models spend part of the budget reasoning, so a reply can stop mid-JSON; it is asked
+                     again with double the budget, up to this ceiling
+With REA_VLM_MEDIA=frames the whole-video pass sends one frame sheet per shot instead of a clip; with "both" it falls
+back to the sheets when the clip is not read (pipeline.ask_whole).
 """
 from __future__ import annotations
 
@@ -54,7 +57,7 @@ class VLMConfig:
             return None
         return cls(base_url=base, api_key=key, models=models, timeout=_timeout_from_env(), media=_media_from_env(),
                    video_part=_video_part_from_env(), reasoning_effort=_effort_from_env(),
-                   max_tokens_ceiling=_max_tokens_from_env())
+                   max_tokens_ceiling=max_tokens_ceiling())
 
     def describe(self) -> str:
         host = re.sub(r"^https?://", "", self.base_url).split("/")[0].rsplit("@", 1)[-1]  # 去掉 user:pass@
@@ -87,7 +90,8 @@ def _video_part_from_env() -> str:
     return part
 
 
-def _max_tokens_from_env() -> int:
+def max_tokens_ceiling() -> int:
+    """REA_VLM_MAX_TOKENS: how far an answer cut off at max_tokens may have its budget raised (both readers)."""
     var = "REA_VLM_MAX_TOKENS"
     raw = os.getenv(var, "32000")
     try:
@@ -507,11 +511,15 @@ from .performance import GUIDE as _PERF_GUIDE  # noqa: E402
 SHOT_PROMPT = SHOT_PROMPT.replace("<<SHOT_ASPECTS>>", _aspect_block(video=False)).replace("<<PERFORMANCE>>", _PERF_GUIDE.replace("{", "{{").replace("}", "}}"))
 WHOLE_PROMPT = WHOLE_PROMPT.replace("<<VIDEO_ASPECTS>>", _aspect_block(video=True))
 
-# REA_VLM_MEDIA=frames: the whole-video pass sends one frame sheet per shot (evenly sampled above this many) instead
-# of a clip, and says so, because an image-only reader that gets a clip either refuses it or answers "no video".
+# An image-only reader (REA_VLM_MEDIA=frames, or "both" after the clip failed) gets one frame sheet per shot in the
+# whole-video pass, evenly sampled above this many, and is told so: sent a clip, it refuses it or answers "no video".
 WHOLE_MAX_SHEETS = 24
 WHOLE_FRAMES_NOTE = ("\n\n这次没有附视频和音频：附上的是按时间顺序排列的镜头拼图（共 {n} 张，整片 {total} 个镜头），{list}。"
-                     "请据此拆解画面、文案和结构；声音相关字段依据画面（字幕、口型、画面节奏）推断，并在 warnings 里写明没听到声音。")
+                     "请据此拆解画面、文案和结构；没听到声音，narration、music、sfx、ambience、mix 不用填（声音由本地音频分析给出），"
+                     "segments 里的 audio 也留空。")
+# Fields of the whole-video answer that only a model that heard the soundtrack can fill. An answer from frame sheets
+# drops them, so a guess from the pictures does not override the measured audio (audio.py, sound_source.py).
+WHOLE_SOUND_KEYS = ("narration", "music", "sfx", "ambience", "mix")
 
 
 def shot_hints(features: dict, facts: dict, det_top: str, det_prob: float) -> str:

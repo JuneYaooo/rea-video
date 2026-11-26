@@ -100,8 +100,11 @@ class GeminiClient:
             LOG.warning("could not delete %s from Gemini (%s); it expires within 48 hours", name, str(exc)[:80])
 
     def ask_json(self, prompt: str, media: list[tuple[Path, str]], max_tokens: int = 4096) -> dict:
-        from .vlm import parse_json
+        """An answer cut off at maxOutputTokens (finishReason MAX_TOKENS: thinking counts against the budget) is asked
+        again with double the budget, up to REA_VLM_MAX_TOKENS, reusing the uploads; a cut-off reply that parsed is kept."""
+        from .vlm import TruncatedAnswer, max_tokens_ceiling, parse_json
 
+        ceiling = max(max_tokens, max_tokens_ceiling())
         parts, uploaded = [], []
         inline = sum(Path(p).stat().st_size for p, _ in media) <= INLINE_MAX
         try:
@@ -123,16 +126,33 @@ class GeminiClient:
                         part["video_metadata"] = {"fps": fps}
                 parts.append(part)
             parts.append({"text": prompt})
-            body = {"contents": [{"role": "user", "parts": parts}],
-                    "generationConfig": {"maxOutputTokens": max_tokens, "temperature": 0.2, "responseMimeType": "application/json"}}
-            _, raw = self._call("POST", f"{API}/v1beta/models/{self.model}:generateContent", json.dumps(body).encode(),
-                                {"Content-Type": "application/json"}, timeout=self.timeout)
+            budget = max_tokens
+            while True:
+                body = {"contents": [{"role": "user", "parts": parts}],
+                        "generationConfig": {"maxOutputTokens": budget, "temperature": 0.2, "responseMimeType": "application/json"}}
+                _, raw = self._call("POST", f"{API}/v1beta/models/{self.model}:generateContent", json.dumps(body).encode(),
+                                    {"Content-Type": "application/json"}, timeout=self.timeout)
+                data = json.loads(raw)
+                cand = (data.get("candidates") or [{}])[0] if isinstance(data, dict) else {}
+                finish = str(cand.get("finishReason") or "") if isinstance(cand, dict) else ""
+                try:
+                    text = "".join(pt.get("text", "") for pt in cand["content"]["parts"])
+                except (KeyError, IndexError, TypeError) as exc:
+                    if finish != "MAX_TOKENS":  # e.g. a safety block: not something a bigger budget fixes
+                        raise GeminiError(f"no answer: {str(data)[:200]}") from exc
+                    text = ""  # the whole budget went to thinking
+                try:
+                    if finish == "MAX_TOKENS" and not text.strip():
+                        raise TruncatedAnswer("empty Gemini answer (cut off at maxOutputTokens)")
+                    return parse_json(text)
+                except ValueError as exc:
+                    if finish != "MAX_TOKENS":
+                        raise
+                    if budget >= ceiling:
+                        raise TruncatedAnswer(f"{exc} (cut off at maxOutputTokens={budget}; raise REA_VLM_MAX_TOKENS)") from None
+                    LOG.warning("Gemini %s answer cut off at maxOutputTokens=%d; asking again with %d",
+                                self.model, budget, min(ceiling, budget * 2))
+                    budget = min(ceiling, budget * 2)
         finally:
             for name in uploaded:
                 self._delete(name)
-        data = json.loads(raw)
-        try:
-            text = "".join(pt.get("text", "") for pt in data["candidates"][0]["content"]["parts"])
-        except (KeyError, IndexError, TypeError) as exc:
-            raise GeminiError(f"no answer: {str(data)[:200]}") from exc
-        return parse_json(text)
