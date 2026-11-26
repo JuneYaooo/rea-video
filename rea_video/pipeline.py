@@ -26,7 +26,7 @@ from . import aspects
 from .faces import MIN_AREA, shot_faces
 from .visual import LABEL_SHORT, shot_sheet, storyboard
 from .i18n import T, join, semi, set_lang
-from .vlm import make_client, SHOT_PROMPT, SILENT_NOTE, SOUND_NOTE, TAKE_NOTE, WHOLE_PROMPT, normalize_shot_result, normalize_whole, prompt_lang_note, shot_hints, take_results, vlm_note
+from .vlm import make_client, SHOT_PROMPT, SILENT_NOTE, SOUND_NOTE, TAKE_NOTE, WHOLE_FRAMES_NOTE, WHOLE_MAX_SHEETS, WHOLE_PROMPT, normalize_shot_result, normalize_whole, prompt_lang_note, shot_hints, take_results, vlm_note
 
 
 def _sha256_head(path: Path, limit: int = 64 << 20) -> str:
@@ -397,9 +397,23 @@ def decompose(video: str | Path, out_dir: str | Path, *, use_vlm: bool = False, 
                     fut.result()
             if whole_vlm:
                 try:
-                    low = cut_clip(video, 0, info.duration, out / "clips" / "whole_480p.mp4", width=480, audio=True, crf=30)
                     cuts = ", ".join(f"{r['start']:.2f}" for r in shot_records)
-                    whole = normalize_whole(client.ask_json(WHOLE_PROMPT.format(shots=cuts) + prompt_lang_note(), [(low, "video/mp4")],
+                    whole_prompt = WHOLE_PROMPT.format(shots=cuts)
+                    if client.media == "frames":
+                        # REA_VLM_MEDIA=frames: the endpoint reads images only (a clip is refused, or dropped and the model
+                        # answers "no video received"), so the overview gets each shot's frame sheet in order instead
+                        picked = shot_records
+                        if len(picked) > WHOLE_MAX_SHEETS:
+                            step = len(picked) / WHOLE_MAX_SHEETS
+                            picked = [picked[int(i * step)] for i in range(WHOLE_MAX_SHEETS)]
+                        whole_media = [(out / r["assets"]["sheet"], "image/jpeg") for r in picked]
+                        whole_prompt += WHOLE_FRAMES_NOTE.format(
+                            n=len(picked), total=len(shot_records),
+                            list="；".join(f"图 {k} = 镜头 {r['index']}（{r['start']:.2f}–{r['end']:.2f} 秒）" for k, r in enumerate(picked, start=1)))
+                    else:
+                        low = cut_clip(video, 0, info.duration, out / "clips" / "whole_480p.mp4", width=480, audio=True, crf=30)
+                        whole_media = [(low, "video/mp4")]
+                    whole = normalize_whole(client.ask_json(whole_prompt + prompt_lang_note(), whole_media,
                                                              # a long video has more lines, effects and segments to list: a fixed budget cut
                                                              # the answer off mid-JSON and the whole pass was paid for and lost
                                                              max_tokens=int(min(16000, max(6000, 2000 + 100 * info.duration)))))

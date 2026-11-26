@@ -9,6 +9,8 @@ REA_VLM_VIDEO_PART = image_url | video_url  (how a clip is attached; unset: imag
                      itself when the endpoint refuses the first form, as DashScope does)
 REA_VLM_REASONING_EFFORT = low | medium | high  (passed through when set; thinking models answer these prompts
                      several times faster and cheaper on low)
+REA_VLM_MAX_TOKENS = ceiling for a retry when an answer is cut off at max_tokens (default 32000)
+With REA_VLM_MEDIA=frames the whole-video pass sends one frame sheet per shot instead of a clip.
 """
 from __future__ import annotations
 
@@ -40,6 +42,7 @@ class VLMConfig:
     media: str = "both"
     video_part: str = ""  # "" = find out: image_url first, video_url if that is refused
     reasoning_effort: str = ""
+    max_tokens_ceiling: int = 32000  # REA_VLM_MAX_TOKENS: how far a cut-off answer's budget may be raised
 
     @classmethod
     def from_env(cls) -> "VLMConfig | None":
@@ -50,7 +53,8 @@ class VLMConfig:
         if not (base and key and models):
             return None
         return cls(base_url=base, api_key=key, models=models, timeout=_timeout_from_env(), media=_media_from_env(),
-                   video_part=_video_part_from_env(), reasoning_effort=_effort_from_env())
+                   video_part=_video_part_from_env(), reasoning_effort=_effort_from_env(),
+                   max_tokens_ceiling=_max_tokens_from_env())
 
     def describe(self) -> str:
         host = re.sub(r"^https?://", "", self.base_url).split("/")[0].rsplit("@", 1)[-1]  # 去掉 user:pass@
@@ -81,6 +85,22 @@ def _video_part_from_env() -> str:
     if part and part not in ("image_url", "video_url"):
         raise ValueError(f"REA_VLM_VIDEO_PART must be image_url or video_url, got {part!r}")
     return part
+
+
+def _max_tokens_from_env() -> int:
+    var = "REA_VLM_MAX_TOKENS"
+    raw = os.getenv(var, "32000")
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        raise ValueError(f"{var} must be a whole number of tokens, got {raw!r}") from None
+    if value < 1000:
+        raise ValueError(f"{var} must be at least 1000, got {raw!r}")
+    return value
+
+
+class TruncatedAnswer(ValueError):
+    """The reply stopped at max_tokens (finish_reason "length") before a complete answer."""
 
 
 def _effort_from_env() -> str:
@@ -188,7 +208,8 @@ class VLMClient:
     def describe(self) -> str:
         return self.cfg.describe()
 
-    def _post(self, model: str, content: list[dict], max_tokens: int) -> str:
+    def _post(self, model: str, content: list[dict], max_tokens: int) -> tuple[str, str]:
+        """The answer text and its finish_reason ("length" = cut off at max_tokens)."""
         body = json.dumps({"model": model, "messages": [{"role": "user", "content": content}],
                            "max_tokens": max_tokens, "temperature": 0.2,
                            **({"reasoning_effort": self.cfg.reasoning_effort} if self.cfg.reasoning_effort else {})}).encode()
@@ -199,14 +220,41 @@ class VLMClient:
         with urllib.request.urlopen(req, timeout=self.cfg.timeout) as resp:
             data = json.loads(resp.read().decode())
         try:
-            content = data["choices"][0]["message"]["content"]
+            choice = data["choices"][0]
+            content = choice["message"]["content"]
         except (KeyError, IndexError, TypeError) as exc:  # e.g. "choices": [] after a safety block -> try the next model
             raise ValueError(f"no answer in VLM response: {str(data)[:160]}") from exc
+        finish = str(choice.get("finish_reason") or "") if isinstance(choice, dict) else ""
         if isinstance(content, list):  # some gateways return content parts
             content = "".join(p.get("text", "") for p in content if isinstance(p, dict))
         if not isinstance(content, str) or not content.strip():
-            raise ValueError("empty VLM answer")
-        return content
+            # a thinking model can spend the whole budget reasoning and return no answer at all
+            raise TruncatedAnswer("empty VLM answer (cut off at max_tokens)") if finish == "length" else ValueError("empty VLM answer")
+        return content, finish
+
+    def _answer(self, model: str, content: list[dict], max_tokens: int) -> dict:
+        """Ask and parse. An answer cut off at max_tokens (finish_reason "length") is asked again once with a bigger
+        budget, up to REA_VLM_MAX_TOKENS: thinking models spend part of the budget reasoning, so a call sized for the
+        answer alone can stop mid-JSON. A truncated reply whose JSON still parsed is kept."""
+        budget = max_tokens
+        ceiling = max(max_tokens, self.cfg.max_tokens_ceiling)
+        while True:
+            finish = ""
+            try:
+                text, finish = self._post(model, content, budget)
+                out = parse_json(text)
+            except ValueError as exc:
+                cut = isinstance(exc, TruncatedAnswer) or finish == "length"
+                if not cut:
+                    raise
+                if budget >= ceiling:
+                    raise TruncatedAnswer(f"{exc} (cut off at max_tokens={budget}; raise REA_VLM_MAX_TOKENS)") from None
+                LOG.warning("VLM %s answer cut off at max_tokens=%d; asking again with %d", model, budget, min(ceiling, budget * 2))
+                budget = min(ceiling, budget * 2)
+                continue
+            if finish == "length":
+                LOG.info("VLM %s hit max_tokens=%d but its JSON was complete", model, budget)
+            return out
 
     def ask_json(self, prompt: str, media: list[tuple[Path, str]], max_tokens: int = 4096) -> dict:
         # Use the configured order, not self.models: successful fallbacks reorder
@@ -248,8 +296,7 @@ class VLMClient:
             for attempt in range(2):
                 try:
                     t = time.time()
-                    text = self._post(model, content, max_tokens)
-                    out = parse_json(text)
+                    out = self._answer(model, content, max_tokens)
                     out["_model"] = model
                     out["_seconds"] = round(time.time() - t, 1)
                     if cached:
@@ -297,6 +344,8 @@ class VLMClient:
                 except (OSError, http.client.HTTPException, ValueError, KeyError) as exc:
                     last = exc
                     LOG.warning("VLM %s attempt %d failed: %s", model, attempt + 1, str(exc)[:200])
+                    if isinstance(exc, TruncatedAnswer):
+                        break  # already asked again up to the ceiling: the same call would be cut off again
                     time.sleep(1.5)
         if not refused and not isinstance(last, (ValueError, KeyError)):  # transport/server errors, not a bad answer
             with self._lock:
@@ -457,6 +506,12 @@ from .performance import GUIDE as _PERF_GUIDE  # noqa: E402
 
 SHOT_PROMPT = SHOT_PROMPT.replace("<<SHOT_ASPECTS>>", _aspect_block(video=False)).replace("<<PERFORMANCE>>", _PERF_GUIDE.replace("{", "{{").replace("}", "}}"))
 WHOLE_PROMPT = WHOLE_PROMPT.replace("<<VIDEO_ASPECTS>>", _aspect_block(video=True))
+
+# REA_VLM_MEDIA=frames: the whole-video pass sends one frame sheet per shot (evenly sampled above this many) instead
+# of a clip, and says so, because an image-only reader that gets a clip either refuses it or answers "no video".
+WHOLE_MAX_SHEETS = 24
+WHOLE_FRAMES_NOTE = ("\n\n这次没有附视频和音频：附上的是按时间顺序排列的镜头拼图（共 {n} 张，整片 {total} 个镜头），{list}。"
+                     "请据此拆解画面、文案和结构；声音相关字段依据画面（字幕、口型、画面节奏）推断，并在 warnings 里写明没听到声音。")
 
 
 def shot_hints(features: dict, facts: dict, det_top: str, det_prob: float) -> str:
