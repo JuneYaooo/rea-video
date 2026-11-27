@@ -982,7 +982,8 @@ def _grouped_assets(b: dict, items, with_where: bool) -> list[str]:
 
 def _clock(t: float) -> str:
     """0:07.9 — a shot list needs tenths, not milliseconds."""
-    return f"{int(t // 60)}:{t % 60:04.1f}"
+    m, s = divmod(round(max(0.0, t), 1), 60)  # round to tenths first, so 59.96 is 1:00.0, not 0:60.0
+    return f"{int(m)}:{s:04.1f}"
 
 
 def _shotlist_md(b: dict) -> list[str]:
