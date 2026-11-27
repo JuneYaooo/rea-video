@@ -20,3 +20,4 @@ scripts/roundtrip_compare.py
 tests/
 CHANGELOG.md
 CLAUDE.md
+.claude/settings.local.json
