@@ -20,3 +20,4 @@ tests/
 CHANGELOG.md
 CLAUDE.md
 IGNORE/
+.claude/settings.local.json
