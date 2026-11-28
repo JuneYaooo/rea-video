@@ -395,7 +395,7 @@ def slow_clip(video: str, size: tuple[int, int], dur: float, fps: float, window:
             frame.save(q)
             lst += [f"file '{q}'", f"duration {(each if in_window else CONTEXT_FRAME) + (HOLD_KEY if i == ki else 0):.3f}"]
         lst.append(f"file '{T / f'o_{n - 1:06d}.png'}'")  # the concat demuxer drops the last duration otherwise
-        (T / "list.txt").write_text("\n".join(lst) + "\n")
+        (T / "list.txt").write_text("\n".join(lst) + "\n", encoding="utf-8")
         out.parent.mkdir(parents=True, exist_ok=True)
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", str(T / "list.txt"),
                         "-vf", "fps=30,format=yuv420p", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18",
