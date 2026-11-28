@@ -26,7 +26,7 @@ from . import aspects
 from .faces import MIN_AREA, shot_faces
 from .visual import LABEL_SHORT, shot_sheet, storyboard
 from .i18n import T, join, semi, set_lang
-from .vlm import make_client, SHOT_PROMPT, SILENT_NOTE, SOUND_NOTE, TAKE_NOTE, WHOLE_PROMPT, normalize_shot_result, normalize_whole, prompt_lang_note, shot_hints, take_results, vlm_note
+from .vlm import make_client, SHOT_PROMPT, SILENT_NOTE, SOUND_NOTE, TAKE_NOTE, WHOLE_FRAMES_NOTE, WHOLE_MAX_SHEETS, WHOLE_PROMPT, WHOLE_SOUND_KEYS, normalize_shot_result, normalize_whole, prompt_lang_note, shot_hints, take_results, vlm_note
 
 
 def _sha256_head(path: Path, limit: int = 64 << 20) -> str:
@@ -71,6 +71,57 @@ _DECODE_FP: str | None = None
 
 
 KEY_SHEET_MAX = 8  # key frames on one shot's contact sheet
+
+
+def whole_sheets(shot_records: list[dict], out: Path, limit: int = WHOLE_MAX_SHEETS) -> list[dict]:
+    """The shots whose frame sheet goes to an image-only reader in the whole-video pass: every shot, in order,
+    evenly sampled when there are more than `limit` (a shot without a sheet on disk is skipped)."""
+    have = [r for r in shot_records if (r.get("assets") or {}).get("sheet") and (out / r["assets"]["sheet"]).is_file()]
+    if len(have) <= limit:
+        return have
+    step = len(have) / limit
+    return [have[int(i * step)] for i in range(limit)]
+
+
+def ask_whole(client, video: Path, duration: float, shot_records: list[dict], out: Path) -> tuple[dict, str]:
+    """The whole-video VLM pass: (raw answer, what it was given: "clip" / "frames" / "frames_fallback").
+
+    A reader that takes video (Gemini, REA_VLM_MEDIA=both or video) watches a low-res copy of the whole video with its
+    sound. An image-only reader (REA_VLM_MEDIA=frames) gets each shot's frame sheet in order instead, and is told so:
+    sent a clip, it refuses it or answers that it received no video. With the default "both", a clip that fails
+    (refused in both attachment forms, too large, could not be cut) falls back to the sheets, as the per-shot calls do."""
+    prompt = WHOLE_PROMPT.format(shots=", ".join(f"{r['start']:.2f}" for r in shot_records))
+    # a long video has more lines, effects and segments to list: a fixed budget cut
+    # the answer off mid-JSON and the whole pass was paid for and lost
+    budget = int(min(16000, max(6000, 2000 + 100 * duration)))
+
+    def with_sheets() -> dict:
+        picked = whole_sheets(shot_records, out)
+        if not picked:
+            raise RuntimeError("no shot frame sheets to send")
+        note = WHOLE_FRAMES_NOTE.format(
+            n=len(picked), total=len(shot_records),
+            list="；".join(f"图 {k} = 镜头 {r['index']}（{r['start']:.2f}–{r['end']:.2f} 秒）" for k, r in enumerate(picked, start=1)))
+        raw = client.ask_json(prompt + note + prompt_lang_note(), [(out / r["assets"]["sheet"], "image/jpeg") for r in picked],
+                              max_tokens=budget)
+        if not isinstance(raw, dict):
+            return raw
+        # nothing was heard: keep the measured audio, not a guess from the pictures
+        raw = {k: v for k, v in raw.items() if k not in WHOLE_SOUND_KEYS}
+        if isinstance(raw.get("segments"), list):
+            raw["segments"] = [{k: v for k, v in s.items() if k != "audio"} if isinstance(s, dict) else s for s in raw["segments"]]
+        return raw
+
+    if client.media == "frames":
+        return with_sheets(), "frames"
+    try:
+        low = cut_clip(video, 0, duration, out / "clips" / "whole_480p.mp4", width=480, audio=True, crf=30)
+        return client.ask_json(prompt + prompt_lang_note(), [(low, "video/mp4")], max_tokens=budget), "clip"
+    except Exception as exc:  # noqa: BLE001
+        if client.media != "both":
+            raise
+        LOG.warning("whole-video pass: the clip was not read (%s); asking again with the shots' frame sheets", str(exc)[:120])
+        return with_sheets(), "frames_fallback"
 
 
 def key_sheet_times(kf: list[dict]) -> list[float]:
@@ -397,12 +448,8 @@ def decompose(video: str | Path, out_dir: str | Path, *, use_vlm: bool = False, 
                     fut.result()
             if whole_vlm:
                 try:
-                    low = cut_clip(video, 0, info.duration, out / "clips" / "whole_480p.mp4", width=480, audio=True, crf=30)
-                    cuts = ", ".join(f"{r['start']:.2f}" for r in shot_records)
-                    whole = normalize_whole(client.ask_json(WHOLE_PROMPT.format(shots=cuts) + prompt_lang_note(), [(low, "video/mp4")],
-                                                             # a long video has more lines, effects and segments to list: a fixed budget cut
-                                                             # the answer off mid-JSON and the whole pass was paid for and lost
-                                                             max_tokens=int(min(16000, max(6000, 2000 + 100 * info.duration)))))
+                    raw_whole, vlm_info["whole_media"] = ask_whole(client, video, info.duration, shot_records, out)
+                    whole = normalize_whole(raw_whole)
                 except Exception as exc:
                     vlm_info["errors"].append(f"whole: {str(exc)[:160]}")
             asked = [r for u in units for r in u]
