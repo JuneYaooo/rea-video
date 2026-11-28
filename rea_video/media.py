@@ -46,7 +46,7 @@ def require_tools(tools: tuple[str, ...] = ("ffmpeg", "ffprobe")) -> None:
 def ffprobe(path: str | Path) -> dict:
     cmd = ["ffprobe", "-v", "error", "-print_format", "json", "-show_format", "-show_streams", str(path)]
     try:
-        out = subprocess.run(cmd, check=True, capture_output=True, text=True).stdout
+        out = subprocess.run(cmd, check=True, capture_output=True, text=True, encoding="utf-8").stdout
     except subprocess.CalledProcessError as exc:  # pragma: no cover - depends on file
         raise MediaError(f"ffprobe failed: {exc.stderr.strip()}") from exc
     return json.loads(out)
@@ -57,7 +57,7 @@ def duration_s(path: str | Path) -> float:
     cmd = ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "format=duration:stream=duration",
            "-of", "json", str(path)]
     try:
-        data = json.loads(subprocess.run(cmd, check=True, capture_output=True, text=True).stdout or "{}")
+        data = json.loads(subprocess.run(cmd, check=True, capture_output=True, text=True, encoding="utf-8").stdout or "{}")
     except (subprocess.CalledProcessError, OSError, ValueError):
         return 0.0
     for v in (data.get("format", {}).get("duration"), *(s.get("duration") for s in data.get("streams") or [])):
@@ -168,7 +168,7 @@ def frame_times(path: str | Path, n: int, fps: float) -> np.ndarray | None:
         return None
     try:
         out = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "packet=pts_time",
-                              "-of", "csv=p=0", str(path)], capture_output=True, text=True, timeout=120).stdout
+                              "-of", "csv=p=0", str(path)], capture_output=True, text=True, encoding="utf-8", timeout=120).stdout
         pts = sorted(float(x.strip().rstrip(",")) for x in out.split() if x.strip().rstrip(",") not in ("", "N/A"))
     except (OSError, ValueError, subprocess.SubprocessError):
         return None
